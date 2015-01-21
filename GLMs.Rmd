@@ -1153,9 +1153,11 @@ plot(allEffects(mixed.logis))
 
 
 **:)**
+       
      
-     
-&nbsp;     
+Source code and materials:
+http://github.com/Pakillo/LM-GLM-GLMM-intro       
+
 
 ![](images/CClogo.png)
 
