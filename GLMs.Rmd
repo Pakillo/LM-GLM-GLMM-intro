@@ -1,14 +1,11 @@
 ---
-title: "Linear, Generalized Linear, and Mixed/Multilevel models - an introduction with R"
+title: "Linear, Generalized, and Mixed/Multilevel models - an introduction with R"
 author: "Francisco Rodriguez-Sanchez (@frod_san)"
 date: "December 2014 - January 2015"
 output:
   ioslides_presentation:
     fig_caption: yes
     incremental: yes
-  beamer_presentation:
-    incremental: yes
-
 ---
 
 
