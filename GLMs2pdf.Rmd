@@ -76,8 +76,8 @@ $$
 ```{r regplot, echo=FALSE, fig.align='left', fig.height=5, fig.width=4}
 data(iris)
 setosa <- iris[iris$Species == "setosa", ]
-plot(setosa[,3], setosa[,4], xlab = "x", ylab = "y", ylim = c(0,0.65), 
-     pch=19, las = 1, cex.lab = 1.5)
+plot(setosa[,3], setosa[,4], xlab = "x", ylab = "y", ylim = c(-0.1, 0.65), 
+     pch=19, las = 1, cex.lab = 1.5, xlim = c(0, 2))
 abline(lm(setosa[,4] ~ setosa[,3]), lwd = 3)
 ```
 \endcol
@@ -146,11 +146,11 @@ Hmisc::labcurve(list(s1, s2, s3), labels=paste("sigma = ", c(2,5,10), sep=""), t
 
 ![](images/gaussian.png)
 
-$\overline {x} \pm SD$ enclose 68% of the data
+$\overline {x} \pm SD$ enclose **68%** of the data
 
-$\overline {x} \pm 2*SD$ enclose 95% of the data
+$\overline {x} \pm 2SD$ enclose **95%** of the data
 
-$\overline {x} \pm 3*SD$ enclose 99% of the data
+$\overline {x} \pm 3SD$ enclose **99%** of the data
 
 
 
@@ -159,18 +159,17 @@ $\overline {x} \pm 3*SD$ enclose 99% of the data
 
 ----
 
-Go to http://vincentarelbundock.github.io/Rdatasets/datasets.html
-and download `iris` dataset.
+- Download datasets from http://bit.ly/DEAD_datasets
 
+- Load `iris` data into R
 
-Q: What is the relationship between petal width and length in *Iris setosa*?
+- Q: What is the relationship between petal width and length in *Iris setosa*?
+
 
 
 ## Iris dataset
 
-```{r echo=3}
-data(iris)
-setosa <- subset(iris, Species = "setosa")
+```{r echo=TRUE}
 str(setosa)
 ```
 
@@ -239,7 +238,29 @@ summary(m1)
 ```
 
 
-## Plot model
+## Retrieving model coefficients
+
+```{r echo = TRUE}
+coef(m1)
+```
+
+
+## Confidence intervals
+
+```{r echo = TRUE}
+confint(m1)
+```
+
+
+## Plot effects
+
+```{r echo = TRUE}
+library(effects)
+plot(allEffects(m1))
+```
+
+
+## Plot model (visreg)
 
 ```{r visreg}
 library(visreg)
@@ -249,14 +270,14 @@ visreg(m1)
 
 ## Linear model assumptions
 
-* Linearity (transformations, GAM...)
+- Linearity (transformations, GAM...)
   
-* Residuals:
+- Residuals:
     - Independent
     - Equal variance
     - Normal
 
-* No measurement error in predictors
+- No measurement error in predictors
 
 
 
@@ -275,7 +296,7 @@ par(def.par)
 \begincols
 
 \begincol
-```{r resid_hist, echo=FALSE, fig.width=5, fig.height=3}
+```{r resid_hist, echo=TRUE, fig.width=5, fig.height=3}
 hist(resid(m1))
 ```
 \endcol
@@ -293,15 +314,49 @@ SD of residuals = `r round(sd(resid(m1)), digits=2)` coincides with estimate of 
 
 
 
-## How good is the model in predicting petal length?   |   Observed vs Predicted values
+## How good is the model in predicting petal length?
 
-```{r obs_pred, fig.width=4, fig.height=4, echo=1}
-plot(setosa$Petal.Length, fitted(m1),     
-     xlab = "Petal length - observed", ylab = "Petal length - predicted", las = 1, xlim = c(1,2), ylim = c(1,2))
+Observed vs Predicted values: use `fitted`.
+
+```{r obs_pred, fig.width=3, fig.height=3, echo=1}
+plot(setosa$Petal.Length, fitted(m1), xlab = "Petal length - observed", ylab = "Petal length - predicted", las = 1, xlim = c(1,2), ylim = c(1,2))
 abline(a = 0, b = 1)
 ```
 
 Concordant with low R-squared!
+
+
+## Using fitted model for prediction
+
+Q: Expected petal length if width = 0.39?
+
+```{r}
+predict(m1, data.frame(Petal.Width = c(0.39)), se.fit = TRUE)
+```
+
+
+
+
+
+## Important functions
+
+- `plot`
+
+- `summary`
+
+- `coef`
+
+- `confint`
+
+- `fitted`
+
+- `resid`
+
+- `allEffects`
+
+- `predict`
+
+
 
 
 
@@ -351,6 +406,24 @@ visreg(m3)
 ```
 
 
+## Are differences statistically significant?
+
+Compare CIs
+
+```{r}
+summary(allEffects(m3))
+```
+
+
+## Plotting effects
+
+```{r}
+plot(allEffects(m3))
+```
+
+
+
+
 
 
 
@@ -361,6 +434,8 @@ visreg(m3)
 
 ## Q: Survival of passengers on the Titanic ~ Class
 
+Read `titanic_long.csv` dataset.
+
 ```{r prepare_titanic_data, echo=FALSE, eval=FALSE}
 titanic <- read.table("http://www.amstat.org/publications/jse/datasets/titanic.dat.txt")
 names(titanic) <- c("class", "age", "sex", "survived")
@@ -370,7 +445,7 @@ titanic$sex <- factor(titanic$sex, labels = c("female", "male"))
 write.csv(titanic, file = "data-raw/titanic_long.csv", row.names=FALSE, quote=FALSE)
 ```
 
-```{r read_titanic, echo=1}
+```{r read_titanic, echo=FALSE}
 titanic <- read.csv("data-raw/titanic_long.csv")
 head(titanic)
 ```
@@ -397,7 +472,7 @@ hist(resid(m5))
 ```
 
 
-## What if your residuals are clearly non-normal? And variance not constant (heteroscedasticity)?
+## What if your residuals are clearly non-normal?   |   And variance not constant (heteroscedasticity)?
 
 * Binary variables (0/1)
 * Counts (0, 1, 2, 3, ...)
@@ -424,7 +499,7 @@ hist(resid(m5))
 
 
 
-## Bernouilli - Binomial distribution (Logistic regression) {.build}
+## Bernouilli - Binomial distribution (Logistic regression) 
 
 - Response variable: Yes/No (e.g. survival, sex, presence/absence)
 - Link function: `logit` (others possible, see `family`).
@@ -447,26 +522,64 @@ $$
   
 
 
-
-## Back to survival of Titanic passengers {.build}
+## Back to survival of Titanic passengers 
 
 How many passengers travelled in each class?
-```{r titanic_tapply1}
-tapply(titanic$survived, titanic$class, length)  # or aggregate, by...
+
+
+## Back to survival of Titanic passengers 
+
+How many passengers travelled in each class?
+```{r}
+tapply(titanic$survived, titanic$class, length)
+```
+
+
+## Back to survival of Titanic passengers 
+
+How many passengers travelled in each class?
+```{r}
+tapply(titanic$survived, titanic$class, length)
 ```
 
 How many survived?
-```{r titanic_tapply2}
+
+
+## Back to survival of Titanic passengers 
+
+How many passengers travelled in each class?
+```{r}
+tapply(titanic$survived, titanic$class, length)
+```
+
+How many survived?
+```{r}
+tapply(titanic$survived, titanic$class, sum)
+```
+
+
+
+
+
+## Back to survival of Titanic passengers 
+
+How many passengers travelled in each class?
+```{r}
+tapply(titanic$survived, titanic$class, length)
+```
+
+How many survived?
+```{r}
 tapply(titanic$survived, titanic$class, sum)
 ```
 
 What proportion survived in each class?
-```{r titanic_tapply3, echo=FALSE}
+```{r}
 as.numeric(tapply(titanic$survived, titanic$class, mean))
 ```
 
 
-## Back to survival of Titanic passengers (dplyr) {.build}
+## Back to survival of Titanic passengers (dplyr)
 
 Passenger survival according to class
 ```{r titanic_dplyr}
@@ -489,14 +602,14 @@ plot(factor(survived) ~ class, data = titanic)
 ## Fitting GLMs in R: `glm`
 
 ```{r titanic_glm, echo=1}
-tit.glm <- glm(survived ~ class, data=titanic, family = binomial)
+tit.glm <- glm(survived ~ class, data=titanic, family=binomial)
 summary(tit.glm)
 ```
 
 These estimates are in logit scale!
 
 
-## Interpreting logistic regression output {.build}
+## Interpreting logistic regression output 
 
 Parameter estimates (logit-scale)
 ```{r tit_glm_coef, echo=FALSE}
@@ -515,7 +628,7 @@ sum(titanic$survived[titanic$class == "crew"]) / nrow(titanic[titanic$class == "
 ```
 
 
-## Q: Probability of survival for 1st class passengers? {.build}
+## Q: Probability of survival for 1st class passengers? 
 
 ```{r first_surv}
 plogis(coef(tit.glm)[1] + coef(tit.glm)[2])
@@ -523,7 +636,8 @@ plogis(coef(tit.glm)[1] + coef(tit.glm)[2])
 
 Needs to add intercept (baseline) to the parameter estimate. Again this value matches the data: 
 ```{r first_surv_data}
-sum(titanic$survived[titanic$class == "first"]) / nrow(titanic[titanic$class == "first", ])
+sum(titanic$survived[titanic$class == "first"]) /   
+  nrow(titanic[titanic$class == "first", ])
 ```
 
 
@@ -669,27 +783,14 @@ So, women had higher probability of survival than men, even within the same clas
 
 ## Read Titanic data in different format
 
-```{r read_tit_short}
-tit.prop <- read.csv("http://vincentarelbundock.github.io/Rdatasets/csv/datasets/Titanic.csv")
+Read `Titanic_prop.csv` data.
+
+```{r read_tit_short, echo = FALSE}
+tit.prop <- read.csv("data-raw/Titanic_prop.csv")
 summary(tit.prop)
 ```
 
 These are the same data, but summarized (see `Freq` variable).
-
-
-## Reshaping data frame
-
-```{r reshape_tit, echo=TRUE}
-library(reshape2)
-tit.prop <- dcast(tit.prop, Class + Sex + Age ~ Survived)
-```
-
-
-## Load dataset
-
-```{r load_titprop2, echo=TRUE}
-tit.prop <- read.csv("data-raw/Titanic_prop.csv")
-```
 
 
 ## Use cbind(n.success, n.failures) as response
@@ -726,7 +827,9 @@ Same results!
 
 Example dataset: [GDP and infant mortality](http://vincentarelbundock.github.io/Rdatasets/doc/car/UN.html)
 
-```{r read_gdp}
+Read `UN_GDP_infantmortality.csv`.
+
+```{r read_gdp, echo = FALSE}
 gdp <- read.csv("http://vincentarelbundock.github.io/Rdatasets/csv/car/UN.csv")
 names(gdp) <- c("country", "mortality", "gdp")
 summary(gdp)
