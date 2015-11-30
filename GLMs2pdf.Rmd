@@ -1,7 +1,7 @@
 ---
 title: "Linear, Generalized, and Mixed/Multilevel models - an introduction with R"
-author: "Francisco Rodriguez-Sanchez (@frod_san)"
-date: "December 2014 - January 2015"
+author: "Francisco Rodriguez-Sanchez"
+date: "@frod_san"
 output:
   beamer_presentation:
     incremental: yes
@@ -10,6 +10,9 @@ header-includes:
   - \def\endcols{\end{columns}}
   - \def\begincol{\begin{column}{0.48\textwidth}}
   - \def\endcol{\end{column}} 
+  - \setlength{\emergencystretch}{0em}
+  - \setlength{\parskip}{0pt}
+fontsize: 10pt
 ---
 
 
@@ -21,10 +24,10 @@ library(knitr)
 ### Chunk options ###
 
 ## Text results
-opts_chunk$set(echo = TRUE, warning=FALSE, message=FALSE)
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 ## Code decoration
-opts_chunk$set(tidy=TRUE, comment = NA, highlight = TRUE, crop = TRUE)
+opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
 
 # ## Cache
 opts_chunk$set(cache = 2, cache.path = "knitr_output/cache/")
@@ -43,7 +46,7 @@ opts_chunk$set(fig.path = "knitr_output/figures/")
 ### Hooks ###
 
 ## Crop plot margins
-knit_hooks$set(crop = hook_pdfcrop)   
+#knit_hooks$set(crop = hook_pdfcrop)   
 
 
 ```
@@ -57,7 +60,7 @@ knit_hooks$set(crop = hook_pdfcrop)
 
 
 
-## Our overarching regression framework {.build}
+## Our overarching regression framework 
 
 
 $$
@@ -84,6 +87,7 @@ abline(lm(setosa[,4] ~ setosa[,3]), lwd = 3)
 **Data**  
 *y* = response variable  
 *x* = predictor 
+    
 
 **Parameters**  
 *a* = intercept    
@@ -95,7 +99,7 @@ $\varepsilon$ = residuals
 \endcols
 
 
-## Residual variation (error) {.build}
+## Residual variation (error) 
 
 \begincols
 \begincol
@@ -138,10 +142,19 @@ Hmisc::labcurve(list(s1, s2, s3), labels=paste("sigma = ", c(2,5,10), sep=""), t
 ```
 
 
+## In a Normal distribution
+
+![](images/gaussian.png)
+
+$\overline {x} \pm SD$ enclose 68% of the data
+
+$\overline {x} \pm 2*SD$ enclose 95% of the data
+
+$\overline {x} \pm 3*SD$ enclose 99% of the data
 
 
 
-# Quick refresher of linear models {.build}
+# Quick refresher of linear models 
 
 
 ----
@@ -149,7 +162,17 @@ Hmisc::labcurve(list(s1, s2, s3), labels=paste("sigma = ", c(2,5,10), sep=""), t
 Go to http://vincentarelbundock.github.io/Rdatasets/datasets.html
 and download `iris` dataset.
 
+
 Q: What is the relationship between petal width and length in *Iris setosa*?
+
+
+## Iris dataset
+
+```{r echo=3}
+data(iris)
+setosa <- subset(iris, Species = "setosa")
+str(setosa)
+```
 
 
 
@@ -177,6 +200,8 @@ plot(setosa$Petal.Width, main = "Petal width")
 
 ![](images/reg_outliers.png)
 
+See http://rpsychologist.com/d3/correlation/
+
 
 ## Histogram
 
@@ -196,9 +221,15 @@ plot(setosa$Petal.Width, setosa$Petal.Length, las = 1)
 
 Hint: `lm`
 
+
+## Now fit model
+
+Hint: `lm`
+
 ```{r lm_iris}
 m1 <- lm(Petal.Length ~ Petal.Width, data = setosa)
 ```
+
 
 
 ## What does this mean?
@@ -257,18 +288,16 @@ arm::display(m1)
 
 \endcols
   
-  
+    
 SD of residuals = `r round(sd(resid(m1)), digits=2)` coincides with estimate of `sigma`.
 
 
 
 ## How good is the model in predicting petal length?   |   Observed vs Predicted values
 
-
 ```{r obs_pred, fig.width=4, fig.height=4, echo=1}
-plot(setosa$Petal.Length, fitted(m1),   
-     las = 1, xlim = c(1,2), ylim = c(1,2),
-     xlab = "Petal length - observed", ylab = "Petal length - predicted")
+plot(setosa$Petal.Length, fitted(m1),     
+     xlab = "Petal length - observed", ylab = "Petal length - predicted", las = 1, xlim = c(1,2), ylim = c(1,2))
 abline(a = 0, b = 1)
 ```
 
