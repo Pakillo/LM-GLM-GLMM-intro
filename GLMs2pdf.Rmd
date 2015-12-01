@@ -146,11 +146,7 @@ Hmisc::labcurve(list(s1, s2, s3), labels=paste("sigma = ", c(2,5,10), sep=""), t
 
 ![](images/gaussian.png)
 
-$\overline {x} \pm SD$ enclose **68%** of the data
 
-$\overline {x} \pm 2SD$ enclose **95%** of the data
-
-$\overline {x} \pm 3SD$ enclose **99%** of the data
 
 
 
@@ -369,6 +365,16 @@ predict(m1, data.frame(Petal.Width = c(0.39)), se.fit = TRUE)
 
 ## Q: Does petal length vary among *Iris* species?
 
+First, a plot:
+
+```{r boxplot}
+plot(Petal.Length ~ Species, data = iris)
+```
+
+
+
+## Linear model with categorical predictors
+
 $$
   \begin{aligned} 
   y_{i}=a+bx_{i}+\varepsilon _{i} \\  
@@ -376,13 +382,6 @@ $$
   \end{aligned} 
 $$
 
-
-
-## EDA
-
-```{r boxplot}
-plot(Petal.Length ~ Species, data = iris)
-```
 
 
 ## Model
@@ -426,6 +425,30 @@ plot(allEffects(m3))
 ```
 
 
+
+
+
+# Combining continuous and categorical predictors
+
+
+## Predicting *Iris* petal length according to species and petal width
+
+$$
+  \begin{aligned} 
+  y_{i}=a+bx_{i}+\varepsilon _{i} \\  
+  y_{i}=a+b_{versicolor}+c_{virginica}+\varepsilon _{i} \\   
+  y_{i}=a+b_{versicolor}+c_{virginica}+ d \cdot PetalWidth_{i} + \varepsilon _{i} \\   
+  \end{aligned} 
+$$
+
+
+## Predicting *Iris* petal length according to species and petal width
+
+
+```{r echo = FALSE}
+multreg <- lm(Petal.Length ~ Species + Petal.Width, data = iris)
+summary(multreg)
+```
 
 
 
