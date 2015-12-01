@@ -1,7 +1,7 @@
 ---
 title: "Linear, Generalized, and Mixed/Multilevel models - an introduction with R"
 author: "Francisco Rodriguez-Sanchez"
-date: "@frod_san"
+date: "http://bit.ly/frod_san"
 output:
   beamer_presentation:
     incremental: yes
@@ -330,10 +330,14 @@ Concordant with low R-squared!
 
 Q: Expected petal length if width = 0.39?
 
+
+## Using fitted model for prediction
+
+Q: Expected petal length if width = 0.39?
+
 ```{r}
 predict(m1, data.frame(Petal.Width = c(0.39)), se.fit = TRUE)
 ```
-
 
 
 
@@ -960,8 +964,34 @@ Whenever you fit logistic regression to **proportion** data, check family `quasi
 
 
 
+## Think about the shape of relationships
+
+y ~ x + z
+
+Really? Not everything has to be linear! Actually, it often is not.
+
+**Think** about shape of relationship. See chapter 3 in Bolker's book.
 
 
+\begincols
+
+\begincol
+
+```{r echo=FALSE}
+curve(0.7 + 0.3*x, ylab="y", las=1)
+```
+
+\endcol
+
+\begincol
+
+```{r echo=FALSE}
+curve(0.7*x^0.3, ylab="y", las=1)
+```
+
+\endcol
+
+\endcols
 
 
 
