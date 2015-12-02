@@ -526,6 +526,14 @@ hist(resid(m5))
 
 
 
+## The modelling process
+
+![](images/modeling_process.png)
+
+Bolker 2008
+
+
+
 ## Bernouilli - Binomial distribution (Logistic regression) 
 
 - Response variable: Yes/No (e.g. survival, sex, presence/absence)
