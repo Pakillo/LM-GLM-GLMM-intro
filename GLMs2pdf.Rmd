@@ -1186,17 +1186,64 @@ plot(allEffects(seedl.glm))
 # Mixed / Multilevel Models
 
 
+## Example dataset: trees
 
-## Mixed models enable us to account for variability
+- Data on 1000 trees from 10 plots.
 
-- Varying intercepts
+- Trees per plot: 4 - 392.
 
-- Varying slopes
+```{r echo = 2}
+trees <- read.table("data-raw/trees.txt", header=TRUE)
+head(trees)
+```
+
+
+# Q: What's the relationship between tree diameter and height?
+
+
+## A simple linear model 
+
+```{r echo = 1}
+lm.simple <- lm(height ~ dbh, data = trees)
+summary(lm.simple)
+```
+
+
+## There is only one intercept
+
+```{r echo=FALSE}
+plot(height ~ dbh, data=trees, las=1, xlab="DBH (cm)", ylab="Height (m)", ylim = c(0, 50), main = "Single intercept")
+abline(lm(height ~ dbh, data=trees), lwd=4, col="red")
+```
+
+
+## What if allometry varies among plots?
+
+```{r echo=FALSE}
+lm2 <- lm(height ~ factor(plot) + dbh, data = trees)
+plot(trees$dbh[trees$plot==1], trees$height[trees$plot==1], 
+     pch=20, las=1, xlab="DBH (cm)", ylab="Height (m)", col=1,
+     ylim=c(0,50), main = "Different intercept for each plot")
+abline(a=coef(lm2)[1], b=coef(lm2)[11], col=1, lwd=2)
+for(i in c(2)){ # only 2 plots by now so as not to clutter figure
+  points(trees$dbh[trees$plot==i], trees$height[trees$plot==i], pch=20, col=i)
+  abline(a=coef(lm2)[1] + coef(lm2)[i], b=coef(lm2)[11], col=i, lwd=2)
+}
+```
+
+
+
+## Fitting a varying intercepts model with `lm`
+
+```{r lm_varying, echo=FALSE}
+lm.interc <- lm(height ~ factor(plot) + dbh, data = trees)
+arm::display(lm.interc)
+```
+
 
 
 ## Single vs varying intercept
 
-Dataset: 1000 trees from 10 plots (trees per plot: 4 - 392).
 
 \begincols
 \begincol
@@ -1225,13 +1272,29 @@ for(i in 2:10){
 
 
 
-## Fitting a varying intercepts model with `lm`
+
+## Mixed models enable us to account for variability
 
 
-```{r lm_varying, echo=FALSE}
-lm.interc <- lm(height ~ factor(plot) + dbh, data = trees)
-arm::display(lm.interc)
-```
+\begincols
+
+\begincol
+
+- Varying intercepts
+
+- Varying slopes
+
+\endcol
+
+\begincol
+
+![](images/mixed_models.jpg)
+
+http://www.esourceresearch.org/
+
+\endcol
+
+\endcols
 
 
 
@@ -1257,14 +1320,30 @@ $$
 $$
 
 
-## Fitting mixed/multilevel models
 
+# Mixed models estimate varying parameters (intercepts and/or slopes) with pooling among levels (rather than considering them fully independent)
+
+
+## Hence there's gradient between
+
+- **complete pooling**: Single overall intercept.
+    - `lm (height ~ dbh)`
+
+- **no pooling**: One *independent* intercept for each plot.
+    - `lm (height ~ dbh + factor(plot))`
+
+- **partial pooling**: Inter-related intercepts.
+    - `lmer(height ~ dbh + (1 | plot))`
+
+
+## Fitting mixed/multilevel models
 
 ```{r mixed, echo=1:2}
 library(lme4)
 mixed <- lmer(height ~ dbh + (1|plot), data = trees)
 summary(mixed)
 ```
+
 
 ## Retrieve model coefficients
 
@@ -1319,6 +1398,8 @@ plot(mixed)
 
 
 
+
+
 # Multilevel logistic regression
 
 
@@ -1344,7 +1425,7 @@ summary(simple.logis)
 ```
 
 
-## Fit simple logistic regression (with plots)
+## Fit simple logistic regression (with independent plot effects)
 
 ```{r, echo=1}
 logis2 <- glm(dead ~ dbh + factor(plot), data = trees, family=binomial)
@@ -1384,6 +1465,7 @@ plot(allEffects(mixed.logis))
 ```
 \endcol
 \endcols
+
 
 
 
