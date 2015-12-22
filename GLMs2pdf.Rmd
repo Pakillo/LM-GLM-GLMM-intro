@@ -1290,7 +1290,7 @@ for(i in 2:10){
 
 ![](images/mixed_models.jpg)
 
-http://www.esourceresearch.org/
+www.esourceresearch.org/
 
 \endcol
 
@@ -1398,6 +1398,38 @@ plot(mixed)
 
 
 
+# Varying intercepts and slopes
+
+
+## Varying intercepts and slopes
+
+- There is overall difference in height among plots (different intercepts)
+
+- AND
+
+- Relationship between DBH and Height varies among plots (different slopes)
+
+
+```{r}
+mixed.slopes <- lmer(height ~ dbh + (1 + dbh | plot), data=trees)
+```
+
+
+## Varying intercepts and slopes
+
+```{r echo = FALSE}
+summary(mixed.slopes)
+```
+
+
+## Varying intercepts and slopes
+
+```{r echo = FALSE}
+coef(mixed.slopes)
+```
+
+
+
 
 
 # Multilevel logistic regression
@@ -1425,7 +1457,7 @@ summary(simple.logis)
 ```
 
 
-## Fit simple logistic regression (with independent plot effects)
+## Logistic regression with *independent* plot effects
 
 ```{r, echo=1}
 logis2 <- glm(dead ~ dbh + factor(plot), data = trees, family=binomial)
