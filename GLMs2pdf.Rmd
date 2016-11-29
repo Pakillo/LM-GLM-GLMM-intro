@@ -5,6 +5,7 @@ date: "http://bit.ly/frod_san"
 output:
   beamer_presentation:
     incremental: yes
+    keep_tex: yes
 header-includes:
   - \def\begincols{\begin{columns}[c]}
   - \def\endcols{\end{columns}}
@@ -709,6 +710,16 @@ arm::binnedplot(predvals, titanic$survived - predvals)
 ```
 
 
+## Residual diagnostics with DHARMa
+
+```{r echo=TRUE}
+library(DHARMa)
+simulateResiduals(tit.glm, plot = TRUE)
+```
+
+See https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html
+
+
 
 ## Recapitulating
 
@@ -726,7 +737,7 @@ arm::binnedplot(predvals, titanic$survived - predvals)
 
 7. Plot model: `plot(allEffects(model))`. Or use `visreg`.
 
-8. Examine residuals: `binnedplot` from package `arm`. Use `predict` to obtain predicted values for each obs.
+8. Examine residuals: use `arm::binnedplot` or `DHARMa::simulateResiduals`.
 
 
 
@@ -909,7 +920,7 @@ curve(plogis(coef(gdp.glm)[1] + coef(gdp.glm)[2]*x), from = 0, to = 40000, add =
 ```
 
 
-## Or using visreg:
+## Plot model using visreg:
 
 ```{r gdp_visreg}
 visreg(gdp.glm, scale = "response")
@@ -917,9 +928,24 @@ points(mortality/1000 ~ gdp, data = gdp)
 ```
 
 
+## Residuals diagnostics with DHARMa
+
+```{r echo=TRUE}
+simulateResiduals(gdp.glm, plot = TRUE)
+```
+
+
 
 
 # Overdispersion
+
+
+## Testing for overdispersion (DHARMa)
+
+```{r echo = TRUE}
+simres <- simulateResiduals(gdp.glm, refit = TRUE)
+testOverdispersion(simres)
+```
 
 
 ## Overdispersion in logistic regression with proportion data
@@ -1139,11 +1165,25 @@ plot(seedl$light, resid(seedl.glm))
 ```
 
 
+## Residuals diagnostics with DHARMa
+
+```{r echo=TRUE}
+simulateResiduals(seedl.glm, plot = TRUE)
+```
+
 
 # Poisson regression: Overdispersion
 
 
 ## Always check overdispersion with count data
+
+```{r}
+simres <- simulateResiduals(seedl.glm, refit = TRUE)
+testOverdispersion(simres)
+```
+
+
+## Accounting for overdispersion in count data
 
 Use family `quasipoisson`
 
