@@ -1087,7 +1087,7 @@ $$
 
 
 
-## Example dataset: Seedling counts in 0.5 m2 quadrats
+## Example dataset: Seedling counts in quadrats
 
 
 
@@ -1219,8 +1219,32 @@ plot(allEffects(seedl.glm))
 \endcols
 
 
+# What if survey plots have different area?
 
 
+## Avoid regression of ratios 
+
+seedlings/area ~ light
+
+```{r}
+include_graphics("images/ratios.PNG")
+```
+
+
+## Use offset to standardise response variables in GLMs
+
+```{r}
+seedl.offset <- glm(count ~ light, offset = area, data = seedl, family = poisson)
+summary(seedl.offset)
+```
+
+
+
+## Note estimates now referred to area units
+
+```{r}
+exp(coef(seedl.offset))
+```
 
 
 # Mixed / Multilevel Models
