@@ -1226,15 +1226,15 @@ plot(allEffects(seedl.glm))
 
 seedlings/area ~ light
 
-```{r}
-include_graphics("images/ratios.PNG")
-```
+
+![](images/ratios.PNG)
+
 
 
 ## Use offset to standardise response variables in GLMs
 
 ```{r}
-seedl.offset <- glm(count ~ light, offset = area, data = seedl, family = poisson)
+seedl.offset <- glm(count ~ light, offset = seedl$area, data = seedl, family = poisson)
 summary(seedl.offset)
 ```
 
@@ -1247,6 +1247,12 @@ exp(coef(seedl.offset))
 ```
 
 
+
+
+
+
+
+
 # Mixed / Multilevel Models
 
 
@@ -1257,7 +1263,7 @@ exp(coef(seedl.offset))
 - Trees per plot: 4 - 392.
 
 ```{r echo = 2}
-trees <- read.table("data-raw/trees.txt", header=TRUE)
+trees <- read.table("data-raw/trees.txt", header = TRUE)
 head(trees)
 ```
 
@@ -1271,6 +1277,30 @@ head(trees)
 lm.simple <- lm(height ~ dbh, data = trees)
 summary(lm.simple)
 ```
+
+
+## Remember our model structure
+
+$$
+  \begin{aligned}
+  y_{i} \sim N(\mu_{i}, \sigma^2) \\ 
+  \mu_{i} = \alpha + \beta x_{i} 
+  \end{aligned}
+$$
+
+In this case:
+
+$$
+  \begin{aligned}
+  Height_{i} \sim N(\mu_{i}, \sigma^2)  \\
+  \mu_{i} = \alpha + \beta DBH_{i} 
+  \end{aligned}
+$$
+
+$\alpha$: expected height when DBH = 0
+
+$\beta$: how much height increases with every unit increase of DBH
+
 
 
 ## There is only one intercept
@@ -1400,6 +1430,42 @@ $$
     - `lmer(height ~ dbh + (1 | plot))`
 
 
+## Random vs Fixed effects?
+
+1. Fixed effects constant across individuals, random effects vary.
+
+2. Effects are fixed if they are interesting in themselves; random if interest in the underlying population.
+
+3. Fixed when sample exhausts the population; random when the sample is small part of the population.
+
+4. Random effect if it's assumed to be a realized value of random variable.
+
+5. Fixed effects estimated using least squares or maximum likelihood; random effects estimated with shrinkage.
+
+http://andrewgelman.com/2005/01/25/why_i_dont_use/
+
+
+## What is a random effect, really?
+
+1. Varies by group
+
+2. Variation estimated with probability model
+
+Random effects are estimated with partial pooling, while fixed effects are not
+(infinite variance).
+
+
+
+## Shrinkage improves parameter estimation
+
+Especially for groups with low sample size
+
+![](images/shrinkage.png)
+
+*From Gelman & Hill p. 253*
+
+
+
 ## Fitting mixed/multilevel models
 
 ```{r mixed, echo=1:2}
@@ -1415,6 +1481,13 @@ summary(mixed)
 coef(mixed)
 ```
 
+
+## Broom: model estimates in tidy form
+
+```{r}
+library(broom)
+tidy(mixed)
+```
 
 
 ## Visualising model: `allEffects`
@@ -1444,6 +1517,14 @@ visreg(mixed)
 
 
 
+## Using merTools to understand fitted model
+
+```{r eval=FALSE}
+library(merTools)
+shinyMer(mixed)
+```
+
+
 ## Plotting regression for individual forest plots
 
 ```{r mixed_plot}
@@ -1458,6 +1539,96 @@ abline(a=coef(mixed)$plot[nplot, 1], b=coef(mixed)$plot[nplot, 2], lwd=2)
 
 ```{r mixed_resid}
 plot(mixed)
+```
+
+
+## Checking residuals (DHARMa)
+
+```{r}
+simulateResiduals(mixed, plot = TRUE, use.u = TRUE)
+```
+
+
+
+# Growing the hierarchy: adding plot-level predictors
+
+
+## Model with group-level predictors 
+
+We had:
+
+$$
+  \begin{aligned}
+  y_{i} = a_{j} + bx_{i} + \varepsilon_{i}  \\
+  a_{j} \sim N(0, \tau^2)  \\
+  \varepsilon_{i} \sim N(0, \sigma^2) 
+  \end{aligned}
+$$
+
+
+Now 
+
+$$
+  \begin{aligned}
+  y_{i} = a_{j} + bx_{i} + \varepsilon_{i}  \\
+  a_{j} \sim N(\mu_{j}, \tau^2)  \\
+  \mu_{j} = \gamma + \delta \cdot predictor_{j}  \\
+  \varepsilon_{i} \sim N(0, \sigma^2)
+  \end{aligned}
+$$
+  
+
+
+
+## Merging trees and plot data
+
+```{r read_plotdata, echo=TRUE, message=FALSE}
+plotdata <- read.csv("data-raw/plotdata.csv")
+trees.full <- merge(trees, plotdata, by = "plot")
+head(trees.full)
+```
+
+
+## Centre continuous variables
+
+Plot temperatures referred as deviations from 15ºC
+
+```{r}
+trees.full$temp.c <- trees.full$temp - 15
+```
+
+
+## Fit multilevel model
+
+```{r}
+group.pred <- lmer(height ~ dbh + (1 | plot) + temp.c, data = trees.full)
+summary(group.pred)
+```
+
+
+## Examine model with merTools
+
+```{r eval=FALSE}
+shinyMer(group.pred)
+```
+
+
+## Comparing plot effects with and without group predictor
+
+```{r echo=FALSE}
+plot(coef(mixed)$plot[,1], coef(group.pred)$plot[,1],
+     xlim = c(4, 20), ylim = c(4, 20), 
+     xlab = "Without group predictor", ylab = "With group predictor",
+     main = "Estimated plot effects")
+abline(a=0, b=1)
+```
+
+
+## Are plot effects related to temperature?
+
+```{r}
+plot(plotdata$temp, coef(group.pred)$plot[,1],
+     xlab = "Temperature", ylab = "Plot effect")
 ```
 
 
@@ -1565,6 +1736,26 @@ plot(allEffects(mixed.logis))
 
 
 
+## Advantages of multilevel models
+
+- Perfect for structured data (space-time)
+- Predictors enter at the appropriate level
+- Accommodate variation in treatment effects
+- More efficient inference of regression parameters
+- Using all the data to perform inferences for groups with small sample size
+
+
+## Formula syntax for different models
+
+y ~ x + (1 | group) # varying intercepts
+
+y ~ x + (1 + x | group) # varying intercepts and slopes
+
+y ~ x + (1 | group/subgroup) # nested
+
+y ~ x + (1 | group1) + (1 | group2) # varying intercepts, crossed
+
+y ~ x + (1 + x | group1) + (1 + x | group2) # varying intercepts and slopes, crossed
 
 
 ## END

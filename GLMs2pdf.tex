@@ -1795,8 +1795,7 @@ Then
 
 \end{frame}
 
-\begin{frame}[fragile]{Example dataset: Seedling counts in 0.5 m2
-quadrats}
+\begin{frame}[fragile]{Example dataset: Seedling counts in quadrats}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -2075,6 +2074,74 @@ light
 
 \end{frame}
 
+\section{What if survey plots have different
+area?}\label{what-if-survey-plots-have-different-area}
+
+\begin{frame}{Avoid regression of ratios}
+
+seedlings/area \textasciitilde{} light
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{images/ratios.PNG}
+\caption{}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}[fragile]{Use offset to standardise response variables in
+GLMs}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{seedl.offset <-}\StringTok{ }\KeywordTok{glm}\NormalTok{(count ~}\StringTok{ }\NormalTok{light, }\DataTypeTok{offset =} \NormalTok{seedl$area, }\DataTypeTok{data =} \NormalTok{seedl, }\DataTypeTok{family =} \NormalTok{poisson)}
+\KeywordTok{summary}\NormalTok{(seedl.offset)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+
+Call:
+glm(formula = count ~ light, family = poisson, data = seedl, 
+    offset = seedl$area)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.1906  -0.8466  -0.1110   0.5220   2.4577  
+
+Coefficients:
+             Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  0.881805   0.188892   4.668 3.04e-06 ***
+light       -0.002576   0.003528  -0.730    0.465    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+(Dispersion parameter for poisson family taken to be 1)
+
+    Null deviance: 63.029  on 49  degrees of freedom
+Residual deviance: 62.492  on 48  degrees of freedom
+AIC: 182.03
+
+Number of Fisher Scoring iterations: 5
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Note estimates now referred to area units}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{exp}\NormalTok{(}\KeywordTok{coef}\NormalTok{(seedl.offset))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+(Intercept)       light 
+  2.4152554   0.9974277 
+\end{verbatim}
+
+\end{frame}
+
 \section{Mixed / Multilevel Models}\label{mixed-multilevel-models}
 
 \begin{frame}[fragile]{Example dataset: trees}
@@ -2138,15 +2205,39 @@ F-statistic:  2038 on 1 and 998 DF,  p-value: < 2.2e-16
 
 \end{frame}
 
+\begin{frame}{Remember our model structure}
+
+\[
+  \begin{aligned}
+  y_{i} \sim N(\mu_{i}, \sigma^2) \\ 
+  \mu_{i} = \alpha + \beta x_{i} 
+  \end{aligned}
+\]
+
+In this case:
+
+\[
+  \begin{aligned}
+  Height_{i} \sim N(\mu_{i}, \sigma^2)  \\
+  \mu_{i} = \alpha + \beta DBH_{i} 
+  \end{aligned}
+\]
+
+\(\alpha\): expected height when DBH = 0
+
+\(\beta\): how much height increases with every unit increase of DBH
+
+\end{frame}
+
 \begin{frame}{There is only one intercept}
 
-\includegraphics{knitr_output/figures/unnamed-chunk-26-1.pdf}
+\includegraphics{knitr_output/figures/unnamed-chunk-28-1.pdf}
 
 \end{frame}
 
 \begin{frame}{What if allometry varies among plots?}
 
-\includegraphics{knitr_output/figures/unnamed-chunk-27-1.pdf}
+\includegraphics{knitr_output/figures/unnamed-chunk-29-1.pdf}
 
 \end{frame}
 
@@ -2275,6 +2366,59 @@ independent)}\label{mixed-models-estimate-varying-parameters-intercepts-andor-sl
 
 \end{frame}
 
+\begin{frame}{Random vs Fixed effects?}
+
+\begin{enumerate}[<+->]
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Fixed effects constant across individuals, random effects vary.
+\item
+  Effects are fixed if they are interesting in themselves; random if
+  interest in the underlying population.
+\item
+  Fixed when sample exhausts the population; random when the sample is
+  small part of the population.
+\item
+  Random effect if it's assumed to be a realized value of random
+  variable.
+\item
+  Fixed effects estimated using least squares or maximum likelihood;
+  random effects estimated with shrinkage.
+\end{enumerate}
+
+\url{http://andrewgelman.com/2005/01/25/why_i_dont_use/}
+
+\end{frame}
+
+\begin{frame}{What is a random effect, really?}
+
+\begin{enumerate}[<+->]
+\def\labelenumi{\arabic{enumi}.}
+\item
+  Varies by group
+\item
+  Variation estimated with probability model
+\end{enumerate}
+
+Random effects are estimated with partial pooling, while fixed effects
+are not (infinite variance).
+
+\end{frame}
+
+\begin{frame}{Shrinkage improves parameter estimation}
+
+Especially for groups with low sample size
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{images/shrinkage.png}
+\caption{}
+\end{figure}
+
+\emph{From Gelman \& Hill p.~253}
+
+\end{frame}
+
 \begin{frame}[fragile]{Fitting mixed/multilevel models}
 
 \begin{Shaded}
@@ -2341,6 +2485,25 @@ attr(,"class")
 
 \end{frame}
 
+\begin{frame}[fragile]{Broom: model estimates in tidy form}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(broom)}
+\KeywordTok{tidy}\NormalTok{(mixed)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+                     term   estimate   std.error statistic    group
+1             (Intercept) 14.7981641 1.437421350  10.29494    fixed
+2                     dbh  0.6056549 0.007040079  86.02956    fixed
+3     sd_(Intercept).plot  4.4535705          NA        NA     plot
+4 sd_Observation.Residual  2.8852942          NA        NA Residual
+\end{verbatim}
+
+\end{frame}
+
 \begin{frame}[fragile]{Visualising model: \texttt{allEffects}}
 
 \begincols
@@ -2370,6 +2533,17 @@ dbh
 
 \end{frame}
 
+\begin{frame}[fragile]{Using merTools to understand fitted model}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(merTools)}
+\KeywordTok{shinyMer}\NormalTok{(mixed)}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
 \begin{frame}[fragile]{Plotting regression for individual forest plots}
 
 \begin{Shaded}
@@ -2393,6 +2567,155 @@ dbh
 \end{Shaded}
 
 \includegraphics{knitr_output/figures/mixed_resid-1.pdf}
+
+\end{frame}
+
+\begin{frame}[fragile]{Checking residuals (DHARMa)}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{simulateResiduals}\NormalTok{(mixed, }\DataTypeTok{plot =} \OtherTok{TRUE}\NormalTok{, }\DataTypeTok{use.u =} \OtherTok{TRUE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{knitr_output/figures/unnamed-chunk-32-1.pdf}
+
+\begin{verbatim}
+Object of Class DHARMa with simulated residuals based on 250 simulations with refit = FALSE . See ?DHARMa::simulateResiduals for help. 
+ 
+Scaled residual values: 0.288 0.852 0.952 0.74 0.672 0.184 0.244 0.316 0.924 0.48 0.184 0.4 0.96 0.72 0.4 0.216 0.428 0.316 0.936 0.336 ...
+\end{verbatim}
+
+\end{frame}
+
+\section{Growing the hierarchy: adding plot-level
+predictors}\label{growing-the-hierarchy-adding-plot-level-predictors}
+
+\begin{frame}{Model with group-level predictors}
+
+We had:
+
+\[
+  \begin{aligned}
+  y_{i} = a_{j} + bx_{i} + \varepsilon_{i}  \\
+  a_{j} \sim N(0, \tau^2)  \\
+  \varepsilon_{i} \sim N(0, \sigma^2) 
+  \end{aligned}
+\]
+
+Now
+
+\[
+  \begin{aligned}
+  y_{i} = a_{j} + bx_{i} + \varepsilon_{i}  \\
+  a_{j} \sim N(\mu_{j}, \tau^2)  \\
+  \mu_{j} = \gamma + \delta \cdot predictor_{j}  \\
+  \varepsilon_{i} \sim N(0, \sigma^2)
+  \end{aligned}
+\]
+
+\end{frame}
+
+\begin{frame}[fragile]{Merging trees and plot data}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plotdata <-}\StringTok{ }\KeywordTok{read.csv}\NormalTok{(}\StringTok{"data-raw/plotdata.csv"}\NormalTok{)}
+\NormalTok{trees.full <-}\StringTok{ }\KeywordTok{merge}\NormalTok{(trees, plotdata, }\DataTypeTok{by =} \StringTok{"plot"}\NormalTok{)}
+\KeywordTok{head}\NormalTok{(trees.full)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+  plot   dbh height    sex dead  dbh.c temp
+1    1 28.63   22.1 female    0   3.63 15.1
+2    1 44.71   39.0 female    0  19.71 15.1
+3    1 28.31   29.0 female    0   3.31 15.1
+4    1 19.33   19.1   male    0  -5.67 15.1
+5    1  9.25   12.2 female    0 -15.75 15.1
+6    1 30.02   23.1 female    0   5.02 15.1
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Centre continuous variables}
+
+Plot temperatures referred as deviations from 15ºC
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{trees.full$temp.c <-}\StringTok{ }\NormalTok{trees.full$temp -}\StringTok{ }\DecValTok{15}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}[fragile]{Fit multilevel model}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{group.pred <-}\StringTok{ }\KeywordTok{lmer}\NormalTok{(height ~}\StringTok{ }\NormalTok{dbh +}\StringTok{ }\NormalTok{(}\DecValTok{1} \NormalTok{|}\StringTok{ }\NormalTok{plot) +}\StringTok{ }\NormalTok{temp.c, }\DataTypeTok{data =} \NormalTok{trees.full)}
+\KeywordTok{summary}\NormalTok{(group.pred)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Linear mixed model fit by REML ['lmerMod']
+Formula: height ~ dbh + (1 | plot) + temp.c
+   Data: trees.full
+
+REML criterion at convergence: 5002.8
+
+Scaled residuals: 
+    Min      1Q  Median      3Q     Max 
+-2.8439 -0.6594 -0.0261  0.6907  3.0973 
+
+Random effects:
+ Groups   Name        Variance Std.Dev.
+ plot     (Intercept) 13.021   3.608   
+ Residual              8.326   2.886   
+Number of obs: 1000, groups:  plot, 10
+
+Fixed effects:
+             Estimate Std. Error t value
+(Intercept) 11.786022   1.753408    6.72
+dbh          0.605456   0.007041   85.99
+temp.c       1.067149   0.459487    2.32
+
+Correlation of Fixed Effects:
+       (Intr) dbh   
+dbh    -0.102       
+temp.c -0.741 -0.012
+\end{verbatim}
+
+\end{frame}
+
+\begin{frame}[fragile]{Examine model with merTools}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{shinyMer}\NormalTok{(group.pred)}
+\end{Highlighting}
+\end{Shaded}
+
+\end{frame}
+
+\begin{frame}{Comparing plot effects with and without group predictor}
+
+\includegraphics{knitr_output/figures/unnamed-chunk-36-1.pdf}
+
+\end{frame}
+
+\begin{frame}[fragile]{Are plot effects related to temperature?}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(plotdata$temp, }\KeywordTok{coef}\NormalTok{(group.pred)$plot[,}\DecValTok{1}\NormalTok{],}
+     \DataTypeTok{xlab =} \StringTok{"Temperature"}\NormalTok{, }\DataTypeTok{ylab =} \StringTok{"Plot effect"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{knitr_output/figures/unnamed-chunk-37-1.pdf}
 
 \end{frame}
 
@@ -2431,18 +2754,18 @@ REML criterion at convergence: 5006.6
 
 Scaled residuals: 
      Min       1Q   Median       3Q      Max 
--2.87075 -0.65452 -0.02314  0.69251  3.10445 
+-2.87075 -0.65452 -0.02314  0.69250  3.10445 
 
 Random effects:
  Groups   Name        Variance  Std.Dev. Corr 
- plot     (Intercept) 2.092e+01 4.57422       
+ plot     (Intercept) 2.092e+01 4.57425       
           dbh         1.287e-04 0.01135  -0.41
  Residual             8.304e+00 2.88163       
 Number of obs: 1000, groups:  plot, 10
 
 Fixed effects:
              Estimate Std. Error t value
-(Intercept) 14.817566   1.478311   10.02
+(Intercept) 14.817566   1.478321   10.02
 dbh          0.604876   0.008606   70.28
 
 Correlation of Fixed Effects:
@@ -2458,15 +2781,15 @@ dbh -0.301
 $plot
    (Intercept)       dbh
 1     7.554578 0.6144452
-2    15.966916 0.5942835
-3    15.868970 0.6008673
-4    19.321160 0.6031855
-5    18.866368 0.6039353
-6    19.355007 0.6038333
-7    15.159257 0.6067449
-8    10.965431 0.6080747
-9    17.348836 0.6024600
-10    7.769139 0.6109349
+2    15.966915 0.5942836
+3    15.868969 0.6008673
+4    19.321161 0.6031855
+5    18.866370 0.6039353
+6    19.355009 0.6038332
+7    15.159258 0.6067449
+8    10.965429 0.6080747
+9    17.348840 0.6024600
+10    7.769135 0.6109349
 
 attr(,"class")
 [1] "coef.mer"
@@ -2485,7 +2808,7 @@ regression}\label{multilevel-logistic-regression}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{knitr_output/figures/unnamed-chunk-31-1.pdf}
+\includegraphics{knitr_output/figures/unnamed-chunk-41-1.pdf}
 
 \end{frame}
 
@@ -2497,7 +2820,7 @@ regression}\label{multilevel-logistic-regression}
 \end{Highlighting}
 \end{Shaded}
 
-\includegraphics{knitr_output/figures/unnamed-chunk-32-1.pdf}
+\includegraphics{knitr_output/figures/unnamed-chunk-42-1.pdf}
 
 \end{frame}
 
@@ -2669,6 +2992,42 @@ dbh
 \begincol
 \includegraphics{knitr_output/figures/mixedlogis_vis2-1.pdf} \endcol
 \endcols
+
+\end{frame}
+
+\begin{frame}{Advantages of multilevel models}
+
+\begin{itemize}[<+->]
+\tightlist
+\item
+  Perfect for structured data (space-time)
+\item
+  Predictors enter at the appropriate level
+\item
+  Accommodate variation in treatment effects
+\item
+  More efficient inference of regression parameters
+\item
+  Using all the data to perform inferences for groups with small sample
+  size
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{Formula syntax for different models}
+
+y \textasciitilde{} x + (1 \textbar{} group) \# varying intercepts
+
+y \textasciitilde{} x + (1 + x \textbar{} group) \# varying intercepts
+and slopes
+
+y \textasciitilde{} x + (1 \textbar{} group/subgroup) \# nested
+
+y \textasciitilde{} x + (1 \textbar{} group1) + (1 \textbar{} group2) \#
+varying intercepts, crossed
+
+y \textasciitilde{} x + (1 + x \textbar{} group1) + (1 + x \textbar{}
+group2) \# varying intercepts and slopes, crossed
 
 \end{frame}
 
