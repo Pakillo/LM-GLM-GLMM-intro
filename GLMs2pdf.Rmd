@@ -1471,7 +1471,7 @@ Especially for groups with low sample size
 ```{r mixed, echo=1:2}
 library(lme4)
 mixed <- lmer(height ~ dbh + (1|plot), data = trees)
-summary(mixed)
+arm::display(mixed)
 ```
 
 
@@ -1513,6 +1513,27 @@ plot(allEffects(mixed))
 
 ```{r mixed_vis3, echo=FALSE, fig.height=3, fig.width=2.5}
 visreg(mixed)
+```
+
+## Visualising model: `sjPlot`
+
+```{r}
+library(sjPlot)
+sjp.lmer(mixed, type = "ri.slope")
+```
+
+
+## Visualising model: `sjPlot`
+
+```{r}
+sjp.lmer(mixed)
+```
+
+
+## Visualising model: `sjPlot`
+
+```{r}
+sjp.lmer(mixed, type = "eff", show.ci = TRUE)
 ```
 
 
@@ -1602,7 +1623,7 @@ trees.full$temp.c <- trees.full$temp - 15
 
 ```{r}
 group.pred <- lmer(height ~ dbh + (1 | plot) + temp.c, data = trees.full)
-summary(group.pred)
+arm::display(group.pred)
 ```
 
 
@@ -1611,6 +1632,7 @@ summary(group.pred)
 ```{r eval=FALSE}
 shinyMer(group.pred)
 ```
+
 
 
 ## Comparing plot effects with and without group predictor
@@ -1653,7 +1675,7 @@ mixed.slopes <- lmer(height ~ dbh + (1 + dbh | plot), data=trees)
 ## Varying intercepts and slopes
 
 ```{r echo = FALSE}
-summary(mixed.slopes)
+arm::display(mixed.slopes)
 ```
 
 
@@ -1664,6 +1686,17 @@ coef(mixed.slopes)
 ```
 
 
+## Visualising model: `sjPlot`
+
+```{r}
+sjp.lmer(mixed.slopes)
+```
+
+## Visualising model: `sjPlot`
+
+```{r}
+sjp.lmer(mixed.slopes, type = "rs.ri")
+```
 
 
 
@@ -1704,7 +1737,7 @@ summary(logis2)
 
 ```{r mixed_logis, echo=1}
 mixed.logis <- glmer(dead ~ dbh + (1|plot), data=trees, family = binomial)
-summary(mixed.logis)
+arm::display(mixed.logis)
 ```
 
 
@@ -1716,22 +1749,18 @@ coef(mixed.logis)
 ```
 
 
+## Visualising model: `sjPlot`
 
-## Visualising model: `allEffects`
-
-\begincols
-\begincol
-```{r mixedlogis_vis1, echo=FALSE}
-allEffects(mixed.logis)
+```{r}
+sjp.glmer(mixed.logis, type = "eff", show.ci = TRUE)
 ```
-\endcol
 
-\begincol
-```{r mixedlogis_vis2, echo=FALSE, fig.height=5, fig.width=4}
-plot(allEffects(mixed.logis))
+
+## Visualising model: `sjPlot`
+
+```{r}
+sjp.glmer(mixed.logis, type = "ri.slope")
 ```
-\endcol
-\endcols
 
 
 
