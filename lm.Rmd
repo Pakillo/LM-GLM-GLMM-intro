@@ -1,0 +1,511 @@
+---
+title: "Linear models"
+output:
+  beamer_presentation:
+    incremental: yes
+header-includes:
+  - \def\begincols{\begin{columns}[c]}
+  - \def\endcols{\end{columns}}
+  - \def\begincol{\begin{column}{0.48\textwidth}}
+  - \def\endcol{\end{column}} 
+  - \setlength{\emergencystretch}{0em}
+  - \setlength{\parskip}{0pt}
+fontsize: 10pt
+---
+
+
+```{r include=FALSE, cache=FALSE}
+
+library(rmarkdown)
+library(knitr)
+
+### Chunk options ###
+
+## Text results
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+## Code decoration
+opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
+
+# ## Cache
+opts_chunk$set(cache = 2, cache.path = "knitr_output/cache/")
+# opts_chunk$set(cache.extra = rand_seed)
+# 
+# ## Plots
+opts_chunk$set(fig.path = "knitr_output/figures/")
+# opts_chunk$set(dpi = 300, fig.align = "default")   # may want 'center' sometimes
+# 
+# # Figure format
+# opts_chunk$set(dev='pdf')  # e.g. choose among 'pdf', 'png', 'svg'...
+# # may include specific dev.args as a list... see knitr help
+
+
+
+### Hooks ###
+
+## Crop plot margins
+#knit_hooks$set(crop = hook_pdfcrop)   
+
+
+```
+
+
+
+## Example dataset: forest trees
+
+- Go to https://tinyurl.com/treesdata
+
+- Download zip file and uncompress (within your project folder!)
+
+```{r}
+trees <- read.csv("data-raw/trees.csv")
+head(trees)
+```
+
+
+## Questions
+
+- What is the relationship between DBH and height?
+
+- Do taller trees have bigger trunks?
+
+- Can we predict height from DBH? How well?
+
+
+
+## Always plot your data first!
+
+
+![](images/anscombe.png)
+
+
+
+
+## Exploratory Data Analysis (EDA)
+
+Outliers
+
+```{r indexplot, fig.height=5, fig.width=4}
+plot(trees$height)
+```
+
+
+
+## Outliers impact on regression
+
+![](images/reg_outliers.png)
+
+See http://rpsychologist.com/d3/correlation/
+
+
+## Histogram of response variable
+
+```{r histog}
+hist(trees$height)
+```
+
+
+## Histogram of predictor variable
+
+```{r}
+hist(trees$dbh)
+```
+
+## Scatterplot
+
+```{r scatterplot}
+plot(trees$dbh, trees$height, las = 1)
+```
+
+
+## Now fit model
+
+Hint: `lm`
+
+
+## Now fit model
+
+Hint: `lm`
+
+```{r lm_trees}
+m1 <- lm(height ~ dbh, data = trees)
+```
+
+
+
+## What does this mean?
+
+```{r summary_lm, echo=FALSE}
+summary(m1)
+```
+
+
+## Retrieving model coefficients
+
+```{r echo = TRUE}
+coef(m1)
+```
+
+
+## Confidence intervals
+
+```{r echo = TRUE}
+confint(m1)
+```
+
+## Using effects package
+
+```{r message=FALSE}
+library(effects)
+summary(allEffects(m1))
+```
+
+
+## Plot effects
+
+```{r echo = TRUE}
+plot(allEffects(m1))
+```
+
+
+## Plot model (visreg)
+
+```{r visreg}
+library(visreg)
+visreg(m1)
+```
+
+
+## Linear model assumptions
+
+- Linearity (transformations, GAM...)
+  
+- Residuals:
+    - Independent
+    - Equal variance
+    - Normal
+
+- No measurement error in predictors
+
+
+
+## Model checking: residuals
+
+```{r echo=FALSE}
+def.par <- par(no.readonly = TRUE)
+layout(matrix(1:4, nrow=2))
+plot(m1)
+par(def.par)
+```
+
+
+## Are residuals normal? 
+
+\begincols
+
+\begincol
+```{r resid_hist, echo=TRUE, fig.width=5, fig.height=3}
+hist(resid(m1))
+```
+\endcol
+
+\begincol
+
+\scriptsize
+```{r coefs_m1, echo=FALSE}
+arm::display(m1)
+```
+\normalsize
+
+\endcol
+
+\endcols
+  
+    
+SD of residuals = `r round(sd(resid(m1)), digits=2)` coincides with estimate of `sigma`.
+
+
+
+## How good is the model in predicting tree height?
+
+`fitted` gives predictions for each observation
+
+```{r}
+trees$height.pred <- fitted(m1)
+head(trees)
+```
+
+
+## Calibration plot: Observed vs Predicted values
+
+```{r obs_pred, echo=1}
+plot(trees$height, trees$height.pred, xlab = "Tree height - observed", ylab = "Tree height - predicted", las = 1, xlim = c(10,60), ylim = c(10,60))
+abline(a = 0, b = 1)
+```
+
+
+
+
+## Using fitted model for prediction
+
+Q: Expected tree height if DBH = 39 cm?
+
+```{r}
+new.dbh <- data.frame(dbh = c(39))
+predict(m1, new.dbh, se.fit = TRUE)
+```
+
+
+
+
+## Important functions
+
+- `plot`
+
+- `summary`
+
+- `coef`
+
+- `confint`
+
+- `fitted`
+
+- `resid`
+
+- `allEffects`
+
+- `predict`
+
+
+
+
+
+# Categorical predictors (factors)
+
+
+## Q: Does tree height vary with sex?
+
+```{r boxplot}
+plot(height ~ sex, data = trees)
+```
+
+
+## Model height ~ sex
+
+```{r echo=1}
+m2 <- lm(height ~ sex, data = trees)
+summary(m2)
+```
+
+
+
+## Linear model with categorical predictors
+
+$$
+  \begin{aligned} 
+  y_{i}=a+bx_{i}+\varepsilon _{i} \\  
+  y_{i}=a+b_{male}+\varepsilon _{i} \\     
+  \end{aligned} 
+$$
+
+
+
+## Model height ~ sex
+
+```{r echo=1}
+m2 <- lm(height ~ sex, data = trees)
+summary(m2)
+```
+
+## Are differences statistically significant?
+
+Compare CIs
+
+```{r}
+summary(allEffects(m2))
+```
+
+
+## Plot
+
+```{r}
+plot(allEffects(m2))
+```
+
+
+
+## Plot (visreg)
+
+```{r }
+visreg(m2)
+```
+
+
+## Model checking: residuals
+
+```{r echo=FALSE}
+def.par <- par(no.readonly = TRUE)
+layout(matrix(1:4, nrow=2))
+plot(m2)
+par(def.par)
+```
+
+
+## Model checking: residuals
+
+```{r}
+hist(resid(m2))
+```
+
+
+# Q: Does height differ among field plots?
+
+## Plot data first
+
+```{r}
+plot(height ~ plot, data = trees)
+```
+
+
+## Linear model with categorical predictors
+
+$$
+  \begin{aligned} 
+  y_{i}=a+bx_{i}+\varepsilon _{i} \\  
+  y_{i}=a+b_{plot2}+c_{plot3}+d_{plot4}+e_{plot5}+...+\varepsilon _{i} \\     
+  \end{aligned} 
+$$
+
+
+
+
+## Model Height ~ Plot
+
+All right here?
+
+```{r echo=1}
+m3 <- lm(height ~ plot, data = trees)
+summary(m3)
+```
+
+
+## Plot is a factor!
+
+```{r}
+trees$plot <- as.factor(trees$plot)
+```
+
+
+## Model Height ~ Plot
+
+\scriptsize
+```{r echo=FALSE}
+m3 <- lm(height ~ plot, data = trees)
+summary(m3)
+```
+\normalsize
+
+
+## Estimated tree heights for each site
+
+\scriptsize
+```{r}
+summary(allEffects(m3))
+```
+\normalsize
+
+
+## Plot
+
+```{r}
+plot(allEffects(m3))
+```
+
+
+
+## Plot (visreg)
+
+```{r }
+visreg(m3)
+```
+
+
+## Model checking: residuals
+
+```{r echo=FALSE}
+def.par <- par(no.readonly = TRUE)
+layout(matrix(1:4, nrow=2))
+plot(m3)
+par(def.par)
+```
+
+
+
+
+
+
+# Combining continuous and categorical predictors
+
+
+## Predicting tree height based on dbh and site
+
+$$
+  \begin{aligned} 
+  y_{i}=a+bx_{i}+\varepsilon _{i} \\  
+  y_{i}=a+b_{plot2}+c_{plot3}+d_{plot4}+e_{plot5}+...+ k \cdot DBH_{i} + \varepsilon _{i} \\ 
+  \end{aligned} 
+$$
+
+
+## Predicting tree height based on dbh and site
+
+\scriptsize
+```{r echo = FALSE}
+multreg <- lm(height ~ plot + dbh, data = trees)
+summary(multreg)
+```
+\normalsize
+
+## Estimated tree heights for each site
+
+\scriptsize
+```{r}
+summary(allEffects(multreg))
+```
+\normalsize
+
+
+## Plot
+
+```{r}
+plot(allEffects(multreg))
+```
+
+
+
+## Plot (visreg)
+
+```{r }
+visreg(multreg)
+```
+
+
+## Model checking: residuals
+
+```{r echo=FALSE}
+def.par <- par(no.readonly = TRUE)
+layout(matrix(1:4, nrow=2))
+plot(multreg)
+par(def.par)
+```
+
+
+## Extra exercises
+
+- paperplanes: How does flight distance differ with age, gender or paper type?
+
+- mammal sleep: Are sleep patterns related to diet?
+
+- iris: Predict petal length ~ petal width and species
+
+

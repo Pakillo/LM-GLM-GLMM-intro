@@ -1,0 +1,242 @@
+---
+title: "GLM for count data: Poisson regression"
+output:
+  beamer_presentation:
+    incremental: yes
+header-includes:
+  - \def\begincols{\begin{columns}[c]}
+  - \def\endcols{\end{columns}}
+  - \def\begincol{\begin{column}{0.48\textwidth}}
+  - \def\endcol{\end{column}} 
+  - \setlength{\emergencystretch}{0em}
+  - \setlength{\parskip}{0pt}
+fontsize: 10pt
+---
+
+
+```{r include=FALSE, cache=FALSE}
+
+library(rmarkdown)
+library(knitr)
+
+### Chunk options ###
+
+## Text results
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+## Code decoration
+opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
+
+# ## Cache
+opts_chunk$set(cache = 2, cache.path = "knitr_output/cache/")
+# opts_chunk$set(cache.extra = rand_seed)
+# 
+# ## Plots
+opts_chunk$set(fig.path = "knitr_output/figures/")
+# opts_chunk$set(dpi = 300, fig.align = "default")   # may want 'center' sometimes
+# 
+# # Figure format
+# opts_chunk$set(dev='pdf')  # e.g. choose among 'pdf', 'png', 'svg'...
+# # may include specific dev.args as a list... see knitr help
+
+
+
+### Hooks ###
+
+## Crop plot margins
+#knit_hooks$set(crop = hook_pdfcrop)   
+
+
+```
+
+
+
+## Types of response variable
+
+- Gaussian: `lm`
+
+- Bernouilli / Binomial: `glm` (family `binomial / quasibinomial`)
+
+- Counts: `glm` (family `poisson / quasipoisson`)
+
+
+
+## Poisson regression
+
+- Response variable: Counts (0, 1, 2, 3...) - discrete
+
+- Link function: `log`
+
+Then
+
+$$
+  \begin{aligned} 
+  log(N) = a + bx \\  
+  N = e^{a+bx} \\ 
+  \end{aligned} 
+$$
+
+
+
+## Example dataset: Seedling counts in quadrats
+
+
+
+```{r seedl_load, echo=1}
+seedl <- read.csv("data-raw/seedlings.csv")
+summary(seedl)
+```
+
+
+## EDA
+
+```{r poisson_eda, fig.height=2, fig.width=2}
+table(seedl$count)
+hist(seedl$count)
+```
+
+
+## Q: Relationship between Nseedlings and light?
+
+```{r poisson_eda2}
+plot(seedl$light, seedl$count, las = 1, xlab = "Light (GSF)", ylab = "Seedlings")
+```
+
+
+
+## Let's fit model (Poisson regression)
+
+```{r poisson_glm}
+seedl.glm <- glm(count ~ light, data = seedl, family = poisson)
+summary(seedl.glm)
+```
+
+
+## Interpreting Poisson regression output {.build}
+
+Parameter estimates (log scale):
+```{r poisson_params}
+coef(seedl.glm)
+```
+
+**We need to back-transform**: apply the inverse of the logarithm
+
+```{r}
+exp(coef(seedl.glm))
+```
+
+
+## So what's the relationship between Nseedlings and light?
+
+```{r poisson_effects, echo=2}
+#allEffects(seedl.glm)
+plot(allEffects(seedl.glm))
+```
+
+
+## Using visreg
+
+```{r poisson_visreg}
+visreg(seedl.glm, scale = "response")
+```
+
+
+## Poisson regression: model checking
+
+```{r poisson_check, echo=FALSE}
+layout(matrix(1:4, nrow=2))
+plot(seedl.glm)
+par(def.par)
+```
+
+## Is there pattern of residuals along predictor?
+
+```{r poisson_check2}
+plot(seedl$light, resid(seedl.glm))
+```
+
+
+## Residuals diagnostics with DHARMa
+
+```{r echo=TRUE}
+simulateResiduals(seedl.glm, plot = TRUE)
+```
+
+
+# Poisson regression: Overdispersion
+
+
+## Always check overdispersion with count data
+
+```{r}
+simres <- simulateResiduals(seedl.glm, refit = TRUE)
+testOverdispersion(simres)
+```
+
+
+## Accounting for overdispersion in count data
+
+Use family `quasipoisson`
+
+```{r poisson_overdisp, echo=FALSE}
+seedl.overdisp <- glm(count ~ light, data = seedl, family = quasipoisson)
+summary(seedl.overdisp)
+```
+
+
+## Mean estimates do not change after accounting for overdispersion
+
+```{r poisson_overdisp2, echo=FALSE}
+allEffects(seedl.overdisp)
+allEffects(seedl.glm)
+```
+
+
+
+## But standard errors may change
+
+\begincols
+\begincol
+```{r pois_overdisp_eff1, echo=FALSE, fig.height=5, fig.width=4}
+plot(allEffects(seedl.overdisp))
+```
+\endcol
+
+\begincol
+```{r pois_overdisp_eff2, echo=FALSE, fig.height=5, fig.width=4}
+plot(allEffects(seedl.glm))
+```
+\endcol
+\endcols
+
+
+# What if survey plots have different area?
+
+
+## Avoid regression of ratios 
+
+seedlings/area ~ light
+
+
+![](images/ratios.PNG)
+
+
+
+## Use offset to standardise response variables in GLMs
+
+```{r}
+seedl.offset <- glm(count ~ light, offset = seedl$area, data = seedl, family = poisson)
+summary(seedl.offset)
+```
+
+
+
+## Note estimates now referred to area units
+
+```{r}
+exp(coef(seedl.offset))
+```
+
+
+
+
