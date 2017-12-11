@@ -317,7 +317,7 @@ m2 <- lm(height ~ sex, data = trees)
 summary(m2)
 ```
 
-## Are differences statistically significant?
+## Effects: Height ~ sex
 
 Compare CIs
 
