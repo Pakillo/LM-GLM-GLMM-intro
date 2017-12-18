@@ -90,10 +90,22 @@ summary(seedl)
 
 ## EDA
 
-```{r poisson_eda, fig.height=2, fig.width=2}
+
+\begincols
+\begincol
+
+```{r}
 table(seedl$count)
+```
+\endcol
+
+\begincol
+```{r echo=FALSE, fig.height=5, fig.width=4}
 hist(seedl$count)
 ```
+\endcol
+\endcols
+
 
 
 ## Q: Relationship between Nseedlings and light?
@@ -137,7 +149,8 @@ plot(allEffects(seedl.glm))
 ## Using visreg
 
 ```{r poisson_visreg}
-visreg(seedl.glm, scale = "response")
+visreg(seedl.glm, scale = "response", ylim = c(0, 7))
+points(count ~ light, data = seedl, pch = 20)
 ```
 
 
