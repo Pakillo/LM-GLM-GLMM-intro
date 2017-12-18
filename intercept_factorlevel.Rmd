@@ -1,0 +1,45 @@
+---
+title: 'Linear models: effect of changing factor levels as intercept'
+author: "FRS"
+date: "12 December 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Plot 1 as reference
+
+```{r}
+## plot1 as reference
+
+trees <- read.csv("data-raw/trees.csv")
+trees$plot <- as.factor(trees$plot)
+m1 <- lm(height~plot, data = trees)
+summary(m1)
+library(effects)
+summary(allEffects(m1))
+library(visreg)
+visreg(m1)
+```
+
+
+
+## Plot 9 as reference
+
+
+```{r}
+trees <- read.csv("data-raw/trees.csv")
+trees$plot[trees$plot == 1] <- 11
+trees$plot[trees$plot == 9] <- 1
+trees$plot <- as.factor(trees$plot)
+m1 <- lm(height~plot, data = trees)
+summary(m1)
+library(effects)
+summary(allEffects(m1))
+library(visreg)
+visreg(m1)
+
+```
+
