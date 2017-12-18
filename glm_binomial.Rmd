@@ -381,6 +381,22 @@ tapply(titanic$survived, list(titanic$class, titanic$sex), sum)
 Mmmm...
 
 
+## Fit additive model with both factors 
+
+```{r echo=1}
+tit.sex.class <- glm(survived ~ class + sex, data = titanic, family = binomial)
+arm::display(tit.sex.class)
+```
+
+
+## Plot additive model
+
+```{r}
+plot(allEffects(tit.sex.class))
+```
+
+
+
 ## Fit model with both factors (interactions)
 
 ```{r tit_sex_class, echo=1}
@@ -423,7 +439,7 @@ Read `Titanic_prop.csv` data.
 
 ```{r read_tit_short, echo = FALSE}
 tit.prop <- read.csv("data-raw/Titanic_prop.csv")
-summary(tit.prop)
+head(tit.prop)
 ```
 
 These are the same data, but summarized (see `Freq` variable).
@@ -502,17 +518,13 @@ plot(allEffects(gdp.glm))
 ```
 
 
-## Plot model and data
 
-```{r logistic_plot}
-plot(mortality/1000 ~ gdp, data = gdp, main = "Infant mortality rate")
-curve(plogis(coef(gdp.glm)[1] + coef(gdp.glm)[2]*x), from = 0, to = 40000, add = TRUE, lwd=3, col="red")
-```
 
 
 ## Plot model using visreg:
 
-```{r gdp_visreg}
+```{r gdp_visreg, echo=c(2,3)}
+library(visreg)
 visreg(gdp.glm, scale = "response")
 points(mortality/1000 ~ gdp, data = gdp)
 ```
@@ -580,25 +592,18 @@ plot(allEffects(gdp.glm))
 
 \begincols
 \begincol
+
 ```{r overdisp_plot1, echo=FALSE, fig.height=5, fig.width=4}
-library(arm)
-plot(mortality/1000 ~ gdp, data = gdp, main = "Binomial", pch=20)
-curve(plogis(coef(gdp.glm)[1] + coef(gdp.glm)[2]*x), from = 0, to = 40000, add = TRUE, lwd=3, col="red")
-curve(plogis(coef(gdp.glm)[1] - 2*se.coef(gdp.glm)[1] +
-               (coef(gdp.glm)[2] - 2*se.coef(gdp.glm)[2])*x), from = 0, to = 40000, add = TRUE, lwd=3, col="blue", lty=2)
-curve(plogis(coef(gdp.glm)[1] + 2*se.coef(gdp.glm)[1] +
-               (coef(gdp.glm)[2] + 2*se.coef(gdp.glm)[2])*x), from = 0, to = 40000, add = TRUE, lwd=3, col="blue", lty=2)
+visreg(gdp.glm, scale = "response", main = "Binomial")
+points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
 \endcol
 
 \begincol
+
 ```{r overdisp_plot2, echo=FALSE, fig.height=5, fig.width=4}
-plot(mortality/1000 ~ gdp, data = gdp, main = "Quasibinomial", pch=20)
-curve(plogis(coef(gdp.overdisp)[1] + coef(gdp.overdisp)[2]*x), from = 0, to = 40000, add = TRUE, lwd=3, col="red")
-curve(plogis(coef(gdp.overdisp)[1] - 2*se.coef(gdp.overdisp)[1] +
-               (coef(gdp.overdisp)[2] - 2*se.coef(gdp.overdisp)[2])*x), from = 0, to = 40000, add = TRUE, lwd=3, col="blue", lty=2)
-curve(plogis(coef(gdp.overdisp)[1] + 2*se.coef(gdp.overdisp)[1] +
-               (coef(gdp.overdisp)[2] + 2*se.coef(gdp.overdisp)[2])*x), from = 0, to = 40000, add = TRUE, lwd=3, col="blue", lty=2)
+visreg(gdp.overdisp, scale = "response", main = "Quasibinomial")
+points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
 \endcol
 \endcols
@@ -640,6 +645,104 @@ curve(0.7*x^0.3, ylab="y", las=1)
 
 \endcols
 
+
+
+## Think about the shape of relationships
+
+```{r}
+visreg(gdp.glm, ylab = "Mortality (logit scale)")
+```
+
+
+## Think about the shape of relationships
+
+\begincols
+\begincol
+
+```{r echo=FALSE, fig.height=5, fig.width=4}
+visreg(gdp.overdisp, main = "Mortality ~ GDP", ylab = "Mortality (logit scale)")
+```
+\endcol
+
+\begincol
+
+```{r echo=FALSE, fig.height=5, fig.width=4}
+gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ gdp + I(gdp*gdp), 
+               data = gdp, family = quasibinomial)
+visreg(gdp.overdisp2, main = "Mortality ~ GDP + GDP^2", ylab = "Mortality (logit scale)")
+```
+\endcol
+\endcols
+
+
+
+## Think about the shape of relationships
+
+\begincols
+\begincol
+
+```{r echo=FALSE, fig.height=5, fig.width=4}
+visreg(gdp.overdisp, main = "Mortality ~ GDP", scale = "response", ylab = "Mortality")
+points(mortality/1000 ~ gdp, data = gdp, pch = 20)
+```
+\endcol
+
+\begincol
+
+```{r echo=FALSE, fig.height=5, fig.width=4}
+gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ gdp + I(gdp*gdp), 
+               data = gdp, family = quasibinomial)
+visreg(gdp.overdisp2, main = "Mortality ~ GDP + GDP^2", scale = "response", ylab = "Mortality")
+points(mortality/1000 ~ gdp, data = gdp, pch = 20)
+```
+\endcol
+\endcols
+
+
+
+## Think about the shape of relationships
+
+\begincols
+\begincol
+
+```{r echo=FALSE, fig.height=5, fig.width=4}
+visreg(gdp.overdisp, main = "Mortality ~ GDP", ylab = "Mortality (logit scale)")
+```
+\endcol
+
+\begincol
+
+```{r echo=FALSE, fig.height=5, fig.width=4}
+gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ log(gdp), 
+               data = gdp, family = quasibinomial)
+visreg(gdp.overdisp2, main = "Mortality ~ log(GDP)", ylab = "Mortality (logit scale)")
+```
+\endcol
+\endcols
+
+
+
+## Think about the shape of relationships
+
+\begincols
+\begincol
+
+```{r echo=FALSE, fig.height=5, fig.width=4}
+visreg(gdp.overdisp, main = "Mortality ~ GDP", scale = "response", ylab = "Mortality")
+points(mortality/1000 ~ gdp, data = gdp, pch = 20)
+```
+\endcol
+
+\begincol
+
+```{r echo=FALSE, fig.height=5, fig.width=4}
+gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ log(gdp), 
+               data = gdp, family = quasibinomial)
+visreg(gdp.overdisp2, main = "Mortality ~ log(GDP)", scale = "response", ylab = "Mortality")
+points(mortality/1000 ~ gdp, data = gdp, pch = 20)
+```
+\endcol
+\endcols
 
 
 
