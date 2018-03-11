@@ -118,10 +118,14 @@ plot(seedl$light, seedl$count, las = 1, xlab = "Light (GSF)", ylab = "Seedlings"
 
 ## Let's fit model (Poisson regression)
 
+\scriptsize
+
 ```{r poisson_glm}
-seedl.glm <- glm(count ~ light, data = seedl, family = poisson)
+seedl.glm <- glm(count ~ light, data = seedl, family = poisson(link="log"))
 summary(seedl.glm)
 ```
+
+\normalsize
 
 
 ## Interpreting Poisson regression output {.build}
