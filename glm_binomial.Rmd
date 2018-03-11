@@ -314,12 +314,21 @@ See https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html
 
 ## Model checking with simulated data
 
-```{r}
+```{r out.height="3in", out.width="3.5in"}
 library(bayesplot)
 sims <- simulate(tit.glm, nsim = 100)
 ppc_bars(titanic$survived, yrep = t(as.matrix(sims)))
 ```
 
+
+## Pseudo R-squared for GLMs
+
+```{r}
+library(sjstats)
+r2(tit.glm)
+```
+
+But many caveats apply! (e.g. see [here](https://stats.stackexchange.com/questions/3559/which-pseudo-r2-measure-is-the-one-to-report-for-logistic-regression-cox-s) and [here](http://data.library.virginia.edu/is-r-squared-useless/))
 
 
 ## Recapitulating
