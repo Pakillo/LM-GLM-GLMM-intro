@@ -105,7 +105,7 @@ $\varepsilon$ = residuals
 set.seed(123)
 x <- runif(50, 10, 30)
 y <- rnorm(50, 4 + 0.3*x, 0.5)
-plot(x, y, las = 1, main = "small")
+plot(x, y, las = 1, main = "small", ylim = c(4, 18))
 abline(lm(y ~ x), lwd = 3)
 ```
 \endcol
@@ -113,7 +113,7 @@ abline(lm(y ~ x), lwd = 3)
 \begincol
 ```{r large_residuals, echo=FALSE, fig.width=4}
 y2 <- rnorm(50, 4 + 0.3*x, 3)
-plot(x, y2, las = 1, main = "large")
+plot(x, y2, las = 1, main = "large", ylim = c(4, 18))
 abline(lm(y2 ~ x), lwd = 3)
 ```
 \endcol
@@ -143,5 +143,25 @@ Hmisc::labcurve(list(s1, s2, s3), labels=paste("sigma = ", c(2,5,10), sep=""), t
 ## In a Normal distribution
 
 ![](images/gaussian.png)
+
+
+## Different ways to write same model
+
+$$
+  \begin{aligned}  
+  y_{i}=a+bx_{i}+\varepsilon _{i} \\  
+  \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\  
+  \end{aligned}  
+$$
+
+.
+
+$$
+  \begin{aligned}  
+  y_{i} \sim N \left(\mu_{i} , \sigma^2 \right) \\  
+  \mu _{i} = a + bx_{i} \\  
+  \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\  
+  \end{aligned}  
+$$
 
 
