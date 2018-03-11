@@ -518,6 +518,15 @@ abline(a = 0, b = 1)
 ```
 
 
+## Model checking with simulated data
+
+```{r out.height="3in", out.width="3.5in"}
+library(bayesplot)
+sims <- simulate(multreg, nsim = 100)
+ppc_dens_overlay(trees$height, yrep = t(as.matrix(sims)))
+```
+
+
 ## Extra exercises
 
 - paperplanes: How does flight distance differ with age, gender or paper type?
