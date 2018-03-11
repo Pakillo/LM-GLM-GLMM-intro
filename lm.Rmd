@@ -146,6 +146,15 @@ summary(m1)
 coef(m1)
 ```
 
+## Tidy up model coefficients with broom
+
+```{r}
+library(broom)
+tidy(m1)
+glance(m1)
+```
+
+
 
 ## Confidence intervals
 
@@ -497,6 +506,15 @@ def.par <- par(no.readonly = TRUE)
 layout(matrix(1:4, nrow=2))
 plot(multreg)
 par(def.par)
+```
+
+
+## How good is this model? Calibration plot
+
+```{r}
+trees$height.pred <- fitted(multreg)
+plot(trees$height, trees$height.pred, xlab = "Tree height - observed", ylab = "Tree height - predicted", las = 1, xlim = c(10,60), ylim = c(10,60))
+abline(a = 0, b = 1)
 ```
 
 
