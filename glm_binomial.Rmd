@@ -227,13 +227,15 @@ plot(factor(survived) ~ class, data = titanic)
 
 ## Fitting GLMs in R: `glm`
 
+\scriptsize
 ```{r titanic_glm, echo=1}
-tit.glm <- glm(survived ~ class, data=titanic, family=binomial)
+tit.glm <- glm(survived ~ class, data = titanic, family = binomial(link = "logit"))
 summary(tit.glm)
 ```
 
 These estimates are in logit scale!
 
+\normalsize
 
 ## Interpreting logistic regression output 
 
@@ -310,6 +312,15 @@ simulateResiduals(tit.glm, plot = TRUE)
 See https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html
 
 
+## Model checking with simulated data
+
+```{r}
+library(bayesplot)
+sims <- simulate(tit.glm, nsim = 100)
+ppc_bars(titanic$survived, yrep = t(as.matrix(sims)))
+```
+
+
 
 ## Recapitulating
 
@@ -344,8 +355,8 @@ plot(factor(survived) ~ sex, data = titanic)
 
 ## Fit model
 
-```{r tit_sex, echo=1}
-tit.sex <- glm(survived ~ sex, data = titanic, family = binomial)
+```{r tit_sex, echo=FALSE}
+tit.sex <- glm(survived ~ sex, data = titanic, family = binomial(link = "logit"))
 summary(tit.sex)
 ```
 
@@ -500,7 +511,7 @@ plot(mortality ~ gdp, data = gdp, main = "Infant mortality (per 1000 births)")
 
 ```{r gdp_glm, echo=1}
 gdp.glm <- glm(cbind(mortality, 1000 - mortality) ~ gdp, 
-               data = gdp, family = binomial)
+               data = gdp, family = binomial(link = "logit"))
 summary(gdp.glm)
 ```
 
