@@ -296,6 +296,7 @@ tidy(mixed)
 \begincols
 \begincol
 ```{r mixed_vis1, echo=FALSE}
+library(effects)
 allEffects(mixed)
 ```
 \endcol
@@ -315,6 +316,7 @@ plot(allEffects(mixed))
 
 
 ```{r mixed_vis3, echo=FALSE, fig.height=3, fig.width=2.5}
+library(visreg)
 visreg(mixed)
 ```
 
@@ -386,7 +388,7 @@ ppc_dens_overlay(trees$height, yrep = t(as.matrix(sims)))
 
 Many approaches! Somewhat polemic. 
 
-Nakagawa & Schielzeth propose **marginal** (considering fixed effects only) and **conditional** $R \exp{2}$:
+Nakagawa & Schielzeth propose **marginal** (considering fixed effects only) and **conditional** $R^{2}$ (including random effects too):
 
 ```{r}
 library(MuMIn)
