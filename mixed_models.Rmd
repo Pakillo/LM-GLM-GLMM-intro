@@ -279,13 +279,19 @@ coef(mixed)
 
 ## Broom: model estimates in tidy form
 
+\scriptsize
+
 ```{r}
 library(broom)
 tidy(mixed)
 ```
 
+\normalsize
+
 
 ## Visualising model: `allEffects`
+
+\scriptsize
 
 \begincols
 \begincol
@@ -300,6 +306,8 @@ plot(allEffects(mixed))
 ```
 \endcol
 \endcols
+
+\normalsize
 
 
 
@@ -362,6 +370,27 @@ plot(mixed)
 
 ```{r}
 simulateResiduals(mixed, plot = TRUE, use.u = TRUE)
+```
+
+
+## Model checking with simulated data
+
+```{r out.height="3in", out.width="3.5in"}
+library(bayesplot)
+sims <- simulate(mixed, nsim = 100)  
+ppc_dens_overlay(trees$height, yrep = t(as.matrix(sims)))
+```
+
+
+## R-squared for GLMMs
+
+Many approaches! Somewhat polemic. 
+
+Nakagawa & Schielzeth propose **marginal** (considering fixed effects only) and **conditional** $R \exp{2}$:
+
+```{r}
+library(MuMIn)
+r.squaredGLMM(mixed)
 ```
 
 
