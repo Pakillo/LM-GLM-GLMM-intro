@@ -248,7 +248,7 @@ head(trees)
 ## Calibration plot: Observed vs Predicted values
 
 ```{r obs_pred, echo=1}
-plot(trees$height, trees$height.pred, xlab = "Tree height - observed", ylab = "Tree height - predicted", las = 1, xlim = c(10,60), ylim = c(10,60))
+plot(trees$height.pred, trees$height, xlab = "Tree height - predicted", ylab = "Tree height - observed", las = 1, xlim = c(10,60), ylim = c(10,60))
 abline(a = 0, b = 1)
 ```
 
@@ -513,7 +513,7 @@ par(def.par)
 
 ```{r}
 trees$height.pred <- fitted(multreg)
-plot(trees$height, trees$height.pred, xlab = "Tree height - observed", ylab = "Tree height - predicted", las = 1, xlim = c(10,60), ylim = c(10,60))
+plot(trees$height.pred, trees$height, xlab = "Tree height - predicted", ylab = "Tree height - observed", las = 1, xlim = c(10,60), ylim = c(10,60))
 abline(a = 0, b = 1)
 ```
 
