@@ -1,0 +1,493 @@
+---
+title: "Linear models"
+output:
+  beamer_presentation:
+    incremental: yes
+header-includes:
+  - \def\begincols{\begin{columns}[c]}
+  - \def\endcols{\end{columns}}
+  - \def\begincol{\begin{column}{0.48\textwidth}}
+  - \def\endcol{\end{column}} 
+  - \setlength{\emergencystretch}{0em}
+  - \setlength{\parskip}{0pt}
+fontsize: 10pt
+---
+
+
+```{r include=FALSE, cache=FALSE}
+
+library(rmarkdown)
+library(knitr)
+
+### Chunk options ###
+
+## Text results
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+
+## Code decoration
+opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
+
+# ## Cache
+opts_chunk$set(cache = 2, cache.path = "knitr_output/cache/")
+# opts_chunk$set(cache.extra = rand_seed)
+# 
+# ## Plots
+opts_chunk$set(fig.path = "knitr_output/figures/")
+# opts_chunk$set(dpi = 300, fig.align = "default")   # may want 'center' sometimes
+# 
+# # Figure format
+# opts_chunk$set(dev='pdf')  # e.g. choose among 'pdf', 'png', 'svg'...
+# # may include specific dev.args as a list... see knitr help
+
+
+
+### Hooks ###
+
+## Crop plot margins
+#knit_hooks$set(crop = hook_pdfcrop)   
+
+
+```
+
+
+
+## Example dataset: paper planes flying experiment
+
+```{r}
+library(paperplanes)
+head(paperplanes)
+```
+
+
+## Questions
+
+- What is the relationship between age and distance flown?
+
+- Do adults achieve longer distances?
+
+- Can we predict distance flown from participant's age? How well?
+
+
+
+## Always plot your data first!
+
+
+![](images/anscombe.png)
+
+
+
+
+## Exploratory Data Analysis (EDA)
+
+Outliers
+
+```{r indexplot, fig.height=5, fig.width=4}
+plot(paperplanes$distance)
+```
+
+
+
+## Outliers impact on regression
+
+![](images/reg_outliers.png)
+
+See http://rpsychologist.com/d3/correlation/
+
+
+## Histogram of response variable
+
+```{r histog}
+hist(paperplanes$distance)
+```
+
+
+## Histogram of predictor variable
+
+```{r}
+hist(paperplanes$age)
+```
+
+## Scatterplot
+
+```{r scatterplot}
+plot(paperplanes$age, paperplanes$distance, las = 1)
+```
+
+
+## Now fit model
+
+Hint: `lm`
+
+
+## Now fit model
+
+Hint: `lm`
+
+```{r lm_paperplanes}
+m1 <- lm(distance ~ age, data = paperplanes)
+```
+
+
+
+## What does this mean?
+
+```{r summary_lm, echo=FALSE}
+summary(m1)
+```
+
+
+## Retrieving model coefficients
+
+```{r echo = TRUE}
+coef(m1)
+```
+
+## Tidy up model coefficients with broom
+
+```{r}
+library(broom)
+tidy(m1)
+glance(m1)
+```
+
+
+
+## Confidence intervals
+
+```{r echo = TRUE}
+confint(m1)
+```
+
+## Using effects package
+
+```{r message=FALSE}
+library(effects)
+summary(allEffects(m1))
+```
+
+
+## Plot effects
+
+```{r echo = TRUE}
+plot(allEffects(m1))
+```
+
+
+## Plot model (visreg)
+
+```{r visreg}
+library(visreg)
+visreg(m1)
+```
+
+
+## Linear model assumptions
+
+- Linearity (transformations, GAM...)
+  
+- Residuals:
+    - Independent
+    - Equal variance
+    - Normal
+
+- No measurement error in predictors
+
+
+
+## Model checking: residuals
+
+```{r echo=FALSE}
+def.par <- par(no.readonly = TRUE)
+layout(matrix(1:4, nrow = 2))
+plot(m1)
+par(def.par)
+```
+
+
+## Are residuals normal? 
+
+\begincols
+
+\begincol
+```{r resid_hist, echo=TRUE, fig.width=5, fig.height=3}
+hist(resid(m1))
+```
+\endcol
+
+\begincol
+
+\scriptsize
+```{r coefs_m1, echo=FALSE}
+arm::display(m1)
+```
+\normalsize
+
+\endcol
+
+\endcols
+  
+    
+SD of residuals = `r round(sd(resid(m1)), digits=2)` coincides with estimate of `sigma`.
+
+
+
+## How good is the model in predicting distance?
+
+`fitted` gives predictions for each observation
+
+\scriptsize
+```{r}
+paperplanes$distance.pred <- fitted(m1)
+head(paperplanes)
+```
+\normalsize
+
+
+## Calibration plot: Observed vs Predicted values
+
+```{r obs_pred, echo=1}
+plot(paperplanes$distance.pred, paperplanes$distance, xlab = "Distance - predicted", ylab = "Distance - observed", las = 1, xlim = c(0,20), ylim = c(0,20))
+abline(a = 0, b = 1)
+```
+
+
+
+
+## Using fitted model for prediction
+
+Q: Expected distance if age = 30?
+
+```{r}
+new.age <- data.frame(age = c(30))
+predict(m1, new.age, se.fit = TRUE)
+```
+
+
+## Using fitted model for prediction
+
+Q: Expected distance if age = 30?
+
+```{r}
+new.age <- data.frame(age = c(30))
+predict(m1, new.age, se.fit = TRUE, interval = "confidence", level = 0.95)
+```
+
+
+## Using fitted model for prediction
+
+Q: Expected distance if age = 30?
+
+```{r}
+new.age <- data.frame(age = c(30))
+predict(m1, new.age, se.fit = TRUE, interval = "prediction", level = 0.95)
+```
+
+
+
+## Important functions
+
+- `plot`
+
+- `summary`
+
+- `coef`
+
+- `confint`
+
+- `fitted`
+
+- `resid`
+
+- `allEffects`
+
+- `predict`
+
+
+
+
+
+# Categorical predictors (factors)
+
+
+## Q: Does distance vary with paper type?
+
+```{r boxplot}
+plot(distance ~ paper, data = paperplanes)
+```
+
+
+## Model distance ~ paper
+
+All right here?
+
+```{r echo=1}
+m2 <- lm(distance ~ paper, data = paperplanes)
+summary(m2)
+```
+
+
+## Model distance ~ paper
+
+Paper is a factor!
+
+```{r echo=1}
+paperplanes$paper <- as.factor(paperplanes$paper)
+summary(paperplanes)
+```
+
+
+## Model distance ~ paper
+
+```{r echo=1}
+m2 <- lm(distance ~ paper, data = paperplanes)
+summary(m2)
+```
+
+
+
+## Linear model with categorical predictors
+
+$$
+  \begin{aligned} 
+  y_{i}=a+bx_{i}+\varepsilon _{i} \\  
+  y_{i}=a+b_{paper120}+\varepsilon _{i} \\     
+  \end{aligned} 
+$$
+
+
+
+## Model distance ~ paper
+
+```{r echo=1}
+m2 <- lm(distance ~ paper, data = paperplanes)
+summary(m2)
+```
+
+
+## Effects: Estimated Distance ~ paper
+
+```{r}
+summary(allEffects(m2))
+```
+
+
+## Plot
+
+```{r}
+plot(allEffects(m2))
+```
+
+
+
+## Plot (visreg)
+
+```{r }
+visreg(m2)
+```
+
+
+## Model checking: residuals
+
+```{r echo=FALSE}
+def.par <- par(no.readonly = TRUE)
+layout(matrix(1:4, nrow = 2))
+plot(m2)
+par(def.par)
+```
+
+
+## Model checking: residuals
+
+```{r}
+hist(resid(m2))
+```
+
+
+
+
+# Exercise: Does distance vary with gender?
+
+
+
+
+# Combining continuous and categorical predictors
+
+
+## Predicting distance based on age and paper type
+
+$$
+  \begin{aligned} 
+  y_{i}=a+bx_{i}+\varepsilon _{i} \\  
+  y_{i}=a+b_{paper120}+ c \cdot age_{i} + \varepsilon _{i} \\ 
+  \end{aligned} 
+$$
+
+
+## Predicting distance based on age and paper type
+
+
+```{r echo = FALSE}
+multreg <- lm(distance ~ age + paper, data = paperplanes)
+summary(multreg)
+```
+
+
+## Estimated distance 
+
+\scriptsize
+```{r}
+summary(allEffects(multreg))
+```
+\normalsize
+
+
+## Plot
+
+```{r}
+plot(allEffects(multreg))
+```
+
+
+
+## Plot (visreg)
+
+```{r }
+visreg(multreg)
+```
+
+
+## Model checking: residuals
+
+```{r echo=FALSE}
+def.par <- par(no.readonly = TRUE)
+layout(matrix(1:4, nrow=2))
+plot(multreg)
+par(def.par)
+```
+
+
+## How good is this model? Calibration plot
+
+```{r}
+paperplanes$distance.pred <- fitted(multreg)
+plot(paperplanes$distance.pred, paperplanes$distance, xlab = "Distance - predicted", ylab = "Distance - observed", las = 1, xlim = c(0,20), ylim = c(0,20))
+abline(a = 0, b = 1)
+```
+
+
+## Model checking with simulated data
+
+```{r out.height="3in", out.width="3.5in"}
+library(bayesplot)
+sims <- simulate(multreg, nsim = 100)
+ppc_dens_overlay(paperplanes$distance, yrep = t(as.matrix(sims)))
+```
+
+
+## Extra exercises
+
+- mammal sleep: Are sleep patterns related to diet?
+
+- iris: Predict petal length ~ petal width and species
+
+
