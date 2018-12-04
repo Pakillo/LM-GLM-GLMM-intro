@@ -73,6 +73,9 @@ head(trees)
 
 
 
+# Always plot your data first!
+
+
 ## Always plot your data first!
 
 
@@ -114,9 +117,11 @@ hist(trees$dbh)
 ## Scatterplot
 
 ```{r scatterplot}
-plot(trees$dbh, trees$height, las = 1)
+plot(height ~ dbh, data = trees, las = 1)
 ```
 
+
+# Model fitting
 
 ## Now fit model
 
@@ -131,12 +136,37 @@ Hint: `lm`
 m1 <- lm(height ~ dbh, data = trees)
 ```
 
+which corresponds to
+
+$$
+  \begin{aligned}  
+  Height_{i} = a + b \cdot DBH_{i} + \varepsilon _{i} \\  
+  \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\  
+  \end{aligned}  
+$$
+
+
+# Model interpretation
 
 
 ## What does this mean?
 
 ```{r summary_lm, echo=FALSE}
 summary(m1)
+```
+
+
+## Presenting model results
+
+```{r echo=FALSE}
+kable(xtable::xtable(m1), digits = 2)
+```
+
+
+## Presenting model results
+
+```{r echo=FALSE, results='asis'}
+texreg::texreg(m1, single.row = TRUE)
 ```
 
 
@@ -170,6 +200,9 @@ summary(allEffects(m1))
 ```
 
 
+# Visualising fitted model
+
+
 ## Plot effects
 
 ```{r echo = TRUE}
@@ -183,6 +216,11 @@ plot(allEffects(m1))
 library(visreg)
 visreg(m1)
 ```
+
+
+
+
+# Model checking
 
 
 ## Linear model assumptions
@@ -235,6 +273,9 @@ SD of residuals = `r round(sd(resid(m1)), digits=2)` coincides with estimate of 
 
 
 
+# Using model for prediction
+
+
 ## How good is the model in predicting tree height?
 
 `fitted` gives predictions for each observation
@@ -269,19 +310,15 @@ predict(m1, new.dbh, se.fit = TRUE)
 
 ## Important functions
 
-- `plot`
-
 - `summary`
 
-- `coef`
+- `allEffects`
 
-- `confint`
+- `plot` (both data and model)
+
+- `visreg`
 
 - `fitted`
-
-- `resid`
-
-- `allEffects`
 
 - `predict`
 
@@ -310,10 +347,16 @@ summary(m2)
 
 ## Linear model with categorical predictors
 
+```{r eval=FALSE}
+m2 <- lm(height ~ sex, data = trees)
+```
+
+corresponds to 
+
 $$
   \begin{aligned} 
-  y_{i}=a+bx_{i}+\varepsilon _{i} \\  
-  y_{i}=a+b_{male}+\varepsilon _{i} \\     
+  Height_{i} = a + b_{male} + \varepsilon _{i} \\
+  \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\
   \end{aligned} 
 $$
 
@@ -325,6 +368,15 @@ $$
 m2 <- lm(height ~ sex, data = trees)
 summary(m2)
 ```
+
+
+## Presenting model results
+
+```{r echo=FALSE}
+kable(xtable::xtable(m2), digits = 2)
+```
+
+
 
 ## Effects: Height ~ sex
 
@@ -378,10 +430,15 @@ plot(height ~ plot, data = trees)
 
 ## Linear model with categorical predictors
 
+```{r eval=FALSE}
+m3 <- lm(height ~ plot, data = trees)
+```
+
+
 $$
   \begin{aligned} 
-  y_{i}=a+bx_{i}+\varepsilon _{i} \\  
-  y_{i}=a+b_{plot2}+c_{plot3}+d_{plot4}+e_{plot5}+...+\varepsilon _{i} \\     
+  y_{i} = a + b_{plot2} + c_{plot3} + d_{plot4} + e_{plot5} +...+ \varepsilon _{i} \\   
+  \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\
   \end{aligned} 
 $$
 
@@ -415,6 +472,14 @@ summary(m3)
 \normalsize
 
 
+
+## Presenting model results
+
+```{r echo=FALSE}
+kable(xtable::xtable(m3), digits = 2)
+```
+
+
 ## Estimated tree heights for each site
 
 \scriptsize
@@ -422,6 +487,10 @@ summary(m3)
 summary(allEffects(m3))
 ```
 \normalsize
+
+
+
+
 
 
 ## Plot
@@ -458,10 +527,16 @@ par(def.par)
 
 ## Predicting tree height based on dbh and site
 
+```{r eval=FALSE}
+lm(height ~ plot + dbh, data = trees)
+```
+
+corresponds to 
+
 $$
   \begin{aligned} 
-  y_{i}=a+bx_{i}+\varepsilon _{i} \\  
-  y_{i}=a+b_{plot2}+c_{plot3}+d_{plot4}+e_{plot5}+...+ k \cdot DBH_{i} + \varepsilon _{i} \\ 
+  y_{i} = a + b_{plot2} + c_{plot3} + d_{plot4} + e_{plot5} +...+ k \cdot DBH_{i} + \varepsilon _{i} \\ 
+  \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\
   \end{aligned} 
 $$
 
@@ -474,6 +549,15 @@ multreg <- lm(height ~ plot + dbh, data = trees)
 summary(multreg)
 ```
 \normalsize
+
+
+## Presenting model results
+
+```{r echo=FALSE}
+kable(xtable::xtable(multreg), digits = 2)
+```
+
+
 
 ## Estimated tree heights for each site
 
@@ -495,8 +579,22 @@ plot(allEffects(multreg))
 ## Plot (visreg)
 
 ```{r }
+par(mfcol = c(1, 2))
 visreg(multreg)
+dev.off()
 ```
+
+
+## We have fitted model w/ many intercepts and single slope
+
+```{r echo=FALSE}
+plot(height ~ dbh, data = trees, las = 1)
+abline(a = coef(multreg)[1], b = coef(multreg)[11])
+for (i in 2:10) {
+  abline(a = coef(multreg)[1] + coef(multreg)[i], b = coef(multreg)[11])
+}
+```
+
 
 
 ## Model checking: residuals
@@ -525,6 +623,9 @@ library(bayesplot)
 sims <- simulate(multreg, nsim = 100)
 ppc_dens_overlay(trees$height, yrep = t(as.matrix(sims)))
 ```
+
+
+# Q: Does allometric relationship between DBH and Height vary among plots?
 
 
 ## Extra exercises
