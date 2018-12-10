@@ -27,26 +27,6 @@ opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ## Code decoration
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
 
-# ## Cache
-opts_chunk$set(cache = 2, cache.path = "knitr_output/cache/")
-# opts_chunk$set(cache.extra = rand_seed)
-# 
-# ## Plots
-opts_chunk$set(fig.path = "knitr_output/figures/")
-# opts_chunk$set(dpi = 300, fig.align = "default")   # may want 'center' sometimes
-# 
-# # Figure format
-# opts_chunk$set(dev='pdf')  # e.g. choose among 'pdf', 'png', 'svg'...
-# # may include specific dev.args as a list... see knitr help
-
-
-
-### Hooks ###
-
-## Crop plot margins
-#knit_hooks$set(crop = hook_pdfcrop)   
-
-
 ```
 
 
@@ -78,7 +58,7 @@ head(titanic)
 m5 <- lm(survived ~ class, data = titanic)
 layout(matrix(1:4, nrow=2))
 plot(m5)
-par(def.par)
+dev.off()
 ```
 
 
@@ -150,72 +130,24 @@ $$
 
 ## Back to survival of Titanic passengers 
 
-How many passengers travelled in each class?
-
-
-## Back to survival of Titanic passengers 
-
-How many passengers travelled in each class?
+How many survived in each class?
 ```{r}
-tapply(titanic$survived, titanic$class, length)
+table(titanic$class, titanic$survived)
 ```
 
-
-## Back to survival of Titanic passengers 
-
-How many passengers travelled in each class?
-```{r}
-tapply(titanic$survived, titanic$class, length)
-```
-
-How many survived?
-
-
-## Back to survival of Titanic passengers 
-
-How many passengers travelled in each class?
-```{r}
-tapply(titanic$survived, titanic$class, length)
-```
-
-How many survived?
-```{r}
-tapply(titanic$survived, titanic$class, sum)
-```
-
-
-
-
-
-## Back to survival of Titanic passengers 
-
-How many passengers travelled in each class?
-```{r}
-tapply(titanic$survived, titanic$class, length)
-```
-
-How many survived?
-```{r}
-tapply(titanic$survived, titanic$class, sum)
-```
-
-What proportion survived in each class?
-```{r}
-as.numeric(tapply(titanic$survived, titanic$class, mean))
-```
 
 
 ## Back to survival of Titanic passengers (dplyr)
 
 Passenger survival according to class
-```{r titanic_dplyr}
+```{r titanic_dplyr, echo=c(-1)}
 library(dplyr)
 titanic %>%
   group_by(class, survived) %>%
   summarise(count = n())
 ```
 
-Or `summarise(group_by(titanic, class, survived), count = n())`
+
 
 
 ## Or graphically...
@@ -228,12 +160,30 @@ plot(factor(survived) ~ class, data = titanic)
 ## Fitting GLMs in R: `glm`
 
 \scriptsize
+```{r echo=TRUE}
+tit.glm <- glm(survived ~ class, data = titanic, family = binomial(link = "logit"))
+```
+
+which corresponds to 
+
+$$
+  \begin{aligned}  
+  logit(Pr(survival)_{i}) = a + b \cdot class_{i} \\  
+  logit(Pr(survival)_{i}) = a + b_{first} + c_{second} + d_{third} \\
+  \end{aligned}  
+$$
+
+
+
+## Fitting GLMs in R: `glm`
+
+\scriptsize
 ```{r titanic_glm, echo=1}
 tit.glm <- glm(survived ~ class, data = titanic, family = binomial(link = "logit"))
 summary(tit.glm)
 ```
 
-These estimates are in logit scale!
+**These estimates are in logit scale!**
 
 \normalsize
 
@@ -276,19 +226,35 @@ library(effects)
 allEffects(tit.glm)
 ```
 
-## Effects plot
+
+## Presenting model results
+
+```{r echo=FALSE}
+kable(xtable::xtable(tit.glm), digits = 2)
+```
+
+
+## Visualising model: `effects` package
 
 ```{r effects_plot}
 plot(allEffects(tit.glm))
 ```
 
 
+## Visualising model: `visreg` package
+
+```{r echo=2}
+library(visreg)
+visreg(tit.glm, scale = "response")
+```
+
+
 ## Logistic regression: model checking
 
 ```{r tit_glm_check, echo=FALSE}
-layout(matrix(1:4, nrow=2))
+layout(matrix(1:4, nrow = 2))
 plot(tit.glm)
-par(def.par)
+dev.off()
 ```
 
 Not very useful.
@@ -335,7 +301,7 @@ But many caveats apply! (e.g. see [here](https://stats.stackexchange.com/questio
 
 1. Import data: `read.table` or `read.csv`
 
-2. Check data: `summary`
+2. Check data: `summary`, `head`
 
 3. Plot data: `plot`
 
@@ -343,11 +309,11 @@ But many caveats apply! (e.g. see [here](https://stats.stackexchange.com/questio
   
 5. Examine models: `summary`
   
-6. Use `plogis` to apply back-transformation (*invlogit*) to parameter estimates (`coef`). Alternatively, use `allEffects` from `effects` package.
+6. Use `allEffects` to back-transform parameters from logit into probability scale.
 
 7. Plot model: `plot(allEffects(model))`. Or use `visreg`.
 
-8. Examine residuals: use `arm::binnedplot` or `DHARMa::simulateResiduals`.
+8. Examine residuals: `DHARMa::simulateResiduals`.
 
 
 
@@ -392,10 +358,8 @@ plot(allEffects(tit.sex))
 
 ## Let's look at the data
 
-`tapply`
-
 ```{r tit_women}
-tapply(titanic$survived, list(titanic$class, titanic$sex), sum)
+table(titanic$class, titanic$survived, titanic$sex)
 ```
 
 Mmmm...
@@ -502,7 +466,8 @@ Example dataset: [GDP and infant mortality](http://vincentarelbundock.github.io/
 Read `UN_GDP_infantmortality.csv`.
 
 ```{r read_gdp, echo = FALSE}
-gdp <- read.csv("http://vincentarelbundock.github.io/Rdatasets/csv/car/UN.csv")
+#gdp <- read.csv("http://vincentarelbundock.github.io/Rdatasets/csv/car/UN.csv")
+gdp <- read.csv("data-raw/UN_GDP_infantmortality.csv")
 names(gdp) <- c("country", "mortality", "gdp")
 summary(gdp)
 ```
@@ -566,7 +531,7 @@ simulateResiduals(gdp.glm, plot = TRUE)
 
 ```{r echo = TRUE}
 simres <- simulateResiduals(gdp.glm, refit = TRUE)
-testOverdispersion(simres)
+testDispersion(simres, plot = FALSE)
 ```
 
 
