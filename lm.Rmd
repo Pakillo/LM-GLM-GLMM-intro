@@ -27,26 +27,6 @@ opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ## Code decoration
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
 
-# ## Cache
-opts_chunk$set(cache = 2, cache.path = "knitr_output/cache/")
-# opts_chunk$set(cache.extra = rand_seed)
-# 
-# ## Plots
-opts_chunk$set(fig.path = "knitr_output/figures/")
-# opts_chunk$set(dpi = 300, fig.align = "default")   # may want 'center' sometimes
-# 
-# # Figure format
-# opts_chunk$set(dev='pdf')  # e.g. choose among 'pdf', 'png', 'svg'...
-# # may include specific dev.args as a list... see knitr help
-
-
-
-### Hooks ###
-
-## Crop plot margins
-#knit_hooks$set(crop = hook_pdfcrop)   
-
-
 ```
 
 
