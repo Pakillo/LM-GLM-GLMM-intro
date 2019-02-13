@@ -5,7 +5,8 @@ date: "http://bit.ly/frod_san"
 output:
   beamer_presentation:
     incremental: yes
-    keep_tex: yes
+    keep_tex: no
+    fig_caption: FALSE
 header-includes:
   - \def\begincols{\begin{columns}[c]}
   - \def\endcols{\end{columns}}
@@ -79,7 +80,7 @@ opts_chunk$set(fig.path = "knitr_output/figures/")
 
 # Mixed / Multilevel models
 
-```{r child = 'mixed_models.Rmd'}
+```{r child = 'mixed_models.Rmd', eval=FALSE}
 ```
 
 

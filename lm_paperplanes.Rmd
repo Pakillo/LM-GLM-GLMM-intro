@@ -53,10 +53,15 @@ opts_chunk$set(fig.path = "knitr_output/figures/")
 
 ## Example dataset: paper planes flying experiment
 
+\scriptsize
+
 ```{r}
 library(paperplanes)
 head(paperplanes)
 ```
+
+\normalsize
+
 
 
 ## Questions
@@ -67,6 +72,8 @@ head(paperplanes)
 
 - Can we predict distance flown from participant's age? How well?
 
+
+# Always plot your data first!
 
 
 ## Always plot your data first!
@@ -110,29 +117,55 @@ hist(paperplanes$age)
 ## Scatterplot
 
 ```{r scatterplot}
-plot(paperplanes$age, paperplanes$distance, las = 1)
+plot(paperplanes$age, paperplanes$distance)
 ```
 
 
-## Now fit model
 
-Hint: `lm`
-
+# Model fitting
 
 ## Now fit model
 
 Hint: `lm`
+
+
+## Now fit model
 
 ```{r lm_paperplanes}
 m1 <- lm(distance ~ age, data = paperplanes)
 ```
 
+which corresponds to
+
+$$
+  \begin{aligned}  
+  Distance_{i} = a + b \cdot age_{i} + \varepsilon _{i} \\  
+  \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\  
+  \end{aligned}  
+$$
+
+
+# Model interpretation
 
 
 ## What does this mean?
 
 ```{r summary_lm, echo=FALSE}
 summary(m1)
+```
+
+
+## Presenting model results
+
+```{r echo=FALSE}
+kable(xtable::xtable(m1), digits = 2)
+```
+
+
+## Presenting model results
+
+```{r echo=FALSE, results='asis'}
+texreg::texreg(m1, single.row = TRUE)
 ```
 
 
@@ -166,6 +199,9 @@ summary(allEffects(m1))
 ```
 
 
+# Visualising fitted model
+
+
 ## Plot effects
 
 ```{r echo = TRUE}
@@ -179,6 +215,11 @@ plot(allEffects(m1))
 library(visreg)
 visreg(m1)
 ```
+
+
+
+
+# Model checking
 
 
 ## Linear model assumptions
@@ -231,6 +272,7 @@ SD of residuals = `r round(sd(resid(m1)), digits=2)` coincides with estimate of 
 
 
 
+# Using model for prediction
 ## How good is the model in predicting distance?
 
 `fitted` gives predictions for each observation
@@ -347,10 +389,16 @@ summary(m2)
 
 ## Linear model with categorical predictors
 
+```{r eval=FALSE}
+m2 <- lm(distance ~ paper, data = paperplanes)
+```
+
+which corresponds to
+
 $$
   \begin{aligned} 
   y_{i}=a+bx_{i}+\varepsilon _{i} \\  
-  y_{i}=a+b_{paper120}+\varepsilon _{i} \\     
+  distance_{i}=a+b_{paper120}+\varepsilon _{i} \\     
   \end{aligned} 
 $$
 
@@ -368,6 +416,13 @@ summary(m2)
 
 ```{r}
 summary(allEffects(m2))
+```
+
+
+## Presenting model results
+
+```{r echo=FALSE}
+kable(xtable::xtable(m2), digits = 2)
 ```
 
 
@@ -415,10 +470,14 @@ hist(resid(m2))
 
 ## Predicting distance based on age and paper type
 
+```{r eval=FALSE}
+lm(distance ~ paper + age, data = paperplanes)
+```
+
 $$
   \begin{aligned} 
   y_{i}=a+bx_{i}+\varepsilon _{i} \\  
-  y_{i}=a+b_{paper120}+ c \cdot age_{i} + \varepsilon _{i} \\ 
+  distance_{i}=a+b_{paper120}+ c \cdot age_{i} + \varepsilon _{i} \\ 
   \end{aligned} 
 $$
 
@@ -429,6 +488,13 @@ $$
 ```{r echo = FALSE}
 multreg <- lm(distance ~ age + paper, data = paperplanes)
 summary(multreg)
+```
+
+
+## Presenting model results
+
+```{r echo=FALSE}
+kable(xtable::xtable(multreg), digits = 2)
 ```
 
 
@@ -454,6 +520,7 @@ plot(allEffects(multreg))
 ```{r }
 visreg(multreg)
 ```
+
 
 
 ## Model checking: residuals
