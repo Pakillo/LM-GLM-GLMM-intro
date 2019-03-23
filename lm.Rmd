@@ -2,14 +2,13 @@
 title: "Linear models"
 output:
   beamer_presentation:
+    fig_height: 5
+    fig_width: 7
+    includes:
+      in_header: header.tex
     incremental: yes
-header-includes:
-  - \def\begincols{\begin{columns}[c]}
-  - \def\endcols{\end{columns}}
-  - \def\begincol{\begin{column}{0.48\textwidth}}
-  - \def\endcol{\end{column}} 
-  - \setlength{\emergencystretch}{0em}
-  - \setlength{\parskip}{0pt}
+    keep_tex: no
+    latex_engine: xelatex
 fontsize: 10pt
 ---
 
@@ -26,6 +25,10 @@ opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 ## Code decoration
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
+
+opts_chunk$set(fig.align = "center") 
+
+opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
 
 ```
 
@@ -68,7 +71,7 @@ head(trees)
 
 Outliers
 
-```{r indexplot, fig.height=5, fig.width=4}
+```{r indexplot}
 plot(trees$height)
 ```
 
@@ -98,6 +101,15 @@ hist(trees$dbh)
 
 ```{r scatterplot}
 plot(height ~ dbh, data = trees, las = 1)
+```
+
+## Scatterplot
+
+```{r echo=3:5}
+library(ggplot2)
+theme_set(theme_minimal(base_size = 18))
+ggplot(trees) + aes(dbh, height) +
+  geom_point() 
 ```
 
 
@@ -136,16 +148,34 @@ summary(m1)
 ```
 
 
+## Avoid dichotomania of statistical significance
+
+```{r echo=FALSE, out.height='1in', out.width='5in'}
+include_graphics("images/nature_significance.PNG")
+```
+
+- 'Never conclude there is ‘no difference’ or ‘no association’ just because p > 0.05 or CI includes zero'
+
+- Estimate and communicate effect sizes and their uncertainty
+
+- https://doi.org/10.1038/d41586-019-00857-9
+
+
+## Communicating results
+
+We found a ~~significant~~ positive relationship between DBH and Height ~~(p<0.05)~~ (b = 0.61, SE = 0.01).
+
+
 ## Presenting model results
 
-```{r echo=FALSE}
+```{r echo=TRUE}
 kable(xtable::xtable(m1), digits = 2)
 ```
 
 
 ## Presenting model results
 
-```{r echo=FALSE, results='asis'}
+```{r echo=TRUE, results='asis'}
 texreg::texreg(m1, single.row = TRUE)
 ```
 
@@ -158,12 +188,15 @@ coef(m1)
 
 ## Tidy up model coefficients with broom
 
+\footnotesize
+
 ```{r}
 library(broom)
 tidy(m1)
 glance(m1)
 ```
 
+\normalsize
 
 
 ## Confidence intervals
@@ -198,6 +231,13 @@ visreg(m1)
 ```
 
 
+## Plot model (sjPlot - ggplot2)
+
+```{r echo=2, message=FALSE}
+library(sjPlot)
+sjPlot::plot_model(m1, type = "eff", show.data = TRUE, line.size = 4)
+```
+
 
 
 # Model checking
@@ -213,17 +253,6 @@ visreg(m1)
     - Normal
 
 - No measurement error in predictors
-
-
-
-## Model checking: residuals
-
-```{r echo=FALSE}
-def.par <- par(no.readonly = TRUE)
-layout(matrix(1:4, nrow=2))
-plot(m1)
-par(def.par)
-```
 
 
 ## Are residuals normal? 
@@ -253,6 +282,40 @@ SD of residuals = `r round(sd(resid(m1)), digits=2)` coincides with estimate of 
 
 
 
+## Model checking: residuals
+
+```{r echo=FALSE}
+def.par <- par(no.readonly = TRUE)
+layout(matrix(1:4, nrow=2))
+plot(m1)
+par(def.par)
+```
+
+
+## Model checking (sjPlot)
+
+```{r}
+plot_model(m1, type = "diag")[[1]]
+```
+
+
+## Model checking (ggResidpanel)
+
+```{r}
+ggResidpanel::resid_panel(m1, plots = "all")
+```
+
+
+## Interactive model checking (ggResidpanel)
+
+```{r}
+ggResidpanel::resid_interact(m1)
+```
+
+
+
+
+
 # Using model for prediction
 
 
@@ -269,7 +332,8 @@ head(trees)
 ## Calibration plot: Observed vs Predicted values
 
 ```{r obs_pred, echo=1}
-plot(trees$height.pred, trees$height, xlab = "Tree height - predicted", ylab = "Tree height - observed", las = 1, xlim = c(10,60), ylim = c(10,60))
+plot(trees$height.pred, trees$height, 
+     xlab = "Tree height (predicted)", ylab = "Tree height (observed)", las = 1, xlim = c(10,60), ylim = c(10,60))
 abline(a = 0, b = 1)
 ```
 
@@ -286,21 +350,30 @@ predict(m1, new.dbh, se.fit = TRUE)
 ```
 
 
+## Using fitted model for prediction
+
+Q: Expected tree height if DBH = 39 cm?
+
+```{r}
+predict(m1, new.dbh, interval = "confidence")
+```
+
+```{r}
+predict(m1, new.dbh, interval = "prediction")
+```
 
 
-## Important functions
+## Workflow
 
-- `summary`
+- **Visualise data**
 
-- `allEffects`
+- **Understand fitted model** (`summary`, `allEffects`...)
 
-- `plot` (both data and model)
+- **Visualise model** (`plot(allEffects)`, `visreg`, `plot_model`...)
 
-- `visreg`
+- **Check model** (`plot`, `resid_panel`, calibration plot...)
 
-- `fitted`
-
-- `predict`
+- **Predict** (`fitted`, `predict`)
 
 
 
@@ -382,6 +455,20 @@ visreg(m2)
 ```
 
 
+## Plot model (sjPlot)
+
+```{r echo=TRUE}
+plot_model(m2, type = "eff")
+```
+
+
+## Model checking: residuals
+
+```{r}
+hist(resid(m2))
+```
+
+
 ## Model checking: residuals
 
 ```{r echo=FALSE}
@@ -392,11 +479,14 @@ par(def.par)
 ```
 
 
-## Model checking: residuals
+## Model checking (ggResidpanel)
 
 ```{r}
-hist(resid(m2))
+ggResidpanel::resid_panel(m2, plots = "all")
 ```
+
+
+
 
 
 # Q: Does height differ among field plots?
@@ -455,7 +545,7 @@ summary(m3)
 
 ## Presenting model results
 
-```{r echo=FALSE}
+```{r echo=TRUE}
 kable(xtable::xtable(m3), digits = 2)
 ```
 
@@ -488,11 +578,19 @@ visreg(m3)
 ```
 
 
+## Plot model (sjPlot)
+
+```{r echo=TRUE}
+plot_model(m3, type = "eff")
+```
+
+
+
 ## Model checking: residuals
 
 ```{r echo=FALSE}
 def.par <- par(no.readonly = TRUE)
-layout(matrix(1:4, nrow=2))
+layout(matrix(1:4, nrow = 2))
 plot(m3)
 par(def.par)
 ```
@@ -525,16 +623,16 @@ $$
 
 \scriptsize
 ```{r echo = FALSE}
-multreg <- lm(height ~ plot + dbh, data = trees)
-summary(multreg)
+m4 <- lm(height ~ plot + dbh, data = trees)
+summary(m4)
 ```
 \normalsize
 
 
 ## Presenting model results
 
-```{r echo=FALSE}
-kable(xtable::xtable(multreg), digits = 2)
+```{r echo=TRUE}
+kable(xtable::xtable(m4), digits = 2)
 ```
 
 
@@ -543,7 +641,7 @@ kable(xtable::xtable(multreg), digits = 2)
 
 \scriptsize
 ```{r}
-summary(allEffects(multreg))
+summary(allEffects(m4))
 ```
 \normalsize
 
@@ -551,27 +649,42 @@ summary(allEffects(multreg))
 ## Plot
 
 ```{r}
-plot(allEffects(multreg))
+plot(allEffects(m4))
 ```
 
 
 
 ## Plot (visreg)
 
-```{r }
+```{r echo=2}
 par(mfcol = c(1, 2))
-visreg(multreg)
+visreg(m4)
 dev.off()
 ```
+
+
+## Plot model (sjPlot)
+
+```{r echo=TRUE, out.width='3in'}
+plot_model(m4, type = "eff")
+```
+
+## Plot model (sjPlot)
+
+```{r echo=TRUE}
+plot_model(m4, type = "est")
+```
+
+
 
 
 ## We have fitted model w/ many intercepts and single slope
 
 ```{r echo=FALSE}
 plot(height ~ dbh, data = trees, las = 1)
-abline(a = coef(multreg)[1], b = coef(multreg)[11])
+abline(a = coef(m4)[1], b = coef(m4)[11])
 for (i in 2:10) {
-  abline(a = coef(multreg)[1] + coef(multreg)[i], b = coef(multreg)[11])
+  abline(a = coef(m4)[1] + coef(m4)[i], b = coef(m4)[11])
 }
 ```
 
@@ -582,7 +695,7 @@ for (i in 2:10) {
 ```{r echo=FALSE}
 def.par <- par(no.readonly = TRUE)
 layout(matrix(1:4, nrow=2))
-plot(multreg)
+plot(m4)
 par(def.par)
 ```
 
@@ -590,8 +703,8 @@ par(def.par)
 ## How good is this model? Calibration plot
 
 ```{r}
-trees$height.pred <- fitted(multreg)
-plot(trees$height.pred, trees$height, xlab = "Tree height - predicted", ylab = "Tree height - observed", las = 1, xlim = c(10,60), ylim = c(10,60))
+trees$height.pred <- fitted(m4)
+plot(trees$height.pred, trees$height, xlab = "Tree height (predicted)", ylab = "Tree height (observed)", las = 1, xlim = c(10,60), ylim = c(10,60))
 abline(a = 0, b = 1)
 ```
 
@@ -600,7 +713,7 @@ abline(a = 0, b = 1)
 
 ```{r out.height="3in", out.width="3.5in"}
 library(bayesplot)
-sims <- simulate(multreg, nsim = 100)
+sims <- simulate(m4, nsim = 100)
 ppc_dens_overlay(trees$height, yrep = t(as.matrix(sims)))
 ```
 
@@ -608,12 +721,34 @@ ppc_dens_overlay(trees$height, yrep = t(as.matrix(sims)))
 # Q: Does allometric relationship between DBH and Height vary among plots?
 
 
+
+## Model with interactions
+
+\tiny
+
+```{r echo=FALSE}
+m5 <- lm(height ~ plot*dbh, data = trees)
+summary(m5)
+```
+
+\normalsize
+
+
+## Does slope vary among forests?
+
+```{r}
+visreg(m5, xvar = "dbh", by = "plot")
+```
+
+
 ## Extra exercises
 
-- paperplanes: How does flight distance differ with age, gender or paper type?
+- [paperplanes](https://cran.r-project.org/package=paperplanes): How does flight distance differ with age, gender or paper type?
 
-- mammal sleep: Are sleep patterns related to diet?
+- [mammal sleep](https://ggplot2.tidyverse.org/reference/msleep.html): Are sleep patterns related to diet?
 
 - iris: Predict petal length ~ petal width and species
+
+- [racing pigeons](http://blog.yhat.com/posts/7-funny-datasets.html): is speed related to sex?
 
 

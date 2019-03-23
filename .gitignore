@@ -3,3 +3,5 @@
 .RData
 knitr_output
 GLMs2pdf.tex
+lm_files
+knitr_cache
