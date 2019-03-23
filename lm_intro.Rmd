@@ -28,11 +28,11 @@ opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
 
 # ## Cache
-opts_chunk$set(cache = 2, cache.path = "knitr_output/cache/")
+#opts_chunk$set(cache = 2, cache.path = "knitr_output/cache/")
 # opts_chunk$set(cache.extra = rand_seed)
 # 
 # ## Plots
-opts_chunk$set(fig.path = "knitr_output/figures/")
+#opts_chunk$set(fig.path = "knitr_output/figures/")
 # opts_chunk$set(dpi = 300, fig.align = "default")   # may want 'center' sometimes
 # 
 # # Figure format
@@ -90,7 +90,8 @@ abline(lm(setosa[,4] ~ setosa[,3]), lwd = 3)
 **Parameters**  
 *a* = intercept    
 *b* = slope     
-$\sigma$ = residual variation    
+$\sigma$ = residual variation   
+
 $\varepsilon$ = residuals  
 
 \endcol
