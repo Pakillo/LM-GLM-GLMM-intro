@@ -5,14 +5,10 @@ date: "http://bit.ly/frod_san"
 output:
   beamer_presentation:
     incremental: yes
-    keep_tex: yes
-header-includes:
-  - \def\begincols{\begin{columns}[c]}
-  - \def\endcols{\end{columns}}
-  - \def\begincol{\begin{column}{0.48\textwidth}}
-  - \def\endcol{\end{column}} 
-  - \setlength{\emergencystretch}{0em}
-  - \setlength{\parskip}{0pt}
+    keep_tex: no
+    fig_caption: FALSE
+    includes:
+      in_header: header.tex
 fontsize: 10pt
 ---
 
@@ -31,11 +27,11 @@ opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
 
 # ## Cache
-opts_chunk$set(cache = 2, cache.path = "knitr_output/cache/")
+#opts_chunk$set(cache = 2, cache.path = "knitr_output/cache/")
 # opts_chunk$set(cache.extra = rand_seed)
 # 
 # ## Plots
-opts_chunk$set(fig.path = "knitr_output/figures/")
+#opts_chunk$set(fig.path = "knitr_output/figures/")
 # opts_chunk$set(dpi = 300, fig.align = "default")   # may want 'center' sometimes
 # 
 # # Figure format
