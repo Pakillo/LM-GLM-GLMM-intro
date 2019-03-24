@@ -27,7 +27,7 @@ opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
 
 # ## Cache
-#opts_chunk$set(cache = 2, cache.path = "knitr_output/cache/")
+opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
 # opts_chunk$set(cache.extra = rand_seed)
 # 
 # ## Plots

@@ -1,7 +1,7 @@
 .Rproj.user
 .Rhistory
 .RData
-knitr_output
 GLMs2pdf.tex
 lm_files
 knitr_cache
+glm_binomial_files

@@ -2,14 +2,13 @@
 title: "Generalised Linear Models: Logistic regression"
 output:
   beamer_presentation:
+    fig_height: 5
+    fig_width: 7
+    includes:
+      in_header: header.tex
     incremental: yes
-header-includes:
-  - \def\begincols{\begin{columns}[c]}
-  - \def\endcols{\end{columns}}
-  - \def\begincol{\begin{column}{0.48\textwidth}}
-  - \def\endcol{\end{column}} 
-  - \setlength{\emergencystretch}{0em}
-  - \setlength{\parskip}{0pt}
+    keep_tex: no
+    latex_engine: xelatex
 fontsize: 10pt
 ---
 
@@ -26,6 +25,10 @@ opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 ## Code decoration
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
+
+opts_chunk$set(fig.align = "center") 
+
+opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
 
 ```
 
@@ -70,7 +73,7 @@ hist(resid(m5))
 ```
 
 
-## What if your residuals are clearly non-normal?   |   And variance not constant (heteroscedasticity)?
+## What if your residuals are clearly non-normal, or variance not constant (heteroscedasticity)?
 
 * Binary variables (0/1)
 * Counts (0, 1, 2, 3, ...)
@@ -156,13 +159,30 @@ titanic %>%
 plot(factor(survived) ~ class, data = titanic)
 ```
 
+## Mosaic plots (ggplot2)
+
+\footnotesize
+
+```{r echo=2:3}
+library(ggmosaic)
+ggplot(titanic) +
+  geom_mosaic(aes(x = product(survived, class))) +
+  labs(x = "", y = "Survived")
+```
+
+\normalsize
+
+
 
 ## Fitting GLMs in R: `glm`
 
-\scriptsize
+\small
+
 ```{r echo=TRUE}
-tit.glm <- glm(survived ~ class, data = titanic, family = binomial(link = "logit"))
+tit.glm <- glm(survived ~ class, data = titanic, family = binomial)
 ```
+
+\normalsize
 
 which corresponds to 
 
@@ -179,7 +199,7 @@ $$
 
 \scriptsize
 ```{r titanic_glm, echo=1}
-tit.glm <- glm(survived ~ class, data = titanic, family = binomial(link = "logit"))
+tit.glm <- glm(survived ~ class, data = titanic, family = binomial)
 summary(tit.glm)
 ```
 
@@ -229,7 +249,7 @@ allEffects(tit.glm)
 
 ## Presenting model results
 
-```{r echo=FALSE}
+```{r echo=TRUE}
 kable(xtable::xtable(tit.glm), digits = 2)
 ```
 
@@ -249,6 +269,17 @@ visreg(tit.glm, scale = "response")
 ```
 
 
+## Visualising model: `sjPlot` package
+
+```{r echo=4}
+library(ggplot2)
+library(sjPlot)
+theme_set(theme_minimal(base_size = 16))
+sjPlot::plot_model(tit.glm, type = "eff")
+```
+
+
+
 ## Logistic regression: model checking
 
 ```{r tit_glm_check, echo=FALSE}
@@ -258,6 +289,7 @@ dev.off()
 ```
 
 Not very useful.
+
 
 
 ## Binned residual plots for logistic regression
@@ -299,21 +331,18 @@ But many caveats apply! (e.g. see [here](https://stats.stackexchange.com/questio
 
 ## Recapitulating
 
-1. Import data: `read.table` or `read.csv`
 
-2. Check data: `summary`, `head`
+1. **Visualise data**
 
-3. Plot data: `plot`
-
-4. Fit model: `glm`. Don't forget to specify `family`!
+2. **Fit model**: `glm`. Don't forget to specify `family`!
   
-5. Examine models: `summary`
+3. **Examine model**: `summary`
   
-6. Use `allEffects` to back-transform parameters from logit into probability scale.
+4. **Back-transform parameters** from *logit* into probability scale (e.g. `allEffects`)
 
-7. Plot model: `plot(allEffects(model))`. Or use `visreg`.
+5. **Plot model**: `plot(allEffects(model))`, `visreg`, `plot_model`...
 
-8. Examine residuals: `DHARMa::simulateResiduals`.
+6. **Examine residuals**: `DHARMa::simulateResiduals`.
 
 
 
@@ -331,7 +360,7 @@ plot(factor(survived) ~ sex, data = titanic)
 ## Fit model
 
 ```{r tit_sex, echo=FALSE}
-tit.sex <- glm(survived ~ sex, data = titanic, family = binomial(link = "logit"))
+tit.sex <- glm(survived ~ sex, data = titanic, family = binomial)
 summary(tit.sex)
 ```
 
@@ -368,7 +397,7 @@ Mmmm...
 ## Fit additive model with both factors 
 
 ```{r echo=1}
-tit.sex.class <- glm(survived ~ class + sex, data = titanic, family = binomial)
+tit.sex.class <- glm(survived ~ class + sex, family = binomial, data = titanic)
 arm::display(tit.sex.class)
 ```
 
@@ -384,7 +413,7 @@ plot(allEffects(tit.sex.class))
 ## Fit model with both factors (interactions)
 
 ```{r tit_sex_class, echo=1}
-tit.sex.class <- glm(survived ~ class * sex, data = titanic, family = binomial)
+tit.sex.class <- glm(survived ~ class * sex, family = binomial, data = titanic)
 arm::display(tit.sex.class)
 ```
 
@@ -409,7 +438,11 @@ plot(allEffects(tit.sex.class))
 
 So, women had higher probability of survival than men, even within the same class.
 
+## Effects (sjPlot)
 
+```{r}
+plot_model(tit.sex.class, type = "int")
+```
 
 
 
@@ -485,7 +518,7 @@ plot(mortality ~ gdp, data = gdp, main = "Infant mortality (per 1000 births)")
 
 ```{r gdp_glm, echo=1}
 gdp.glm <- glm(cbind(mortality, 1000 - mortality) ~ gdp, 
-               data = gdp, family = binomial(link = "logit"))
+               data = gdp, family = binomial)
 summary(gdp.glm)
 ```
 
@@ -730,4 +763,13 @@ points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 \endcols
 
 
+
+
+```{r eval=FALSE, echo=FALSE}
+## Trying Poisson
+m <- glm(mortality ~ log(gdp), data = gdp, family = quasipoisson)
+summary(m)
+visreg(m, scale = "response")
+points(mortality ~ gdp, data = gdp)
+```
 
