@@ -2,14 +2,13 @@
 title: "GLM for count data: Poisson regression"
 output:
   beamer_presentation:
+    fig_height: 5
+    fig_width: 7
+    includes:
+      in_header: header.tex
     incremental: yes
-header-includes:
-  - \def\begincols{\begin{columns}[c]}
-  - \def\endcols{\end{columns}}
-  - \def\begincol{\begin{column}{0.48\textwidth}}
-  - \def\endcol{\end{column}} 
-  - \setlength{\emergencystretch}{0em}
-  - \setlength{\parskip}{0pt}
+    keep_tex: no
+    latex_engine: xelatex
 fontsize: 10pt
 ---
 
@@ -28,11 +27,12 @@ opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
 
 # ## Cache
-opts_chunk$set(cache = 2, cache.path = "knitr_output/cache/")
+opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
 # opts_chunk$set(cache.extra = rand_seed)
 # 
 # ## Plots
-opts_chunk$set(fig.path = "knitr_output/figures/")
+opts_chunk$set(fig.align = "center") 
+#opts_chunk$set(fig.path = "knitr_output/figures/")
 # opts_chunk$set(dpi = 300, fig.align = "default")   # may want 'center' sometimes
 # 
 # # Figure format
@@ -111,7 +111,7 @@ hist(seedl$count)
 ## Q: Relationship between Nseedlings and light?
 
 ```{r poisson_eda2}
-plot(seedl$light, seedl$count, las = 1, xlab = "Light (GSF)", ylab = "Seedlings")
+plot(seedl$light, seedl$count, xlab = "Light (GSF)", ylab = "Seedlings")
 ```
 
 
@@ -121,7 +121,7 @@ plot(seedl$light, seedl$count, las = 1, xlab = "Light (GSF)", ylab = "Seedlings"
 \scriptsize
 
 ```{r poisson_glm}
-seedl.glm <- glm(count ~ light, data = seedl, family = poisson(link="log"))
+seedl.glm <- glm(count ~ light, data = seedl, family = poisson)
 summary(seedl.glm)
 ```
 
@@ -141,6 +141,13 @@ coef(seedl.glm)
 exp(coef(seedl.glm))
 ```
 
+## Using effects package
+
+```{r echo=2}
+library(effects)
+summary(allEffects(seedl.glm))
+```
+
 
 ## So what's the relationship between Nseedlings and light?
 
@@ -152,9 +159,29 @@ plot(allEffects(seedl.glm))
 
 ## Using visreg
 
-```{r poisson_visreg}
+```{r poisson_visreg, echo = 2:3}
+library(visreg)
 visreg(seedl.glm, scale = "response", ylim = c(0, 7))
 points(count ~ light, data = seedl, pch = 20)
+```
+
+
+## Using sjPlot
+
+```{r echo=4}
+library(sjPlot)
+library(ggplot2)
+theme_set(theme_minimal(base_size = 16))
+sjPlot::plot_model(seedl.glm, type = "eff", show.data = TRUE)
+```
+
+
+## Calibration plot with count data: rootograms
+
+```{r}
+sims <- simulate(seedl.glm, nsim = 100)
+yrep <- t(as.matrix(sims))
+bayesplot::ppc_rootogram(seedl$count, yrep)
 ```
 
 
@@ -163,7 +190,7 @@ points(count ~ light, data = seedl, pch = 20)
 ```{r poisson_check, echo=FALSE}
 layout(matrix(1:4, nrow=2))
 plot(seedl.glm)
-par(def.par)
+dev.off()
 ```
 
 ## Is there pattern of residuals along predictor?
@@ -175,8 +202,9 @@ plot(seedl$light, resid(seedl.glm))
 
 ## Residuals diagnostics with DHARMa
 
-```{r echo=TRUE}
-simulateResiduals(seedl.glm, plot = TRUE)
+```{r echo=2}
+library(DHARMa)
+DHARMa::simulateResiduals(seedl.glm, plot = TRUE)
 ```
 
 
@@ -255,5 +283,9 @@ exp(coef(seedl.offset))
 ```
 
 
+## Other examples
 
+- Infant mortality ~ GDP
+
+- Number of [cones](http://vincentarelbundock.github.io/Rdatasets/doc/COUNT/nuts.html) consumed by squirrels
 
