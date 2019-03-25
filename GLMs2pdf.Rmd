@@ -4,11 +4,13 @@ author: "Francisco Rodriguez-Sanchez"
 date: "http://bit.ly/frod_san"
 output:
   beamer_presentation:
-    incremental: yes
-    keep_tex: no
-    fig_caption: FALSE
+    fig_height: 5
+    fig_width: 7
     includes:
       in_header: header.tex
+    incremental: yes
+    keep_tex: no
+    latex_engine: xelatex
 fontsize: 10pt
 ---
 
@@ -31,6 +33,7 @@ opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
 # opts_chunk$set(cache.extra = rand_seed)
 # 
 # ## Plots
+opts_chunk$set(fig.align = "center") 
 #opts_chunk$set(fig.path = "knitr_output/figures/")
 # opts_chunk$set(dpi = 300, fig.align = "default")   # may want 'center' sometimes
 # 
