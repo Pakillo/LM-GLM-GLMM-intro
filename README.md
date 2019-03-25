@@ -2,10 +2,11 @@
 
 Slides and R code for introductory course (10 hours) on GLM and GLMM in R. 
 
-Get PDF slides here: 
-https://github.com/Pakillo/LM-GLM-GLMM-intro/raw/trees/GLMs2pdf.pdf
+![](images/flowchart.png)
 
-Download datasets from http://bit.ly/DEAD_datasets
+
+Slides: https://github.com/Pakillo/LM-GLM-GLMM-intro/blob/trees/GLMs2pdf.pdf
+
 
 Francisco Rodriguez-Sanchez  
 http://bit.ly/frod_san
