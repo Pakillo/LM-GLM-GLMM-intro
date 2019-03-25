@@ -674,6 +674,15 @@ visreg(gdp.glm, ylab = "Mortality (logit scale)")
 
 ## Think about the shape of relationships
 
+```{r echo=FALSE}
+library(ggResidpanel)
+resid_panel(gdp.glm)
+```
+
+
+
+## Think about the shape of relationships
+
 \begincols
 \begincol
 
@@ -762,6 +771,14 @@ points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 \endcol
 \endcols
 
+
+## Think about the shape of relationships
+
+```{r echo=2}
+gdp.log <- glm(cbind(mortality, 1000 - mortality) ~ log(gdp), 
+               data = gdp, family = quasibinomial)
+resid_panel(gdp.log)
+```
 
 
 
