@@ -2,14 +2,13 @@
 title: "Mixed / Multilevel models"
 output:
   beamer_presentation:
+    fig_height: 5
+    fig_width: 7
+    includes:
+      in_header: header.tex
     incremental: yes
-header-includes:
-  - \def\begincols{\begin{columns}[c]}
-  - \def\endcols{\end{columns}}
-  - \def\begincol{\begin{column}{0.48\textwidth}}
-  - \def\endcol{\end{column}} 
-  - \setlength{\emergencystretch}{0em}
-  - \setlength{\parskip}{0pt}
+    keep_tex: no
+    latex_engine: xelatex
 fontsize: 10pt
 ---
 
@@ -28,11 +27,12 @@ opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
 
 # ## Cache
-opts_chunk$set(cache = 2, cache.path = "knitr_output/cache/")
+opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
 # opts_chunk$set(cache.extra = rand_seed)
 # 
 # ## Plots
-opts_chunk$set(fig.path = "knitr_output/figures/")
+opts_chunk$set(fig.align = "center") 
+#opts_chunk$set(fig.path = "knitr_output/figures/")
 # opts_chunk$set(dpi = 300, fig.align = "default")   # may want 'center' sometimes
 # 
 # # Figure format
@@ -60,6 +60,7 @@ opts_chunk$set(fig.path = "knitr_output/figures/")
 ```{r echo = 2}
 trees <- read.table("data-raw/trees.txt", header = TRUE)
 head(trees)
+trees$plot <- as.factor(trees$plot)
 ```
 
 
@@ -315,32 +316,38 @@ plot(allEffects(mixed))
 ## Visualising model: `visreg`
 
 
-```{r mixed_vis3, echo=FALSE, fig.height=3, fig.width=2.5}
+```{r mixed_vis3, echo=2}
 library(visreg)
-visreg(mixed)
+visreg(mixed, xvar = "dbh", by = "plot", re.form = ~(1|plot))
 ```
 
 ## Visualising model: `sjPlot`
 
-```{r}
+```{r echo=FALSE}
 library(sjPlot)
-sjp.lmer(mixed, type = "ri.slope")
+library(ggplot2)
+theme_set(theme_minimal(base_size = 16))
+#sjp.lmer(mixed, type = "ri.slope")
 ```
+
+```{r}
+plot_model(mixed, type = "eff")
+```
+
 
 
 ## Visualising model: `sjPlot`
 
 ```{r}
-sjp.lmer(mixed)
+plot_model(mixed, type = "re")
 ```
 
 
-## Visualising model: `sjPlot`
+## Visualising model
 
-```{r}
-sjp.lmer(mixed, type = "eff", show.ci = TRUE)
+```{r echo=FALSE}
+include_graphics("images/mixed.PNG")
 ```
-
 
 
 ## Using merTools to understand fitted model
@@ -351,9 +358,10 @@ shinyMer(mixed)
 ```
 
 
-## Plotting regression for individual forest plots
 
-```{r mixed_plot}
+
+```{r mixed_plot, eval=FALSE, echo=FALSE}
+## Plotting regression for individual forest plots
 nplot <- 2
 plot(trees$dbh[trees$plot==nplot], trees$height[trees$plot==nplot])
 abline(a=coef(mixed)$plot[nplot, 1], b=coef(mixed)$plot[nplot, 2], lwd=2)
@@ -371,7 +379,7 @@ plot(mixed)
 ## Checking residuals (DHARMa)
 
 ```{r}
-simulateResiduals(mixed, plot = TRUE, use.u = TRUE)
+DHARMa::simulateResiduals(mixed, plot = TRUE, use.u = TRUE)
 ```
 
 
@@ -515,14 +523,10 @@ coef(mixed.slopes)
 ## Visualising model: `sjPlot`
 
 ```{r}
-sjp.lmer(mixed.slopes)
+plot_model(mixed.slopes, type = "re")
 ```
 
-## Visualising model: `sjPlot`
 
-```{r}
-sjp.lmer(mixed.slopes, type = "rs.ri")
-```
 
 
 
@@ -578,15 +582,11 @@ coef(mixed.logis)
 ## Visualising model: `sjPlot`
 
 ```{r}
-sjp.glmer(mixed.logis, type = "eff", show.ci = TRUE)
+plot_model(mixed.logis, type = "eff", show.ci = TRUE)
 ```
 
 
-## Visualising model: `sjPlot`
 
-```{r}
-sjp.glmer(mixed.logis, type = "ri.slope")
-```
 
 
 
@@ -612,4 +612,9 @@ y ~ x + (1 | group1) + (1 | group2) # varying intercepts, crossed
 
 y ~ x + (1 + x | group1) + (1 + x | group2) # varying intercepts and slopes, crossed
 
+
+
+## More examples
+
+- sleepstudy
 
