@@ -328,15 +328,9 @@ library(sjPlot)
 library(ggplot2)
 theme_set(theme_minimal(base_size = 16))
 #sjp.lmer(mixed, type = "ri.slope")
+#plot_model(mixed, type = "eff")
 ```
 
-```{r}
-plot_model(mixed, type = "eff")
-```
-
-
-
-## Visualising model: `sjPlot`
 
 ```{r}
 plot_model(mixed, type = "re")
@@ -373,6 +367,13 @@ abline(a=coef(mixed)$plot[nplot, 1], b=coef(mixed)$plot[nplot, 2], lwd=2)
 
 ```{r mixed_resid}
 plot(mixed)
+```
+
+
+## Checking residuals
+
+```{r echo=TRUE}
+ggResidpanel::resid_panel(mixed)
 ```
 
 
