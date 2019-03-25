@@ -773,3 +773,49 @@ visreg(m, scale = "response")
 points(mortality ~ gdp, data = gdp)
 ```
 
+
+## More examples
+
+- seedset.csv: Comparing seed set among plants (Data from [Harder et al. 2011](https://datadryad.org/resource/doi:10.5061/dryad.0vf86nb1.2))
+
+
+
+## Seed set among plants
+
+```{r}
+seed <- readr::read_csv("data-raw/seedset.csv")
+head(seed)
+seed$plant <- as.factor(seed$plant)
+```
+
+
+## Number of seeds vs Number of ovules
+
+```{r}
+plot(seeds ~ ovulecnt, data = seed)
+```
+
+
+## Number of seeds vs Proportion outcross pollen
+
+```{r}
+plot(seeds ~ pcmass, data = seed)
+```
+
+## Seed set across plants
+
+```{r echo=FALSE}
+seedm <- glm(cbind(seeds, ovulecnt - seeds) ~ plant, data = seed, family = binomial)
+#summary(seedm)
+plot(allEffects(seedm))
+```
+
+
+## Seed set ~ outcross pollen
+
+```{r echo=FALSE}
+seedm <- glm(cbind(seeds, ovulecnt - seeds) ~ plant + pcmass, data = seed, family = binomial)
+#summary(seedm)
+plot(allEffects(seedm))
+```
+
