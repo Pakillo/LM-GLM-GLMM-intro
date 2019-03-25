@@ -289,6 +289,8 @@ tidy(mixed)
 
 \normalsize
 
+See also [broom.mixed](https://github.com/bbolker/broom.mixed)
+
 
 ## Visualising model: `allEffects`
 
@@ -320,6 +322,8 @@ plot(allEffects(mixed))
 library(visreg)
 visreg(mixed, xvar = "dbh", by = "plot", re.form = ~(1|plot))
 ```
+
+
 
 ## Visualising model: `sjPlot`
 
@@ -395,7 +399,7 @@ ppc_dens_overlay(trees$height, yrep = t(as.matrix(sims)))
 
 ## R-squared for GLMMs
 
-Many approaches! Somewhat polemic. 
+Many approaches! Somewhat polemic (e.g. see [this](https://m-clark.github.io/mixed-models-with-R/issues.html#variance-accounted-for)). 
 
 Nakagawa & Schielzeth propose **marginal** (considering fixed effects only) and **conditional** $R^{2}$ (including random effects too):
 
@@ -404,6 +408,22 @@ library(MuMIn)
 r.squaredGLMM(mixed)
 ```
 
+
+
+
+```{r echo=FALSE, eval=FALSE}
+## Predicting heights at NEW plots!
+#https://github.com/lme4/lme4/issues/388#issuecomment-231398937
+newtree <- data.frame(dbh = 30, plot = as.factor(25))
+p <- bootMer(mixed, 
+        function(x) {simulate(x, newdata = newtree, re.form = ~0, allow.new.levels = TRUE)[[1]]},
+        nsim = 100)
+apply(p$t, 2, mean)
+apply(p$t, 2, sd)
+# similar to:
+apply(simulate(mixed, newdata = newtree, re.form = ~0, allow.new.levels = TRUE, nsim = 100), 1, mean)
+
+```
 
 
 # Growing the hierarchy: adding plot-level predictors
@@ -612,6 +632,11 @@ y ~ x + (1 | group/subgroup) # nested
 y ~ x + (1 | group1) + (1 | group2) # varying intercepts, crossed
 
 y ~ x + (1 + x | group1) + (1 + x | group2) # varying intercepts and slopes, crossed
+
+
+## GLMM FAQ
+
+https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
 
 
 
