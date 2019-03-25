@@ -193,6 +193,14 @@ plot(seedl.glm)
 dev.off()
 ```
 
+
+## Poisson regression: model checking
+
+```{r}
+ggResidpanel::resid_panel(seedl.glm)
+```
+
+
 ## Is there pattern of residuals along predictor?
 
 ```{r poisson_check2}
@@ -215,7 +223,7 @@ DHARMa::simulateResiduals(seedl.glm, plot = TRUE)
 
 ```{r}
 simres <- simulateResiduals(seedl.glm, refit = TRUE)
-testOverdispersion(simres)
+testDispersion(simres, plot = FALSE)
 ```
 
 
@@ -287,5 +295,6 @@ exp(coef(seedl.offset))
 
 - Infant mortality ~ GDP
 
-- Number of [cones](http://vincentarelbundock.github.io/Rdatasets/doc/COUNT/nuts.html) consumed by squirrels
+- Number of cones consumed by squirrels ([data]((http://vincentarelbundock.github.io/Rdatasets/doc/COUNT/nuts.html)))
+
 
