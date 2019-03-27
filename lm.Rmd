@@ -489,25 +489,25 @@ ggResidpanel::resid_panel(m2, plots = "all")
 
 
 
-# Q: Does height differ among field plots?
+# Q: Does height differ among field sites?
 
 ## Plot data first
 
 ```{r}
-plot(height ~ plot, data = trees)
+plot(height ~ site, data = trees)
 ```
 
 
 ## Linear model with categorical predictors
 
 ```{r eval=FALSE}
-m3 <- lm(height ~ plot, data = trees)
+m3 <- lm(height ~ site, data = trees)
 ```
 
 
 $$
   \begin{aligned} 
-  y_{i} = a + b_{plot2} + c_{plot3} + d_{plot4} + e_{plot5} +...+ \varepsilon _{i} \\   
+  y_{i} = a + b_{site2} + c_{site3} + d_{site4} + e_{site5} +...+ \varepsilon _{i} \\   
   \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\
   \end{aligned} 
 $$
@@ -515,28 +515,28 @@ $$
 
 
 
-## Model Height ~ Plot
+## Model Height ~ site
 
 All right here?
 
 ```{r echo=1}
-m3 <- lm(height ~ plot, data = trees)
+m3 <- lm(height ~ site, data = trees)
 summary(m3)
 ```
 
 
-## Plot is a factor!
+## site is a factor!
 
 ```{r}
-trees$plot <- as.factor(trees$plot)
+trees$site <- as.factor(trees$site)
 ```
 
 
-## Model Height ~ Plot
+## Model Height ~ site
 
 \scriptsize
 ```{r echo=FALSE}
-m3 <- lm(height ~ plot, data = trees)
+m3 <- lm(height ~ site, data = trees)
 summary(m3)
 ```
 \normalsize
@@ -606,14 +606,14 @@ par(def.par)
 ## Predicting tree height based on dbh and site
 
 ```{r eval=FALSE}
-lm(height ~ plot + dbh, data = trees)
+lm(height ~ site + dbh, data = trees)
 ```
 
 corresponds to 
 
 $$
   \begin{aligned} 
-  y_{i} = a + b_{plot2} + c_{plot3} + d_{plot4} + e_{plot5} +...+ k \cdot DBH_{i} + \varepsilon _{i} \\ 
+  y_{i} = a + b_{site2} + c_{site3} + d_{site4} + e_{site5} +...+ k \cdot DBH_{i} + \varepsilon _{i} \\ 
   \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\
   \end{aligned} 
 $$
@@ -623,7 +623,7 @@ $$
 
 \scriptsize
 ```{r echo = FALSE}
-m4 <- lm(height ~ plot + dbh, data = trees)
+m4 <- lm(height ~ site + dbh, data = trees)
 summary(m4)
 ```
 \normalsize
@@ -718,7 +718,7 @@ ppc_dens_overlay(trees$height, yrep = t(as.matrix(sims)))
 ```
 
 
-# Q: Does allometric relationship between DBH and Height vary among plots?
+# Q: Does allometric relationship between DBH and Height vary among sites?
 
 
 
@@ -727,7 +727,7 @@ ppc_dens_overlay(trees$height, yrep = t(as.matrix(sims)))
 \tiny
 
 ```{r echo=FALSE}
-m5 <- lm(height ~ plot*dbh, data = trees)
+m5 <- lm(height ~ site*dbh, data = trees)
 summary(m5)
 ```
 
@@ -737,7 +737,7 @@ summary(m5)
 ## Does slope vary among forests?
 
 ```{r}
-visreg(m5, xvar = "dbh", by = "plot")
+visreg(m5, xvar = "dbh", by = "site")
 ```
 
 
