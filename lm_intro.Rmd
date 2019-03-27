@@ -2,14 +2,13 @@
 title: "Introduction to linear models"
 output:
   beamer_presentation:
+    fig_height: 5
+    fig_width: 7
+    includes:
+      in_header: header.tex
     incremental: yes
-header-includes:
-  - \def\begincols{\begin{columns}[c]}
-  - \def\endcols{\end{columns}}
-  - \def\begincol{\begin{column}{0.48\textwidth}}
-  - \def\endcol{\end{column}} 
-  - \setlength{\emergencystretch}{0em}
-  - \setlength{\parskip}{0pt}
+    keep_tex: no
+    latex_engine: xelatex
 fontsize: 10pt
 ---
 
@@ -56,9 +55,16 @@ opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesiz
 ![](images/tests_diagram.png)
 
 
+## A unified framework
+
+```{r echo=FALSE, out.width='4in'}
+knitr::include_graphics("images/flowchart.png")
+```
 
 
-## Our overarching regression framework 
+
+
+## Our unified regression framework 
 
 
 $$
