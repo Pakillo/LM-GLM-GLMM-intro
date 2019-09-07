@@ -57,7 +57,7 @@ opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesiz
 
 ## A unified framework
 
-```{r echo=FALSE, out.width='4in'}
+```{r echo=FALSE, out.width='4.5in', out.height='3in', fig.align='center', dpi=300}
 knitr::include_graphics("images/flowchart.png")
 ```
 

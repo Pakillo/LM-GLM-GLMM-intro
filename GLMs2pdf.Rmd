@@ -83,7 +83,7 @@ opts_chunk$set(fig.align = "center")
 
 -----
 
-```{r echo=FALSE}
+```{r echo=FALSE, out.height='4in', out.width='4.5in'}
 knitr::include_graphics("images/flowchart.png")
 ```
 
