@@ -4,6 +4,7 @@ output:
   beamer_presentation:
     fig_height: 5
     fig_width: 7
+    fig_caption: no
     includes:
       in_header: header.tex
     incremental: yes
@@ -53,14 +54,14 @@ opts_chunk$set(fig.align = "center")
 
 ## Example dataset: trees
 
-- Data on 1000 trees from 10 plots.
+- Data on 1000 trees from 10 sites.
 
-- Trees per plot: 4 - 392.
+- Trees per site: 4 - 392.
 
 ```{r echo = 2}
-trees <- read.table("data-raw/trees.txt", header = TRUE)
+trees <- read.csv("data-raw/trees.csv")
 head(trees)
-trees$plot <- as.factor(trees$plot)
+trees$site <- as.factor(trees$site)
 ```
 
 
@@ -102,33 +103,41 @@ $\beta$: how much height increases with every unit increase of DBH
 ## There is only one intercept
 
 ```{r echo=FALSE}
-plot(height ~ dbh, data=trees, las=1, xlab="DBH (cm)", ylab="Height (m)", ylim = c(0, 50), main = "Single intercept")
-abline(lm(height ~ dbh, data=trees), lwd=4, col="red")
+library(ggplot2)
+ggplot(trees) +
+  aes(dbh, height) +
+  geom_point() +
+  geom_smooth(method = "lm", size = 3) +
+  labs(x = "DBH (cm)", y = "Height (m)", title = "Single intercept") +
+  theme_minimal(base_size = 16)
 ```
 
 
-## What if allometry varies among plots?
+## What if allometry varies among sites?
 
 ```{r echo=FALSE}
-lm2 <- lm(height ~ factor(plot) + dbh, data = trees)
-plot(trees$dbh[trees$plot==1], trees$height[trees$plot==1], 
-     pch=20, las=1, xlab="DBH (cm)", ylab="Height (m)", col=1,
-     ylim=c(0,50), main = "Different intercept for each plot")
-abline(a=coef(lm2)[1], b=coef(lm2)[11], col=1, lwd=2)
-for(i in c(2)){ # only 2 plots by now so as not to clutter figure
-  points(trees$dbh[trees$plot==i], trees$height[trees$plot==i], pch=20, col=i)
-  abline(a=coef(lm2)[1] + coef(lm2)[i], b=coef(lm2)[11], col=i, lwd=2)
-}
+ggplot(subset(trees, site == 1 | site == 2)) +
+  aes(dbh, height, colour = site) +
+  geom_point() +
+  geom_smooth(method = "lm", size = 3) +
+  labs(x = "DBH (cm)", y = "Height (m)", 
+       title = "Different intercept for each site") +
+  theme_minimal(base_size = 16) +
+  theme(legend.position = "none")
 ```
 
 
 
 ## Fitting a varying intercepts model with `lm`
 
+\footnotesize
+
 ```{r lm_varying, echo=FALSE}
-lm.interc <- lm(height ~ factor(plot) + dbh, data = trees)
-arm::display(lm.interc)
+lm.interc <- lm(height ~ factor(site) + dbh, data = trees)
+summary(lm.interc)
 ```
+
+\normalsize
 
 
 
@@ -137,25 +146,28 @@ arm::display(lm.interc)
 
 \begincols
 \begincol
+
 ```{r single_interc, echo=FALSE, fig.height=5, fig.width=4}
-trees <- read.table("data-raw/trees.txt", header=TRUE)
-plot(height ~ dbh, data=trees, las=1, xlab="DBH (cm)", ylab="Height (m)", ylim = c(0, 50), 
-     main = "Pooling all plots")
-abline(lm(height ~ dbh, data=trees), lwd=4, col="red")
+ggplot(trees) +
+  aes(dbh, height) +
+  geom_point() +
+  geom_smooth(method = "lm", size = 3) +
+  labs(x = "DBH (cm)", y = "Height (m)", title = "Single intercept") +
+  theme_minimal(base_size = 16)
 ```
+
 \endcol
 
 \begincol
 ```{r varying_interc, echo=FALSE, fig.height=5, fig.width=4}
-lm2 <- lm(height ~ factor(plot) + dbh, data = trees)
-plot(trees$dbh[trees$plot==1], trees$height[trees$plot==1], 
-     pch=20, las=1, xlab="DBH (cm)", ylab="Height (m)", col=1,
-     ylim=c(0,50), main = "Different intercept for each plot")
-abline(a=coef(lm2)[1], b=coef(lm2)[11], col=1, lwd=2)
-for(i in 2:10){
-  points(trees$dbh[trees$plot==i], trees$height[trees$plot==i], pch=20, col=i)
-  abline(a=coef(lm2)[1] + coef(lm2)[i], b=coef(lm2)[11], col=i, lwd=2)
-}
+ggplot(trees) +
+  aes(dbh, height, colour = site) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", size = 1.5, se = FALSE) +
+  labs(x = "DBH (cm)", y = "Height (m)", 
+       title = "Different intercept for each site") +
+  theme_minimal(base_size = 16) +
+  theme(legend.position = "none")
 ```
 \endcol
 \endcols
@@ -170,17 +182,17 @@ for(i in 2:10){
 
 \begincol
 
-- Varying intercepts
+![](images/mixed_models.jpg)
 
-- Varying slopes
+www.esourceresearch.org/
 
 \endcol
 
 \begincol
 
-![](images/mixed_models.jpg)
+- Varying intercepts
 
-www.esourceresearch.org/
+- Varying slopes
 
 \endcol
 
@@ -193,8 +205,8 @@ www.esourceresearch.org/
 
 $$
   \begin{aligned}  
-  y_{i}=a_{j}+bx_{i}+\varepsilon _{i} \\  
-  a_{j} \sim N\left( 0,\tau^2 \right) \\  
+  y_{i} = a + \alpha_{j} + b \cdot x_{i} + \varepsilon_{i} \\  
+  \alpha_{j} \sim N\left( 0,\tau^2 \right) \\  
   \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\  
   \end{aligned}  
 $$
@@ -203,9 +215,9 @@ En nuestro ejemplo:
 
 $$
   \begin{aligned}  
-  Height_{i}=plot_{j}+bDBH_{i}+\varepsilon _{i} \\  
-  plot_{j} \sim N\left( 0,\tau^2 \right) \\  
-  \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\  
+  Height_{i} = a + site_{j} + b \cdot DBH_{i} + \varepsilon_{i} \\  
+  site_{j} \sim N\left(0, \tau^2 \right) \\  
+  \varepsilon _{i}\sim N\left(0, \sigma^2 \right) \\  
   \end{aligned}  
 $$
 
@@ -219,11 +231,11 @@ $$
 - **complete pooling**: Single overall intercept.
     - `lm (height ~ dbh)`
 
-- **no pooling**: One *independent* intercept for each plot.
-    - `lm (height ~ dbh + factor(plot))`
+- **no pooling**: One *independent* intercept for each site.
+    - `lm (height ~ dbh + site)`
 
 - **partial pooling**: Inter-related intercepts.
-    - `lmer(height ~ dbh + (1 | plot))`
+    - `lmer(height ~ dbh + (1 | site))`
 
 
 ## Random vs Fixed effects?
@@ -243,11 +255,11 @@ http://andrewgelman.com/2005/01/25/why_i_dont_use/
 
 ## What is a random effect, really?
 
-1. Varies by group
+- Varies by group
 
-2. Variation estimated with probability model
+- Variation estimated with **probability model**
 
-Random effects are estimated with partial pooling, while fixed effects are not
+Random effects are estimated with *partial pooling*, while fixed effects are not
 (infinite variance).
 
 
@@ -264,12 +276,13 @@ Especially for groups with low sample size
 
 ## Fitting mixed/multilevel models
 
+\footnotesize
 ```{r mixed, echo=1:2}
 library(lme4)
-mixed <- lmer(height ~ dbh + (1|plot), data = trees)
-arm::display(mixed)
+mixed <- lmer(height ~ dbh + (1|site), data = trees)
+summary(mixed)
 ```
-
+\normalsize
 
 ## Retrieve model coefficients
 
@@ -280,7 +293,7 @@ coef(mixed)
 
 ## Broom: model estimates in tidy form
 
-\scriptsize
+\footnotesize
 
 ```{r}
 library(broom)
@@ -320,32 +333,32 @@ plot(allEffects(mixed))
 
 ```{r mixed_vis3, echo=2}
 library(visreg)
-visreg(mixed, xvar = "dbh", by = "plot", re.form = ~(1|plot))
+visreg(mixed, xvar = "dbh", by = "site", re.form = NULL)
 ```
 
+
+## Visualising model
+
+```{r echo=TRUE}
+visreg(mixed, xvar = "dbh", by = "site", re.form = NULL, overlay = TRUE)
+```
 
 
 ## Visualising model: `sjPlot`
 
 ```{r echo=FALSE}
 library(sjPlot)
-library(ggplot2)
 theme_set(theme_minimal(base_size = 16))
 #sjp.lmer(mixed, type = "ri.slope")
 #plot_model(mixed, type = "eff")
 ```
 
-
 ```{r}
-plot_model(mixed, type = "re")
+sjPlot::plot_model(mixed, type = "re")
 ```
 
 
-## Visualising model
 
-```{r echo=FALSE}
-include_graphics("images/mixed.PNG")
-```
 
 
 ## Using merTools to understand fitted model
@@ -355,15 +368,6 @@ library(merTools)
 shinyMer(mixed)
 ```
 
-
-
-
-```{r mixed_plot, eval=FALSE, echo=FALSE}
-## Plotting regression for individual forest plots
-nplot <- 2
-plot(trees$dbh[trees$plot==nplot], trees$height[trees$plot==nplot])
-abline(a=coef(mixed)$plot[nplot, 1], b=coef(mixed)$plot[nplot, 2], lwd=2)
-```
 
 
 
@@ -412,9 +416,9 @@ r.squaredGLMM(mixed)
 
 
 ```{r echo=FALSE, eval=FALSE}
-## Predicting heights at NEW plots!
+## Predicting heights at NEW sites!
 #https://github.com/lme4/lme4/issues/388#issuecomment-231398937
-newtree <- data.frame(dbh = 30, plot = as.factor(25))
+newtree <- data.frame(dbh = 30, site = as.factor(25))
 p <- bootMer(mixed, 
         function(x) {simulate(x, newdata = newtree, re.form = ~0, allow.new.levels = TRUE)[[1]]},
         nsim = 100)
@@ -426,7 +430,7 @@ apply(simulate(mixed, newdata = newtree, re.form = ~0, allow.new.levels = TRUE, 
 ```
 
 
-# Growing the hierarchy: adding plot-level predictors
+# Growing the hierarchy: adding site-level predictors
 
 
 ## Model with group-level predictors 
@@ -435,8 +439,8 @@ We had:
 
 $$
   \begin{aligned}
-  y_{i} = a_{j} + bx_{i} + \varepsilon_{i}  \\
-  a_{j} \sim N(0, \tau^2)  \\
+  y_{i} = a + \alpha_{j} + b \cdot x_{i} + \varepsilon_{i}  \\
+  \alpha_{j} \sim N(0, \tau^2)  \\
   \varepsilon_{i} \sim N(0, \sigma^2) 
   \end{aligned}
 $$
@@ -446,40 +450,74 @@ Now
 
 $$
   \begin{aligned}
-  y_{i} = a_{j} + bx_{i} + \varepsilon_{i}  \\
-  a_{j} \sim N(\mu_{j}, \tau^2)  \\
-  \mu_{j} = \gamma + \delta \cdot predictor_{j}  \\
+  y_{i} = a + \alpha_{j} + b \cdot x_{i} + \varepsilon_{i}  \\
+  \alpha_{j} \sim N(\mu_{j}, \tau^2)  \\
+  \mu_{j} = \delta \cdot Predictor_{j}  \\
   \varepsilon_{i} \sim N(0, \sigma^2)
   \end{aligned}
 $$
   
 
+## Are height differences among sites related to temperature?
+
+$$
+  \begin{aligned}
+  Height_{i} = site_{j} + b \cdot DBH_{i} + \varepsilon_{i}  \\
+  site_{j} \sim N(\mu_{j}, \tau^2)  \\
+  \mu_{j} = a + \delta \cdot Temperature_{j}  \\
+  \varepsilon_{i} \sim N(0, \sigma^2)
+  \end{aligned}
+$$
 
 
-## Merging trees and plot data
+## Are height differences among sites related to temperature?
 
-```{r read_plotdata, echo=TRUE, message=FALSE}
-plotdata <- read.csv("data-raw/plotdata.csv")
-trees.full <- merge(trees, plotdata, by = "plot")
-head(trees.full)
+```{r read_sitedata, echo=TRUE, message=FALSE}
+sitedata <- read.csv("data-raw/sitedata.csv")
+sitedata
 ```
 
 
-## Centre continuous variables
+## Merging trees and site data
 
-Plot temperatures referred as deviations from 15ºC
-
-```{r}
-trees.full$temp.c <- trees.full$temp - 15
+```{r echo=TRUE, message=FALSE}
+trees.full <- merge(trees, sitedata, by = "site")
+head(trees.full)
 ```
 
 
 ## Fit multilevel model
 
-```{r}
-group.pred <- lmer(height ~ dbh + (1 | plot) + temp.c, data = trees.full)
-arm::display(group.pred)
+\scriptsize
+```{r echo=1}
+group.pred <- lmer(height ~ dbh + (1 | site) + temp, data = trees.full)
+summary(group.pred)
 ```
+\normalsize
+
+Too strong correlation of parameters!
+
+
+## Centre (and scale) continuous variables
+
+```{r}
+mean(sitedata$temp)
+trees.full$temp.c <- trees.full$temp - 18
+```
+
+Temperatures now referred as deviations from 18 ºC (close to average)
+
+
+
+## Fit multilevel model
+
+\scriptsize
+```{r echo=1}
+group.pred <- lmer(height ~ dbh + (1 | site) + temp.c, data = trees.full)
+summary(group.pred)
+```
+\normalsize
+
 
 
 ## Examine model with merTools
@@ -490,22 +528,22 @@ shinyMer(group.pred)
 
 
 
-## Comparing plot effects with and without group predictor
+## Comparing site effects with and without group predictor
 
 ```{r echo=FALSE}
-plot(coef(mixed)$plot[,1], coef(group.pred)$plot[,1],
-     xlim = c(4, 20), ylim = c(4, 20), 
+plot(coef(mixed)$site[,1], coef(group.pred)$site[,1],
+     xlim = c(10, 25), ylim = c(10, 25), 
      xlab = "Without group predictor", ylab = "With group predictor",
-     main = "Estimated plot effects")
-abline(a=0, b=1)
+     main = "Estimated site effects", las = 1)
+abline(a = 0, b = 1)
 ```
 
 
-## Are plot effects related to temperature?
+## Are site effects related to temperature?
 
-```{r}
-plot(plotdata$temp, coef(group.pred)$plot[,1],
-     xlab = "Temperature", ylab = "Plot effect")
+```{r echo=FALSE}
+plot(sitedata$temp, coef(group.pred)$site[,1],
+     xlab = "Temperature", ylab = "site effect")
 ```
 
 
@@ -515,24 +553,27 @@ plot(plotdata$temp, coef(group.pred)$plot[,1],
 
 ## Varying intercepts and slopes
 
-- There is overall difference in height among plots (different intercepts)
+There is overall difference in height among sites (different intercepts)
+\newline
 
-- AND
+AND
+\newline
 
-- Relationship between DBH and Height varies among plots (different slopes)
+Relationship between DBH and Height varies among sites (different slopes)
 
 
 ```{r}
-mixed.slopes <- lmer(height ~ dbh + (1 + dbh | plot), data=trees)
+mixed.slopes <- lmer(height ~ dbh + (1 + dbh | site), data=trees)
 ```
 
 
 ## Varying intercepts and slopes
 
+\footnotesize
 ```{r echo = FALSE}
-arm::display(mixed.slopes)
+summary(mixed.slopes)
 ```
-
+\normalsize
 
 ## Varying intercepts and slopes
 
@@ -548,7 +589,64 @@ plot_model(mixed.slopes, type = "re")
 ```
 
 
+# More examples
 
+## sleepstudy (repeated measures)
+
+```{r echo=FALSE}
+data("sleepstudy")
+library(ggplot2)
+ggplot(sleepstudy) +
+  aes(x = Days, y = Reaction) +
+  geom_point() +
+  facet_wrap(~Subject) 
+```
+
+
+## Varying intercepts and slopes (lme4)
+
+\scriptsize
+```{r echo=1}
+sleep <- lmer(Reaction ~ Days + (1+Days|Subject), data = sleepstudy)
+summary(sleep)
+```
+\normalsize
+
+## Varying intercepts and slopes (lme4)
+
+```{r eval=FALSE}
+visreg(sleep, xvar = "Days", by = "Subject", re.form = NULL)
+```
+
+
+## Fitting multilevel models (GAMM) with `mgcv`
+
+\small
+```{r echo = 2}
+library(mgcv)
+sgamm <- mgcv::gam(Reaction ~ s(Days, Subject, k = 3, bs = "fs"), 
+                   data = sleepstudy, method = "REML")
+summary(sgamm)
+#gam.check(sleep.gamm)
+#coef(p)
+```
+\normalsize
+
+
+## Fitting multilevel models (GAMM) with `mgcv`
+
+```{r}
+visreg(sgamm, xvar = "Days", by = "Subject")
+```
+
+
+## Fitting multilevel models (GAMM) with `mgcv`
+
+```{r out.width='4in', out.height='2.5in', echo=FALSE}
+include_graphics("images/gamm_paper.PNG")
+```
+
+https://doi.org/10.7287/peerj.preprints.27320v1
 
 
 # Multilevel logistic regression
@@ -576,21 +674,26 @@ summary(simple.logis)
 ```
 
 
-## Logistic regression with *independent* plot effects
+## Logistic regression with *independent* site effects
+
+\footnotesize
 
 ```{r, echo=1}
-logis2 <- glm(dead ~ dbh + factor(plot), data = trees, family=binomial)
+logis2 <- glm(dead ~ dbh + factor(site), data = trees, family=binomial)
 summary(logis2)
 ```
+
+\normalsize
 
 
 ## Fit multilevel logistic regression
 
+\footnotesize
 ```{r mixed_logis, echo=1}
-mixed.logis <- glmer(dead ~ dbh + (1|plot), data=trees, family = binomial)
-arm::display(mixed.logis)
+mixed.logis <- glmer(dead ~ dbh + (1|site), data=trees, family = binomial)
+summary(mixed.logis)
 ```
-
+\normalsize
 
 
 ## Retrieve model coefficients
@@ -607,31 +710,41 @@ plot_model(mixed.logis, type = "eff", show.ci = TRUE)
 ```
 
 
-
+# Poisson multilevel regression
 
 
 
 
 ## Advantages of multilevel models
 
-- Perfect for structured data (space-time)
+- Perfect for **structured data** (space-time)
+
 - Predictors enter at the appropriate level
-- Accommodate variation in treatment effects
-- More efficient inference of regression parameters
+
+- Accommodate **variation** in treatment effects
+
+- More **efficient inference** of regression parameters
+
 - Using all the data to perform inferences for groups with small sample size
 
 
 ## Formula syntax for different models
 
-y ~ x + (1 | group) # varying intercepts
+- Varying intercepts
+    - `y ~ x + (1 | group)`
+    
+- Varying intercepts and slopes    
+    - `y ~ x + (1 + x | group)` 
+    
+- Varying intercepts, 2 groups (crossed)
+    - `y ~ x + (1 | group1) + (1 | group2)`
 
-y ~ x + (1 + x | group) # varying intercepts and slopes
-
-y ~ x + (1 | group/subgroup) # nested
-
-y ~ x + (1 | group1) + (1 | group2) # varying intercepts, crossed
-
-y ~ x + (1 + x | group1) + (1 + x | group2) # varying intercepts and slopes, crossed
+- Varying intercepts, 2 groups (nested)
+    - `y ~ x + (1 | group/subgroup)` 
+    - This is [equivalent](https://m-clark.github.io/mixed-models-with-R/extensions.html#crossed-vs.nested) to `y ~ x + (1 | group1) + (1 | group2)` with distinct labelling of group levels.
+    
+- Varying intercepts and slopes, 2 groups (crossed)
+    - `y ~ x + (1 + x | group1) + (1 + x | group2)`
 
 
 ## GLMM FAQ
@@ -640,7 +753,6 @@ https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
 
 
 
-## More examples
 
-- sleepstudy
+
 

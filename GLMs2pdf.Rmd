@@ -81,6 +81,11 @@ opts_chunk$set(fig.align = "center")
 ```{r child = 'mixed_models.Rmd'}
 ```
 
+-----
+
+```{r echo=FALSE}
+knitr::include_graphics("images/flowchart.png")
+```
 
 
 ## END

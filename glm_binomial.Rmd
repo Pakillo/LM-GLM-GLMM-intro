@@ -777,7 +777,7 @@ points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```{r echo=2}
 gdp.log <- glm(cbind(mortality, 1000 - mortality) ~ log(gdp), 
                data = gdp, family = quasibinomial)
-resid_panel(gdp.log)
+#resid_panel(gdp.log)
 ```
 
 
