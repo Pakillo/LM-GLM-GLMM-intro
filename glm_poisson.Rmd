@@ -295,6 +295,6 @@ exp(coef(seedl.offset))
 
 - Infant mortality ~ GDP
 
-- Number of cones consumed by squirrels ([data]((http://vincentarelbundock.github.io/Rdatasets/doc/COUNT/nuts.html)))
+- Number of cones consumed by squirrels ([data](http://vincentarelbundock.github.io/Rdatasets/doc/COUNT/nuts.html))
 
 
