@@ -12,6 +12,8 @@ output:
     keep_tex: no
     latex_engine: xelatex
 fontsize: 10pt
+urlcolor: blue
+linkcolor: blue
 ---
 
 

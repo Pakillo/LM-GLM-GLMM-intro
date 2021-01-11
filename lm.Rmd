@@ -10,6 +10,8 @@ output:
     keep_tex: no
     latex_engine: xelatex
 fontsize: 10pt
+urlcolor: blue
+linkcolor: blue
 ---
 
 
@@ -103,11 +105,11 @@ plot(height ~ dbh, data = trees, las = 1)
 
 ## Scatterplot
 
-```{r echo=3:5}
+```{r echo=3:4}
 library(ggplot2)
 theme_set(theme_minimal(base_size = 18))
-ggplot(trees) + aes(dbh, height) +
-  geom_point() 
+ggplot(trees) +
+  geom_point(aes(dbh, height)) 
 ```
 
 
@@ -145,6 +147,13 @@ $$
 summary(m1)
 ```
 
+
+## Quiz 
+
+https://pollev.com/franciscorod726
+
+
+# Communicating results
 
 ## Avoid dichotomania of statistical significance
 
@@ -377,14 +386,16 @@ predict(m1, new.dbh, interval = "prediction")
 
 
 
+
 # Categorical predictors (factors)
 
 
 ## Q: Does tree height vary with sex?
 
 ```{r boxplot}
-plot(height ~ sex, data = trees)
+plot(height ~ as.factor(sex), data = trees)
 ```
+
 
 
 ## Model height ~ sex

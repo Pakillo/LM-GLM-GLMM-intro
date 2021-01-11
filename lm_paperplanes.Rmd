@@ -11,6 +11,8 @@ header-includes:
   - \setlength{\emergencystretch}{0em}
   - \setlength{\parskip}{0pt}
 fontsize: 10pt
+urlcolor: blue
+linkcolor: blue
 ---
 
 
