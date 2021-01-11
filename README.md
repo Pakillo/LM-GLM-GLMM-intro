@@ -9,7 +9,7 @@ Slides: https://github.com/Pakillo/LM-GLM-GLMM-intro/blob/trees/GLMs2pdf.pdf (ht
 
 
 Francisco Rodriguez-Sanchez  
-http://bit.ly/frod_san
+https://frodriguezsanchez.net
 
 ![](images/CClogo.png)
 
