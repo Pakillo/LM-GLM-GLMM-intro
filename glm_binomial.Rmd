@@ -39,6 +39,8 @@ opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
 
 Read `titanic_long.csv` dataset.
 
+\vspace{5mm}
+
 ```{r prepare_titanic_data, echo=FALSE, eval=FALSE}
 titanic <- read.table("http://www.amstat.org/publications/jse/datasets/titanic.dat.txt")
 names(titanic) <- c("class", "age", "sex", "survived")
@@ -91,8 +93,12 @@ hist(resid(m5))
     + Poisson
     + Gamma
     + etc
-  
+
+\vspace{3mm}
+
 2. **Predictors** (continuous or categorical)
+
+\vspace{3mm}
 
 3. **Link function**
     + Gaussian: identity
@@ -112,7 +118,7 @@ Bolker 2008
 
 ## Bernouilli - Binomial distribution (Logistic regression) 
 
-- Response variable: Yes/No (e.g. survival, sex, presence/absence)
+- Response variable: **Yes/No** (e.g. survival, sex, presence/absence)
 - Link function: `logit` (others possible, see `family`).
 
 $$
@@ -136,6 +142,9 @@ $$
 ## Back to survival of Titanic passengers 
 
 How many survived in each class?
+
+\vspace{3mm}
+
 ```{r}
 table(titanic$class, titanic$survived)
 ```
@@ -145,6 +154,9 @@ table(titanic$class, titanic$survived)
 ## Back to survival of Titanic passengers (dplyr)
 
 Passenger survival according to class
+
+\vspace{3mm}
+
 ```{r titanic_dplyr, echo=c(-1)}
 library(dplyr)
 titanic %>%
@@ -158,7 +170,7 @@ titanic %>%
 ## Or graphically...
 
 ```{r titanic_eda}
-plot(factor(survived) ~ class, data = titanic)
+plot(factor(survived) ~ factor(class), data = titanic)
 ```
 
 ## Mosaic plots (ggplot2)
@@ -185,6 +197,8 @@ tit.glm <- glm(survived ~ class, data = titanic, family = binomial)
 ```
 
 \normalsize
+
+\vspace{3mm}
 
 which corresponds to 
 
@@ -216,11 +230,18 @@ Parameter estimates (logit-scale)
 coef(tit.glm)
 ```
 
+\vspace{3mm}
+
 **We need to back-transform**: apply *inverse logit*    
+
+\vspace{3mm}
+
 Crew probability of survival:
 ```{r tit_glm_invlogit}
 plogis(coef(tit.glm)[1])
 ```
+
+\vspace{3mm}
 
 Looking at the data, the proportion of crew who survived is
 ```{r crew_surv, echo=FALSE}
@@ -234,7 +255,9 @@ sum(titanic$survived[titanic$class == "crew"]) / nrow(titanic[titanic$class == "
 plogis(coef(tit.glm)[1] + coef(tit.glm)[2])
 ```
 
-Needs to add intercept (baseline) to the parameter estimate. Again this value matches the data: 
+\vspace{3mm}
+
+Must add intercept (baseline) to the parameter estimate. Again this value matches the data: 
 ```{r first_surv_data}
 sum(titanic$survived[titanic$class == "first"]) /   
   nrow(titanic[titanic$class == "first", ])
@@ -284,13 +307,17 @@ sjPlot::plot_model(tit.glm, type = "eff")
 
 ## Logistic regression: model checking
 
+\vspace{3mm}
+
+Not very useful
+
 ```{r tit_glm_check, echo=FALSE}
 layout(matrix(1:4, nrow = 2))
 plot(tit.glm)
 dev.off()
 ```
 
-Not very useful.
+
 
 
 
@@ -324,9 +351,11 @@ ppc_bars(titanic$survived, yrep = t(as.matrix(sims)))
 ## Pseudo R-squared for GLMs
 
 ```{r}
-library(sjstats)
+library(performance)
 r2(tit.glm)
 ```
+
+\vspace{5mm}
 
 But many caveats apply! (e.g. see [here](https://stats.stackexchange.com/questions/3559/which-pseudo-r2-measure-is-the-one-to-report-for-logistic-regression-cox-s) and [here](http://data.library.virginia.edu/is-r-squared-useless/))
 
@@ -336,13 +365,23 @@ But many caveats apply! (e.g. see [here](https://stats.stackexchange.com/questio
 
 1. **Visualise data**
 
+\vspace{3mm}
+
 2. **Fit model**: `glm`. Don't forget to specify `family`!
-  
+
+\vspace{3mm}
+
 3. **Examine model**: `summary`
-  
+
+\vspace{3mm}
+
 4. **Back-transform parameters** from *logit* into probability scale (e.g. `allEffects`)
 
+\vspace{3mm}
+
 5. **Plot model**: `plot(allEffects(model))`, `visreg`, `plot_model`...
+
+\vspace{3mm}
 
 6. **Examine residuals**: `DHARMa::simulateResiduals`.
 
@@ -356,7 +395,7 @@ But many caveats apply! (e.g. see [here](https://stats.stackexchange.com/questio
 ## Plot first
 
 ```{r tit_sex_eda}
-plot(factor(survived) ~ sex, data = titanic)
+plot(factor(survived) ~ as.factor(sex), data = titanic)
 ```
 
 ## Fit model
@@ -454,12 +493,16 @@ plot_model(tit.sex.class, type = "int")
 
 ## Read Titanic data in different format
 
-Read `Titanic_prop.csv` data.
+Read `titanic_prop.csv` data.
+
+\vspace{3mm}
 
 ```{r read_tit_short, echo = FALSE}
-tit.prop <- read.csv("data/Titanic_prop.csv")
+tit.prop <- read.csv("data/titanic_prop.csv")
 head(tit.prop)
 ```
+
+\vspace{3mm}
 
 These are the same data, but summarized (see `Freq` variable).
 
@@ -477,10 +520,14 @@ summary(prop.glm)
 allEffects(prop.glm)
 ```
 
+\vspace{5mm}
+
 Compare with former model based on raw data:
 ```{r comp, echo=FALSE}
 allEffects(tit.glm)
 ```
+
+\vspace{3mm}
 
 Same results!
 
@@ -498,7 +545,11 @@ Same results!
 
 Example dataset: [GDP and infant mortality](http://vincentarelbundock.github.io/Rdatasets/doc/car/UN.html)
 
+\vspace{3mm}
+
 Read `UN_GDP_infantmortality.csv`.
+
+\vspace{3mm}
 
 ```{r read_gdp, echo = FALSE}
 #gdp <- read.csv("http://vincentarelbundock.github.io/Rdatasets/csv/car/UN.csv")
@@ -774,12 +825,13 @@ points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 \endcols
 
 
-## Think about the shape of relationships
 
-```{r echo=2}
+
+```{r echo=2, eval=FALSE}
+## Think about the shape of relationships
 gdp.log <- glm(cbind(mortality, 1000 - mortality) ~ log(gdp), 
                data = gdp, family = quasibinomial)
-#resid_panel(gdp.log)
+resid_panel(gdp.log)
 ```
 
 
