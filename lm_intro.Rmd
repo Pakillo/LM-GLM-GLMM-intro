@@ -92,12 +92,14 @@ abline(lm(setosa[,4] ~ setosa[,3]), lwd = 3)
 *y* = response variable  
 *x* = predictor 
     
+\vspace{5mm}
 
 **Parameters**  
 *a* = intercept    
 *b* = slope     
 $\sigma$ = residual variation   
 
+\vspace{5mm}
 $\varepsilon$ = residuals  
 
 \endcol
