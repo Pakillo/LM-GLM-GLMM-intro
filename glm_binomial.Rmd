@@ -43,11 +43,11 @@ names(titanic) <- c("class", "age", "sex", "survived")
 titanic$class <- factor(titanic$class, labels = c("crew", "first", "second", "third"))
 titanic$age <- factor(titanic$age, labels = c("child", "adult"))
 titanic$sex <- factor(titanic$sex, labels = c("female", "male"))
-write.csv(titanic, file = "data-raw/titanic_long.csv", row.names=FALSE, quote=FALSE)
+write.csv(titanic, file = "data/titanic_long.csv", row.names=FALSE, quote=FALSE)
 ```
 
 ```{r read_titanic, echo=FALSE}
-titanic <- read.csv("data-raw/titanic_long.csv")
+titanic <- read.csv("data/titanic_long.csv")
 head(titanic)
 ```
 
@@ -455,7 +455,7 @@ plot_model(tit.sex.class, type = "int")
 Read `Titanic_prop.csv` data.
 
 ```{r read_tit_short, echo = FALSE}
-tit.prop <- read.csv("data-raw/Titanic_prop.csv")
+tit.prop <- read.csv("data/Titanic_prop.csv")
 head(tit.prop)
 ```
 
@@ -500,7 +500,7 @@ Read `UN_GDP_infantmortality.csv`.
 
 ```{r read_gdp, echo = FALSE}
 #gdp <- read.csv("http://vincentarelbundock.github.io/Rdatasets/csv/car/UN.csv")
-gdp <- read.csv("data-raw/UN_GDP_infantmortality.csv")
+gdp <- read.csv("data/UN_GDP_infantmortality.csv")
 names(gdp) <- c("country", "mortality", "gdp")
 summary(gdp)
 ```
@@ -800,7 +800,7 @@ points(mortality ~ gdp, data = gdp)
 ## Seed set among plants
 
 ```{r}
-seed <- readr::read_csv("data-raw/seedset.csv")
+seed <- readr::read_csv("data/seedset.csv")
 head(seed)
 seed$plant <- as.factor(seed$plant)
 ```

@@ -36,12 +36,10 @@ opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
 
 ## Example dataset: forest trees
 
-- Go to https://tinyurl.com/treesdata
-
-- Download zip file and uncompress (within your project folder!)
+Download [this dataset](https://raw.githubusercontent.com/Pakillo/LM-GLM-GLMM-intro/trees/data/trees.csv)
 
 ```{r}
-trees <- read.csv("data-raw/trees.csv")
+trees <- read.csv("data/trees.csv")
 head(trees)
 ```
 

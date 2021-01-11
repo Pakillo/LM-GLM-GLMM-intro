@@ -59,7 +59,7 @@ opts_chunk$set(fig.align = "center")
 - Trees per site: 4 - 392.
 
 ```{r echo = 2}
-trees <- read.csv("data-raw/trees.csv")
+trees <- read.csv("data/trees.csv")
 head(trees)
 trees$site <- as.factor(trees$site)
 ```
@@ -473,7 +473,7 @@ $$
 ## Are height differences among sites related to temperature?
 
 ```{r read_sitedata, echo=TRUE, message=FALSE}
-sitedata <- read.csv("data-raw/sitedata.csv")
+sitedata <- read.csv("data/sitedata.csv")
 sitedata
 ```
 

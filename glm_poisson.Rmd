@@ -83,7 +83,7 @@ $$
 
 
 ```{r seedl_load, echo=1}
-seedl <- read.csv("data-raw/seedlings.csv")
+seedl <- read.csv("data/seedlings.csv")
 summary(seedl)
 ```
 
