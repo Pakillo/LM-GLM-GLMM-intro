@@ -38,7 +38,7 @@ opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
 
 ## Example dataset: forest trees
 
-- Download [this dataset](https://raw.githubusercontent.com/Pakillo/LM-GLM-GLMM-intro/trees/data/trees.csv)
+- Download [this dataset](https://raw.githubusercontent.com/Pakillo/LM-GLM-GLMM-intro/trees/data/trees.csv) (or the entire [zip file](https://github.com/Pakillo/LM-GLM-GLMM-intro/raw/trees/datasets.zip))
 
 - Import:
 
