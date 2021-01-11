@@ -38,7 +38,9 @@ opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
 
 ## Example dataset: forest trees
 
-Download [this dataset](https://raw.githubusercontent.com/Pakillo/LM-GLM-GLMM-intro/trees/data/trees.csv)
+- Download [this dataset](https://raw.githubusercontent.com/Pakillo/LM-GLM-GLMM-intro/trees/data/trees.csv)
+
+- Import:
 
 ```{r}
 trees <- read.csv("data/trees.csv")
@@ -330,6 +332,8 @@ ggResidpanel::resid_interact(m1)
 
 `fitted` gives predictions for each observation
 
+\vspace{4mm}
+
 ```{r}
 trees$height.pred <- fitted(m1)
 head(trees)
@@ -350,6 +354,8 @@ abline(a = 0, b = 1)
 ## Using fitted model for prediction
 
 Q: Expected tree height if DBH = 39 cm?
+
+\vspace{3mm}
 
 ```{r}
 new.dbh <- data.frame(dbh = c(39))
@@ -430,6 +436,11 @@ $$
 m2 <- lm(height ~ sex, data = trees)
 summary(m2)
 ```
+
+
+## Quiz
+
+https://pollev.com/franciscorod726
 
 
 ## Presenting model results
@@ -526,7 +537,7 @@ $$
 
 ## Model Height ~ site
 
-All right here?
+**All right here?**
 
 ```{r echo=1}
 m3 <- lm(height ~ site, data = trees)
