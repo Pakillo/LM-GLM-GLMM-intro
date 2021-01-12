@@ -52,7 +52,11 @@ head(trees)
 
 - What is the relationship between DBH and height?
 
+\vspace{10mm}
+
 - Do taller trees have bigger trunks?
+
+\vspace{10mm}
 
 - Can we predict height from DBH? How well?
 
@@ -126,9 +130,13 @@ Hint: `lm`
 
 Hint: `lm`
 
+\vspace{5mm}
+
 ```{r lm_trees}
 m1 <- lm(height ~ dbh, data = trees)
 ```
+
+\vspace{5mm}
 
 which corresponds to
 
@@ -255,11 +263,15 @@ sjPlot::plot_model(m1, type = "eff", show.data = TRUE, line.size = 4)
 ## Linear model assumptions
 
 - Linearity (transformations, GAM...)
+
+\vspace{5mm}
   
 - Residuals:
     - Independent
     - Equal variance
     - Normal
+
+\vspace{5mm}
 
 - No measurement error in predictors
 
@@ -380,11 +392,19 @@ predict(m1, new.dbh, interval = "prediction")
 
 - **Visualise data**
 
+\vspace{5mm}
+
 - **Understand fitted model** (`summary`, `allEffects`...)
+
+\vspace{5mm}
 
 - **Visualise model** (`plot(allEffects)`, `visreg`, `plot_model`...)
 
+\vspace{5mm}
+
 - **Check model** (`plot`, `resid_panel`, calibration plot...)
+
+\vspace{5mm}
 
 - **Predict** (`fitted`, `predict`)
 
@@ -768,6 +788,8 @@ visreg(m5, xvar = "dbh", by = "site")
 - [mammal sleep](https://ggplot2.tidyverse.org/reference/msleep.html): Are sleep patterns related to diet?
 
 - iris: Predict petal length ~ petal width and species
+
+- [Penguins data](https://cran.r-project.org/package=palmerpenguins): Body mass ~ Flipper length, Bill length ~ Bill depth, differences across sites...
 
 - [racing pigeons](http://blog.yhat.com/posts/7-funny-datasets.html): is speed related to sex?
 
