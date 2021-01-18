@@ -57,7 +57,11 @@ opts_chunk$set(fig.align = "center")
 
 - Gaussian: `lm`
 
+\vspace{3mm}
+
 - Bernouilli / Binomial: `glm` (family `binomial / quasibinomial`)
+
+\vspace{3mm}
 
 - Counts: `glm` (family `poisson / quasipoisson`)
 
@@ -136,6 +140,8 @@ Parameter estimates (log scale):
 ```{r poisson_params}
 coef(seedl.glm)
 ```
+
+\vspace{5mm}
 
 **We need to back-transform**: apply the inverse of the logarithm
 
