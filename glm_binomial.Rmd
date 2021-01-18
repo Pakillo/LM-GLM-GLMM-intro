@@ -37,7 +37,7 @@ opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
 
 ## Q: Survival of passengers on the Titanic ~ Class
 
-Read `titanic_long.csv` dataset.
+Read `titanic_long.csv` dataset and fit linear model (survival ~ class).
 
 \vspace{5mm}
 
@@ -56,10 +56,12 @@ head(titanic)
 ```
 
 
+## Quiz
+
+https://pollev.com/franciscorod726
 
 
-
-## Let's fit linear model:
+## Let's check linear model:
 
 ```{r titanic_lm, echo=1}
 m5 <- lm(survived ~ class, data = titanic)
@@ -79,11 +81,14 @@ hist(resid(m5))
 
 ## What if your residuals are clearly non-normal, or variance not constant (heteroscedasticity)?
 
-* Binary variables (0/1)
-* Counts (0, 1, 2, 3, ...)
+Binary variables (0/1)
 
+\vspace{5mm}
 
+Counts (0, 1, 2, 3, ...)
 
+\vspace{5mm}
+Generalised Linear Models to the rescue!
 
 
 ## Generalised Linear Models
@@ -118,8 +123,9 @@ Bolker 2008
 
 ## Bernouilli - Binomial distribution (Logistic regression) 
 
-- Response variable: **Yes/No** (e.g. survival, sex, presence/absence)
-- Link function: `logit` (others possible, see `family`).
+Response variable: **Yes/No** (e.g. survival, sex, presence/absence)
+
+Link function: `logit` (others possible, see `family`)
 
 $$
   \begin{aligned} 
@@ -251,13 +257,18 @@ sum(titanic$survived[titanic$class == "crew"]) / nrow(titanic[titanic$class == "
 
 ## Q: Probability of survival for 1st class passengers? 
 
+Must add intercept (baseline) to the parameter estimate:
+\vspace{3mm}
+
 ```{r first_surv}
 plogis(coef(tit.glm)[1] + coef(tit.glm)[2])
 ```
 
 \vspace{3mm}
 
-Must add intercept (baseline) to the parameter estimate. Again this value matches the data: 
+Again this value matches the data: 
+\vspace{3mm}
+
 ```{r first_surv_data}
 sum(titanic$survived[titanic$class == "first"]) /   
   nrow(titanic[titanic$class == "first", ])
@@ -290,7 +301,7 @@ plot(allEffects(tit.glm))
 
 ```{r echo=2}
 library(visreg)
-visreg(tit.glm, scale = "response")
+visreg(tit.glm, scale = "response", rug = FALSE)
 ```
 
 
@@ -309,7 +320,7 @@ sjPlot::plot_model(tit.glm, type = "eff")
 
 \vspace{3mm}
 
-Not very useful
+**Not very useful**
 
 ```{r tit_glm_check, echo=FALSE}
 layout(matrix(1:4, nrow = 2))
@@ -391,6 +402,10 @@ But many caveats apply! (e.g. see [here](https://stats.stackexchange.com/questio
 
 # Q: Did men have higher survival than women?
 
+## Quiz
+
+https://pollev.com/franciscorod726
+
 
 ## Plot first
 
@@ -432,7 +447,12 @@ plot(allEffects(tit.sex))
 table(titanic$class, titanic$survived, titanic$sex)
 ```
 
-Mmmm...
+Mmmm... 
+
+
+## Quiz
+
+https://pollev.com/franciscorod726
 
 
 ## Fit additive model with both factors 
@@ -472,12 +492,13 @@ allEffects(tit.sex.class)
 \begincol
 ```{r tit_sex_class_effects2, echo=FALSE, fig.height=5, fig.width=4}
 plot(allEffects(tit.sex.class))
+# visreg(tit.sex.class, by = "sex", xvar = "class")
 ```
 \endcol
 \endcols
 
 
-So, women had higher probability of survival than men, even within the same class.
+So, **women had higher probability of survival than men, even within the same class**.
 
 ## Effects (sjPlot)
 
@@ -522,7 +543,9 @@ allEffects(prop.glm)
 
 \vspace{5mm}
 
-Compare with former model based on raw data:
+**Compare with former model based on raw data:**
+\vspace{3mm}
+
 ```{r comp, echo=FALSE}
 allEffects(tit.glm)
 ```
@@ -558,6 +581,10 @@ names(gdp) <- c("country", "mortality", "gdp")
 summary(gdp)
 ```
 
+
+## Q: Is infant mortality related to GDP?
+
+https://pollev.com/franciscorod726
 
 
 ## EDA
@@ -858,6 +885,20 @@ seed <- readr::read_csv("data/seedset.csv")
 head(seed)
 seed$plant <- as.factor(seed$plant)
 ```
+
+## Questions:
+
+https://pollev.com/franciscorod726
+\vspace{5mm}
+
+- Is seed set related to proportion of outcross pollen (pcmass)?
+
+\vspace{5mm}
+
+- Which plant had lower seed set?
+
+
+
 
 
 ## Number of seeds vs Number of ovules
