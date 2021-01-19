@@ -507,6 +507,12 @@ plot_model(tit.sex.class, type = "int")
 ```
 
 
+## Extra exercises:
+
+Is survival related to age?
+
+Are age effects dependent on sex?
+
 
 
 # Logistic regression for proportion data
