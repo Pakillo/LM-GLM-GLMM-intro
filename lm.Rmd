@@ -1,38 +1,56 @@
 ---
 title: "Linear models"
-output:
-  beamer_presentation:
-    fig_height: 5
-    fig_width: 7
-    includes:
-      in_header: header.tex
-    incremental: yes
-    keep_tex: no
-    latex_engine: xelatex
+author: "Francisco Rodríguez-Sánchez"
+institute: "https://frodriguezsanchez.net"
+aspectratio: 43  # use 169 for wide format
 fontsize: 10pt
+output: 
+  binb::metropolis:
+    keep_tex: no
+    incremental: yes
+    fig_caption: no
+    pandoc_args: ["--lua-filter=hideslide.lua"]
 urlcolor: blue
 linkcolor: blue
+header-includes:
+  - \definecolor{shadecolor}{RGB}{230,230,230}
+  # - \setbeamercolor{frametitle}{bg=black}
 ---
 
 
-```{r include=FALSE, cache=FALSE}
+```{r knitr_setup, include=FALSE, cache=FALSE}
 
-library(rmarkdown)
-library(knitr)
+library("knitr")
 
 ### Chunk options ###
 
 ## Text results
-opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, size = 'tiny')
 
 ## Code decoration
-opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
+opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
 
-opts_chunk$set(fig.align = "center") 
+# ## Cache
+# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
 
-opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
+# ## Plots
+# opts_chunk$set(fig.path = "knitr_output/figures/")
+opts_chunk$set(fig.align = 'center', out.width = '90%')
+
+### Hooks ###
+## Crop plot margins
+knit_hooks$set(crop = hook_pdfcrop)
+
+## Reduce font size
+## use tinycode = TRUE as chunk option to reduce code font size
+# see http://stackoverflow.com/a/39961605
+knit_hooks$set(tinycode = function(before, options, envir) {
+  if (before) return(paste0("\n \\", options$size, "\n\n"))
+  else return("\n\n \\normalsize \n")
+  })
 
 ```
+
 
 
 
@@ -67,9 +85,9 @@ head(trees)
 
 ## Always plot your data first!
 
-
-![](images/anscombe.png)
-
+```{r echo=FALSE}
+include_graphics("images/anscombe.png")
+```
 
 
 
@@ -85,7 +103,9 @@ plot(trees$height)
 
 ## Outliers impact on regression
 
-![](images/reg_outliers.png)
+```{r out.width="70%", echo=FALSE}
+include_graphics("images/reg_outliers.png")
+```
 
 See http://rpsychologist.com/d3/correlation/
 
@@ -111,12 +131,14 @@ plot(height ~ dbh, data = trees, las = 1)
 
 ## Scatterplot
 
-```{r echo=3:4}
+```{r echo=3:4, tinycode = TRUE}
 library(ggplot2)
 theme_set(theme_minimal(base_size = 18))
 ggplot(trees) +
   geom_point(aes(dbh, height)) 
 ```
+
+
 
 
 # Model fitting
@@ -148,14 +170,95 @@ $$
 $$
 
 
+## Package `equatiomatic` returns model structure
+
+```{r}
+library("equatiomatic")
+m1 <- lm(height ~ dbh, data = trees)
+equatiomatic::extract_eq(m1)
+```
+
+
 # Model interpretation
 
 
 ## What does this mean?
 
-```{r summary_lm, echo=FALSE}
+\footnotesize
+
+```{r summary_lm, echo=TRUE}
 summary(m1)
 ```
+
+
+## Remember that in a Normal distribution
+
+```{r echo=FALSE}
+include_graphics("images/gaussian.png")
+```
+
+
+## Estimated distribution of the **intercept** parameter
+
+```{r echo=FALSE}
+library(arm)
+library(ggplot2)
+
+coefs <- as.data.frame(coef(sim(m1)))
+names(coefs) <- c("intercept", "slope")
+
+ggplot(coefs) +
+  geom_density(aes(intercept), fill = "grey80") +
+  xlim(-1, 21) +
+  geom_vline(xintercept = 0)
+```
+
+
+## Estimated distribution of the **slope** parameter
+
+```{r echo=FALSE}
+ggplot(coefs) +
+  geom_density(aes(slope), fill = "grey80") +
+  xlim(-0.1, 0.7) +
+  geom_vline(xintercept = 0)
+```
+
+
+## Distribution of residuals
+
+```{r echo=FALSE}
+res <- data.frame(residual = residuals(m1))
+ggplot(res) +
+  geom_density(aes(residual), fill = "grey80") +
+  geom_vline(xintercept = 0) +
+  annotate("text", x = 3, y = 0.015, label = "SD = 4", size = 5)
+```
+
+
+## Degrees of freedom
+
+DF = n - p
+
+n = sample size
+
+p = number of estimated parameters
+
+
+
+
+## R-squared
+
+Proportion of 'explained' variance
+
+$R^{2} = 1 - \frac{Residual Variation}{Total Variation}$
+
+
+
+## Adjusted R-squared
+
+Accounts for model complexity (number of parameters)
+
+$1 - (1 - R^2) \frac{n - 1}{n - p - 1}$
 
 
 ## Quiz 
@@ -163,11 +266,66 @@ summary(m1)
 https://pollev.com/franciscorod726
 
 
+
+## Retrieving model coefficients
+
+```{r echo = TRUE}
+coef(m1)
+```
+
+## Confidence intervals for parameters
+
+```{r echo = TRUE}
+confint(m1)
+```
+
+
+## Tidy up model coefficients with broom
+
+\footnotesize
+
+```{r}
+library("broom")
+tidy(m1)
+```
+
+\vspace{5mm}
+
+```{r}
+glance(m1)
+```
+
+https://broom.tidymodels.org/
+
+
+## Retrieving model parameters with `parameters` package
+
+\footnotesize
+
+```{r}
+library("parameters")
+parameters(m1)
+```
+
+https://easystats.github.io/parameters/
+
+
+
+## Understanding the fitted effects with `effects` package
+
+\footnotesize
+```{r message=FALSE}
+library("effects")
+summary(allEffects(m1))
+```
+
+
+
 # Communicating results
 
 ## Avoid dichotomania of statistical significance
 
-```{r echo=FALSE, out.height='1in', out.width='5in'}
+```{r echo=FALSE}
 include_graphics("images/nature_significance.PNG")
 ```
 
@@ -180,80 +338,114 @@ include_graphics("images/nature_significance.PNG")
 
 ## Communicating results
 
+We found a significant relationship between DBH and Height (p<0.05).
+
 We found a ~~significant~~ positive relationship between DBH and Height ~~(p<0.05)~~ (b = 0.61, SE = 0.01).
 
 
-## Presenting model results
+## Models that describe themselves
 
-```{r echo=TRUE}
-kable(xtable::xtable(m1), digits = 2)
+```{r results="asis"}
+library("report")
+report(m1)
 ```
 
+https://easystats.github.io/report/
 
-## Presenting model results
+
+## Generating table with model results: `xtable`
 
 ```{r echo=TRUE, results='asis'}
-texreg::texreg(m1, single.row = TRUE)
+library("xtable")
+xtable(m1, digits = 2)
 ```
 
 
-## Retrieving model coefficients
+## Generating table with model results: `texreg`
 
-```{r echo = TRUE}
-coef(m1)
+```{r echo=TRUE, results='asis'}
+library("texreg")
+texreg(m1, single.row = TRUE)
 ```
 
-## Tidy up model coefficients with broom
 
-\footnotesize
+## Generating table with model results: `modelsummary`
 
-```{r}
-library(broom)
-tidy(m1)
-glance(m1)
+```{r results='asis'}
+library("modelsummary")
+modelsummary(m1, output = "markdown")
 ```
 
-\normalsize
+https://vincentarelbundock.github.io/modelsummary/
 
 
-## Confidence intervals
+## Generating table with model results: `gtsummary`
 
-```{r echo = TRUE}
-confint(m1)
+```{r }
+library("gtsummary")
+tbl_regression(m1, intercept = TRUE)
 ```
 
-## Using effects package
+https://www.danieldsjoberg.com/gtsummary
 
-```{r message=FALSE}
-library(effects)
-summary(allEffects(m1))
-```
 
 
 # Visualising fitted model
 
 
-## Plot effects
+## Plot model: `effects` package
 
 ```{r echo = TRUE}
+library("effects")
 plot(allEffects(m1))
 ```
 
 
-## Plot model (visreg)
+## Plot model: `visreg`
 
 ```{r visreg}
-library(visreg)
+library("visreg")
 visreg(m1)
 ```
 
 
-## Plot model (sjPlot - ggplot2)
+## `visreg` can use ggplot2 too
 
-```{r echo=2, message=FALSE}
-library(sjPlot)
-sjPlot::plot_model(m1, type = "eff", show.data = TRUE, line.size = 4)
+```{r out.width="80%"}
+visreg(m1, gg = TRUE) + theme_bw()
 ```
+
+https://pbreheny.github.io/visreg
+
+
+## Plot model: `sjPlot`
+
+```{r out.width="70%"}
+library("sjPlot")
+plot_model(m1, type = "eff")
+```
+
+https://strengejacke.github.io/sjPlot
+
+
+## Plot model: `see`
+
+\footnotesize
+
+```{r out.width="80%"}
+library("see")
+plot(parameters(m1), show_intercept = TRUE) +
+  labs(title = "Height ~ Diameter")   # ggplot2
+```
+
+
+## Plot parameters' estimated distribution: `see`
+
+```{r out.width="70%"}
+plot(simulate_parameters(m1)) +
+  labs(title = "Density of the slope parameter")
+```
+
 
 
 
@@ -262,48 +454,38 @@ sjPlot::plot_model(m1, type = "eff", show.data = TRUE, line.size = 4)
 
 ## Linear model assumptions
 
-- Linearity (transformations, GAM...)
+::: nonincremental :::
 
-\vspace{5mm}
+- **Linearity** (transformations, GAM...)
+
+\vspace{2mm}
   
-- Residuals:
+- **Residuals**:
     - Independent
     - Equal variance
     - Normal
 
-\vspace{5mm}
+\vspace{2mm}
 
-- No measurement error in predictors
+- Negligible **measurement error** in predictors
+
+:::
+
+```{r out.width="50%", echo = FALSE}
+include_graphics("images/lm_resid_assump.png")
+```
 
 
 ## Are residuals normal? 
 
-\begincols
-
-\begincol
-```{r resid_hist, echo=TRUE, fig.width=5, fig.height=3}
-hist(resid(m1))
+```{r resid_hist, out.width="70%"}
+hist(residuals(m1))
 ```
-\endcol
 
-\begincol
-
-\scriptsize
-```{r coefs_m1, echo=FALSE}
-arm::display(m1)
-```
-\normalsize
-
-\endcol
-
-\endcols
-  
-    
-SD of residuals = `r round(sd(resid(m1)), digits=2)` coincides with estimate of `sigma`.
+SD = 4.09
 
 
-
-## Model checking: residuals
+## Model checking: `plot(model)`
 
 ```{r echo=FALSE}
 def.par <- par(no.readonly = TRUE)
@@ -313,27 +495,12 @@ par(def.par)
 ```
 
 
-## Model checking (sjPlot)
+## Model checking with `performance` package
 
 ```{r}
-plot_model(m1, type = "diag")[[1]]
+library("performance")
+check_model(m1)
 ```
-
-
-## Model checking (ggResidpanel)
-
-```{r}
-ggResidpanel::resid_panel(m1, plots = "all")
-```
-
-
-## Interactive model checking (ggResidpanel)
-
-```{r}
-ggResidpanel::resid_interact(m1)
-```
-
-
 
 
 
@@ -342,28 +509,30 @@ ggResidpanel::resid_interact(m1)
 
 ## How good is the model in predicting tree height?
 
-`fitted` gives predictions for each observation
+`fitted` gives expected value for each observation
 
 \vspace{4mm}
 
 ```{r}
 trees$height.pred <- fitted(m1)
+trees$resid <- residuals(m1)
 head(trees)
 ```
 
 
 ## Calibration plot: Observed vs Predicted values
 
-```{r obs_pred, echo=1}
-plot(trees$height.pred, trees$height, 
-     xlab = "Tree height (predicted)", ylab = "Tree height (observed)", las = 1, xlim = c(10,60), ylim = c(10,60))
+```{r obs_pred, echo=FALSE}
+plot(height ~ height.pred, data = trees,
+     xlab = "Tree height (predicted)", ylab = "Tree height (observed)", 
+     las = 1, xlim = c(10,60), ylim = c(10,60))
 abline(a = 0, b = 1)
 ```
 
 
 
 
-## Using fitted model for prediction
+## Making predictions for new data
 
 Q: Expected tree height if DBH = 39 cm?
 
@@ -375,7 +544,7 @@ predict(m1, new.dbh, se.fit = TRUE)
 ```
 
 
-## Using fitted model for prediction
+## Confidence vs Prediction Intervals
 
 Q: Expected tree height if DBH = 39 cm?
 
@@ -386,6 +555,49 @@ predict(m1, new.dbh, interval = "confidence")
 ```{r}
 predict(m1, new.dbh, interval = "prediction")
 ```
+
+
+## Confidence vs Prediction Intervals
+
+:::::::::::::: {.columns align=center}
+
+::: {.column width="50%"}
+
+```{r echo=FALSE}
+library("modelbased")
+conf <- estimate_relation(m1, data = NULL)
+conf$obs <- trees$height
+
+ggplot(conf) +
+  aes(x = dbh, y = obs) +
+  geom_point(size = 0.5, alpha = 0.3) +
+  geom_ribbon(aes(ymin = CI_low, ymax = CI_high), fill = "blue", alpha = 0.2) +
+  geom_line(aes(x = dbh, y = Predicted), colour = "blue", size = 0.5) +
+  labs(x = "diameter", y = "height", title = "Confidence interval") +
+  theme_minimal(base_size = 18)
+```
+
+:::
+
+::: {.column width="50%"}
+
+```{r echo=FALSE}
+
+pred <- estimate_response(m1)
+pred$obs <- trees$height
+
+ggplot(pred) +
+  aes(x = dbh, y = obs) +
+  geom_point(size = 0.5, alpha = 0.5) +
+  geom_ribbon(aes(ymin = CI_low, ymax = CI_high), fill = "blue", alpha = 0.2) +
+  geom_line(aes(x = dbh, y = Predicted), colour = "blue", size = 2) +
+  labs(x = "diameter", y = "height", title = "Prediction interval") +
+  theme_minimal(base_size = 18)
+```
+
+:::
+::::::::::::::
+
 
 
 ## Workflow
@@ -402,7 +614,7 @@ predict(m1, new.dbh, interval = "prediction")
 
 \vspace{5mm}
 
-- **Check model** (`plot`, `resid_panel`, calibration plot...)
+- **Check model** (`plot`, `check_model`, calibration plot...)
 
 \vspace{5mm}
 
@@ -410,6 +622,9 @@ predict(m1, new.dbh, interval = "prediction")
 
 
 
+```{r}
+knit_exit()
+```
 
 
 
