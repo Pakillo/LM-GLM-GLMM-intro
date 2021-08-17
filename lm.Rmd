@@ -610,7 +610,7 @@ ggplot(pred) +
 
 \vspace{5mm}
 
-- **Visualise model** (`plot(allEffects)`, `visreg`, `plot_model`...)
+- **Visualise model** (`plot(allEffects)`, `visreg`, `see`, `plot_model`...)
 
 \vspace{5mm}
 
@@ -622,9 +622,7 @@ ggplot(pred) +
 
 
 
-```{r}
-knit_exit()
-```
+`
 
 
 
@@ -640,6 +638,8 @@ plot(height ~ as.factor(sex), data = trees)
 
 
 ## Model height ~ sex
+
+\footnotesize
 
 ```{r echo=1}
 m2 <- lm(height ~ sex, data = trees)
@@ -678,21 +678,61 @@ summary(m2)
 https://pollev.com/franciscorod726
 
 
-## Presenting model results
+## Let's read the model report...
+
+```{r results='asis'}
+report(m2)
+```
+
+
+
+## Estimated distribution of the **intercept** parameter
+
+Intercept = Height of females
 
 ```{r echo=FALSE}
-kable(xtable::xtable(m2), digits = 2)
+coefs <- as.data.frame(coef(sim(m2)))
+names(coefs) <- c("intercept", "slope")
+
+ggplot(coefs) +
+  geom_density(aes(intercept), fill = "grey80") +
+  xlim(-1, 40) +
+  geom_vline(xintercept = 0)
+```
+
+
+## Estimated distribution of the *beta* parameter
+
+*beta* = height difference of males vs females
+
+
+```{r echo=FALSE}
+ggplot(coefs) +
+  geom_density(aes(slope), fill = "grey80") +
+  xlim(-3, 2) +
+  geom_vline(xintercept = 0)
 ```
 
 
 
-## Effects: Height ~ sex
 
-Compare CIs
+
+## Analysing differences among factor levels
 
 ```{r}
-summary(allEffects(m2))
+library("modelbased")
+estimate_means(m2)
 ```
+
+
+## Analysing differences among factor levels
+
+\footnotesize
+
+```{r}
+estimate_contrasts(m2)
+```
+
 
 
 ## Plot
@@ -712,7 +752,7 @@ visreg(m2)
 
 ## Plot model (sjPlot)
 
-```{r echo=TRUE}
+```{r out.width="60%"}
 plot_model(m2, type = "eff")
 ```
 
@@ -734,10 +774,11 @@ par(def.par)
 ```
 
 
-## Model checking (ggResidpanel)
+## Model checking
 
 ```{r}
-ggResidpanel::resid_panel(m2, plots = "all")
+library("performance")
+check_model(m2)
 ```
 
 
@@ -755,7 +796,7 @@ plot(height ~ site, data = trees)
 
 ## Linear model with categorical predictors
 
-```{r eval=FALSE}
+```{r }
 m3 <- lm(height ~ site, data = trees)
 ```
 
@@ -770,9 +811,12 @@ $$
 
 
 
+
 ## Model Height ~ site
 
 **All right here?**
+
+\tiny
 
 ```{r echo=1}
 m3 <- lm(height ~ site, data = trees)
@@ -780,10 +824,24 @@ summary(m3)
 ```
 
 
+## Let's check model structure with `equatiomatic`
+
+```{r}
+extract_eq(m3)
+```
+
 ## site is a factor!
 
 ```{r}
 trees$site <- as.factor(trees$site)
+```
+
+
+## Let's check model structure with `equatiomatic`
+
+```{r }
+m3 <- lm(height ~ site, data = trees)
+extract_eq(m3)
 ```
 
 
@@ -798,9 +856,38 @@ summary(m3)
 
 
 
+## Estimated parameter distributions
+
+```{r}
+plot(simulate_parameters(m3), stack = FALSE)
+```
+
+
+
+
+## Analysing differences among factor levels
+
+```{r}
+library("modelbased")
+estimate_means(m3)
+```
+
+
+## Analysing differences among factor levels
+
+\tiny
+
+For finer control see `emmeans` package
+
+```{r}
+estimate_contrasts(m3)
+```
+
+
+
 ## Presenting model results
 
-```{r echo=TRUE}
+```{r }
 kable(xtable::xtable(m3), digits = 2)
 ```
 
@@ -835,7 +922,7 @@ visreg(m3)
 
 ## Plot model (sjPlot)
 
-```{r echo=TRUE}
+```{r out.width="70%"}
 plot_model(m3, type = "eff")
 ```
 
@@ -850,6 +937,12 @@ plot(m3)
 par(def.par)
 ```
 
+
+## Model checking: residuals
+
+```{r}
+check_model(m3)
+```
 
 
 
@@ -887,7 +980,7 @@ summary(m4)
 ## Presenting model results
 
 ```{r echo=TRUE}
-kable(xtable::xtable(m4), digits = 2)
+parameters(m4)
 ```
 
 
@@ -920,8 +1013,9 @@ dev.off()
 
 ## Plot model (sjPlot)
 
-```{r echo=TRUE, out.width='3in'}
+```{r echo=TRUE, out.width='30%'}
 plot_model(m4, type = "eff")
+
 ```
 
 ## Plot model (sjPlot)
@@ -931,16 +1025,41 @@ plot_model(m4, type = "est")
 ```
 
 
+## Plot model (see)
+
+```{r}
+plot(parameters(m4))
+```
 
 
 ## We have fitted model w/ many intercepts and single slope
 
-```{r echo=FALSE}
+```{r echo=FALSE, eval=FALSE}
 plot(height ~ dbh, data = trees, las = 1)
 abline(a = coef(m4)[1], b = coef(m4)[11])
 for (i in 2:10) {
   abline(a = coef(m4)[1] + coef(m4)[i], b = coef(m4)[11])
 }
+```
+
+```{r echo=FALSE}
+## ggplot with different colour for each site
+ggplot(trees) +
+  aes(x = dbh, y = height, colour = site) +
+  geom_point() +
+  geom_abline(intercept = coef(m4)[1], slope = coef(m4)[11]) +
+  geom_abline(intercept = coef(m4)[1] + coef(m4)[2], slope = coef(m4)[11]) +
+  geom_abline(intercept = coef(m4)[1] + coef(m4)[3], slope = coef(m4)[11]) +
+  geom_abline(intercept = coef(m4)[1] + coef(m4)[8], slope = coef(m4)[11])
+```
+
+
+## Slope is the same for all sites
+
+\tiny
+
+```{r}
+estimate_slopes(m4)
 ```
 
 
@@ -955,6 +1074,14 @@ par(def.par)
 ```
 
 
+## Model checking: residuals
+
+```{r}
+check_model(m4)
+```
+
+
+
 ## How good is this model? Calibration plot
 
 ```{r}
@@ -964,16 +1091,68 @@ abline(a = 0, b = 1)
 ```
 
 
-## Model checking with simulated data
+## *Posterior* predictive checking
 
-```{r out.height="3in", out.width="3.5in"}
+Simulating response data from fitted model (`yrep`)
+
+and comparing with observed response (`y`)
+
+```{r out.width="70%"}
+performance::pp_check(m4)
+```
+
+
+```{r eval=FALSE, echo=FALSE}
 library(bayesplot)
 sims <- simulate(m4, nsim = 100)
 ppc_dens_overlay(trees$height, yrep = t(as.matrix(sims)))
 ```
 
 
-# Q: Does allometric relationship between DBH and Height vary among sites?
+
+
+## Using model for prediction
+
+Expected height of 10-cm diameter tree in each site?
+
+```{r}
+trees.10cm <- data.frame(site = as.factor(1:10),
+                        dbh = 10)
+trees.10cm
+```
+
+## Using model for prediction
+
+Confidence interval
+
+```{r}
+predict(m4, newdata = trees.10cm, interval = "confidence")
+```
+
+
+## Using model for prediction
+
+Prediction interval (accounting for residual variance)
+
+```{r}
+predict(m4, newdata = trees.10cm, interval = "prediction")
+```
+
+
+## Using model for prediction
+
+Prediction interval (99%)
+
+```{r}
+predict(m4, newdata = trees.10cm, interval = "prediction", 
+        level = 0.99)
+```
+
+
+
+
+
+# Q: Does allometric relationship between Height and Diameter vary among sites?
 
 
 
@@ -989,11 +1168,14 @@ summary(m5)
 \normalsize
 
 
-## Does slope vary among forests?
+## Does slope vary among sites?
 
 ```{r}
 visreg(m5, xvar = "dbh", by = "site")
 ```
+
+
+
 
 
 ## Extra exercises
