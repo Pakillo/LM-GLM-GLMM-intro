@@ -1,36 +1,55 @@
 ---
-title: "Generalised Linear Models: Logistic regression"
-output:
-  beamer_presentation:
-    fig_height: 5
-    fig_width: 7
-    includes:
-      in_header: header.tex
-    incremental: yes
-    keep_tex: no
-    latex_engine: xelatex
+title: "Generalised Linear Models"
+subtitle: "Logistic regression"
+author: "Francisco Rodríguez-Sánchez"
+institute: "https://frodriguezsanchez.net"
+aspectratio: 43  # use 169 for wide format
 fontsize: 10pt
+output: 
+  binb::metropolis:
+    keep_tex: no
+    incremental: yes
+    fig_caption: no
+    pandoc_args: ["--lua-filter=hideslide.lua"]
 urlcolor: blue
 linkcolor: blue
+header-includes:
+  - \definecolor{shadecolor}{RGB}{230,230,230}
+  # - \setbeamercolor{frametitle}{bg=black}
 ---
 
 
-```{r include=FALSE, cache=FALSE}
 
-library(rmarkdown)
-library(knitr)
+```{r knitr_setup, include=FALSE, cache=FALSE}
+
+library("knitr")
 
 ### Chunk options ###
 
 ## Text results
-opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, size = 'tiny')
 
 ## Code decoration
-opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
+opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
 
-opts_chunk$set(fig.align = "center") 
+# ## Cache
+# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
 
-opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
+# ## Plots
+# opts_chunk$set(fig.path = "knitr_output/figures/")
+opts_chunk$set(fig.align = 'center', out.width = '90%')
+
+### Hooks ###
+## Crop plot margins
+knit_hooks$set(crop = hook_pdfcrop)
+
+## Reduce font size
+## use tinycode = TRUE as chunk option to reduce code font size
+# see http://stackoverflow.com/a/39961605
+knit_hooks$set(tinycode = function(before, options, envir) {
+  if (before) return(paste0("\n \\", options$size, "\n\n"))
+  else return("\n\n \\normalsize \n")
+  })
 
 ```
 
@@ -63,7 +82,7 @@ https://pollev.com/franciscorod726
 
 ## Let's check linear model:
 
-```{r titanic_lm, echo=1}
+```{r titanic_lm, echo=1, out.width="100%"}
 m5 <- lm(survived ~ class, data = titanic)
 layout(matrix(1:4, nrow=2))
 plot(m5)
@@ -79,7 +98,9 @@ hist(resid(m5))
 ```
 
 
-## What if your residuals are clearly non-normal, or variance not constant (heteroscedasticity)?
+## What if your residuals are clearly non-normal \newline or variance not constant (heteroscedasticity)?
+
+\Large
 
 Binary variables (0/1)
 
@@ -115,7 +136,9 @@ Generalised Linear Models to the rescue!
 
 ## The modelling process
 
-![](images/modeling_process.png)
+```{r out.width="40%"}
+include_graphics("images/modeling_process.png")
+```
 
 Bolker 2008
 
@@ -125,46 +148,43 @@ Bolker 2008
 
 Response variable: **Yes/No** (e.g. survival, sex, presence/absence)
 
-Link function: `logit` (others possible, see `family`)
+Canonical link function: `logit` (*log odds*), but others possible (see `family`)
 
 $$
-  \begin{aligned} 
-  logit(p) = \ln \left( \dfrac {p} {1-p}\right) \\ 
-  \end{aligned} 
+\begin{aligned} 
+logit(p) = \log \left( \dfrac {p} {1-p}\right) \\ 
+\end{aligned} 
 $$
 
 Then
 
 $$
-  \begin{aligned} 
-  Pr(alive) = a + bx \\  
-  logit(Pr(alive)) = a + bx \\  
-  Pr(alive) = invlogit(a + bx) = \dfrac {e^{a+bx}} {1+e^{a+bx}} \\  
-  \end{aligned} 
+\begin{aligned} 
+logit(P(alive)) = a + bx \\  
+P(alive) = invlogit(a + bx) = \dfrac {e^{a+bx}} {1+e^{a+bx}} \\  
+\end{aligned} 
 $$
   
 
 
-## Back to survival of Titanic passengers 
+# Back to survival of Titanic passengers 
 
-How many survived in each class?
+## How many survived in each class?
 
 \vspace{3mm}
 
-```{r}
+```{r echo=TRUE}
 table(titanic$class, titanic$survived)
 ```
 
 
 
-## Back to survival of Titanic passengers (dplyr)
-
-Passenger survival according to class
+## How many survived in each class? (*dplyr*)
 
 \vspace{3mm}
 
 ```{r titanic_dplyr, echo=c(-1)}
-library(dplyr)
+library("dplyr")
 titanic %>%
   group_by(class, survived) %>%
   summarise(count = n())
@@ -173,9 +193,9 @@ titanic %>%
 
 
 
-## Or graphically...
+## Data visualisation (mosaic plot)
 
-```{r titanic_eda}
+```{r titanic_eda, echo=TRUE, out.width = "100%"}
 plot(factor(survived) ~ factor(class), data = titanic)
 ```
 
@@ -190,34 +210,30 @@ ggplot(titanic) +
   labs(x = "", y = "Survived")
 ```
 
-\normalsize
-
 
 
 ## Fitting GLMs in R: `glm`
 
-\small
-
 ```{r echo=TRUE}
-tit.glm <- glm(survived ~ class, data = titanic, family = binomial)
+tit.glm <- glm(survived ~ class, 
+               data = titanic, 
+               family = binomial)
 ```
-
-\normalsize
 
 \vspace{3mm}
 
 which corresponds to 
 
 $$
-  \begin{aligned}  
-  logit(Pr(survival)_{i}) = a + b \cdot class_{i} \\  
-  logit(Pr(survival)_{i}) = a + b_{first} + c_{second} + d_{third} \\
-  \end{aligned}  
+\begin{aligned}  
+logit(P(survival)_{i}) = a + b \cdot class_{i} \\  
+logit(P(survival)_{i}) = a + b_{first} + c_{second} + d_{third} \\
+\end{aligned}  
 $$
 
 
 
-## Fitting GLMs in R: `glm`
+## Interpreting binomial GLM
 
 \scriptsize
 ```{r titanic_glm, echo=1}
@@ -225,62 +241,63 @@ tit.glm <- glm(survived ~ class, data = titanic, family = binomial)
 summary(tit.glm)
 ```
 
-**These estimates are in logit scale!**
 
-\normalsize
+## Binomial GLM estimates are in `logit` scale!
 
-## Interpreting logistic regression output 
+We need to **back-transform** (apply *inverse logit*):
 
-Parameter estimates (logit-scale)
-```{r tit_glm_coef, echo=FALSE}
-coef(tit.glm)
-```
+  - Manually: `plogis`
 
-\vspace{3mm}
+  - Automatically: `effects`, `modelbased`, etc.
+  
 
-**We need to back-transform**: apply *inverse logit*    
+## Interpreting logistic regression output (`effects` pkg)
 
-\vspace{3mm}
-
-Crew probability of survival:
-```{r tit_glm_invlogit}
-plogis(coef(tit.glm)[1])
-```
-
-\vspace{3mm}
-
-Looking at the data, the proportion of crew who survived is
-```{r crew_surv, echo=FALSE}
-sum(titanic$survived[titanic$class == "crew"]) / nrow(titanic[titanic$class == "crew", ])
-```
-
-
-## Q: Probability of survival for 1st class passengers? 
-
-Must add intercept (baseline) to the parameter estimate:
-\vspace{3mm}
-
-```{r first_surv}
-plogis(coef(tit.glm)[1] + coef(tit.glm)[2])
-```
-
-\vspace{3mm}
-
-Again this value matches the data: 
-\vspace{3mm}
-
-```{r first_surv_data}
-sum(titanic$survived[titanic$class == "first"]) /   
-  nrow(titanic[titanic$class == "first", ])
-```
-
-
-## Model interpretation using `effects` package
-
-```{r tit_glm_effects}
-library(effects)
+```{r tit_glm_effects, echo=TRUE}
+library("effects")
 allEffects(tit.glm)
 ```
+
+
+## Interpreting logistic regression output (`effects` pkg)
+
+Including confidence intervals:
+
+\footnotesize
+
+```{r tit_glm_effects2, echo=TRUE}
+summary(allEffects(tit.glm))
+```
+
+
+## Interpreting logistic regression output (`modelbased`)
+
+```{r echo=TRUE}
+library("modelbased")
+estimate_means(tit.glm)
+```
+
+
+## Analysing differences among factor levels (class)
+
+```{r echo=TRUE}
+library("modelbased")
+estimate_contrasts(tit.glm)
+```
+
+
+## Pseudo R-squared for GLMs
+
+```{r echo=TRUE}
+library("performance")
+r2(tit.glm)
+```
+
+\vspace{5mm}
+
+But there are caveats (e.g. see [here](https://stats.stackexchange.com/questions/3559/which-pseudo-r2-measure-is-the-one-to-report-for-logistic-regression-cox-s) and [here](http://data.library.virginia.edu/is-r-squared-useless/))
+
+
 
 
 ## Presenting model results
@@ -290,9 +307,20 @@ kable(xtable::xtable(tit.glm), digits = 2)
 ```
 
 
+
+## Presenting model results
+
+\footnotesize
+
+```{r echo=TRUE}
+library("modelsummary")
+modelsummary(tit.glm)
+```
+
+
 ## Visualising model: `effects` package
 
-```{r effects_plot}
+```{r effects_plot, echo=TRUE}
 plot(allEffects(tit.glm))
 ```
 
@@ -307,7 +335,7 @@ visreg(tit.glm, scale = "response", rug = FALSE)
 
 ## Visualising model: `sjPlot` package
 
-```{r echo=4}
+```{r echo=4, out.width="70%"}
 library(ggplot2)
 library(sjPlot)
 theme_set(theme_minimal(base_size = 16))
@@ -315,14 +343,21 @@ sjPlot::plot_model(tit.glm, type = "eff")
 ```
 
 
+## Visualising model: `see` package
 
-## Logistic regression: model checking
+```{r echo=3}
+library("parameters")
+library("see")
+plot(parameters(tit.glm), show_intercept = TRUE)
+```
 
-\vspace{3mm}
 
-**Not very useful**
 
-```{r tit_glm_check, echo=FALSE}
+# Model checking
+
+## `plot(model)` not very useful with binomial GLM
+
+```{r tit_glm_check, echo=2, tinycode = TRUE}
 layout(matrix(1:4, nrow = 2))
 plot(tit.glm)
 dev.off()
@@ -331,44 +366,52 @@ dev.off()
 
 
 
-
 ## Binned residual plots for logistic regression
 
-```{r binnedplot}
+```{r echo=TRUE, out.width="80%"}
+binned_residuals(tit.glm)
+```
+
+
+
+```{r binnedplot, eval=FALSE}
 predvals <- predict(tit.glm, type="response")
 arm::binnedplot(predvals, titanic$survived - predvals)
 ```
 
 
+
 ## Residual diagnostics with DHARMa
 
+\footnotesize
+
 ```{r echo=TRUE}
-library(DHARMa)
+library("DHARMa")
 simulateResiduals(tit.glm, plot = TRUE)
 ```
 
 See https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html
 
 
-## Model checking with simulated data
+## Posterior predictive checking
 
-```{r out.height="3in", out.width="3.5in"}
+Simulate data from fitted model (**yrep**) and compare with observed data (**y**)
+
+```{r out.width="70%", echo = 2, tinycode = TRUE}
+library("performance")
+pp_check(tit.glm)
+```
+
+
+```{r eval=FALSE}
 library(bayesplot)
 sims <- simulate(tit.glm, nsim = 100)
 ppc_bars(titanic$survived, yrep = t(as.matrix(sims)))
 ```
 
 
-## Pseudo R-squared for GLMs
 
-```{r}
-library(performance)
-r2(tit.glm)
-```
 
-\vspace{5mm}
-
-But many caveats apply! (e.g. see [here](https://stats.stackexchange.com/questions/3559/which-pseudo-r2-measure-is-the-one-to-report-for-logistic-regression-cox-s) and [here](http://data.library.virginia.edu/is-r-squared-useless/))
 
 
 ## Recapitulating
@@ -407,13 +450,15 @@ But many caveats apply! (e.g. see [here](https://stats.stackexchange.com/questio
 https://pollev.com/franciscorod726
 
 
-## Plot first
+## First, visualise data
 
-```{r tit_sex_eda}
+```{r tit_sex_eda, out.width="100%"}
 plot(factor(survived) ~ as.factor(sex), data = titanic)
 ```
 
 ## Fit model
+
+\footnotesize
 
 ```{r tit_sex, echo=FALSE}
 tit.sex <- glm(survived ~ sex, data = titanic, family = binomial)
@@ -421,33 +466,59 @@ summary(tit.sex)
 ```
 
 
-## Effects
+## Model interpretation
 
-\begincols
-\begincol
-```{r tit_sex_effects, echo=FALSE}
+:::::::::::::: {.columns align=center}
+
+::: {.column width="30%"}
+```{r tit_sex_effects}
 allEffects(tit.sex)
 ```
-\endcol
+:::
 
-\begincol
-```{r tit_sex_effects2, echo=FALSE, fig.height=5, fig.width=4}
+::: {.column width="70%" }
+```{r }
 plot(allEffects(tit.sex))
 ```
-\endcol
-\endcols
+:::
+::::::::::::::
+
+
+## Model checking
+
+```{r echo=TRUE}
+simulateResiduals(tit.sex, plot = TRUE)
+```
 
 
 # Q: Did women have higher survival because they travelled more in first class?
 
+## Did women have higher survival because they travelled more in first class?
+
+```{r echo=FALSE}
+library("dagitty")
+g1 <- dagitty("dag {
+              Class -> Survival
+              Sex -> Survival
+              }")
+coordinates(g1) <- list(
+  x = c(Class = 1, Sex = 1, Survival = 2),
+  y = c(Class = 0, Sex = 2, Survival = 1)
+)
+plot(g1)
+```
+
+
 
 ## Let's look at the data
 
-```{r tit_women}
+\footnotesize
+
+```{r tit_women, echo=TRUE}
 table(titanic$class, titanic$survived, titanic$sex)
 ```
 
-Mmmm... 
+
 
 
 ## Quiz
@@ -457,57 +528,83 @@ https://pollev.com/franciscorod726
 
 ## Fit additive model with both factors 
 
-```{r echo=1}
-tit.sex.class <- glm(survived ~ class + sex, family = binomial, data = titanic)
-arm::display(tit.sex.class)
+\footnotesize
+
+```{r echo=FALSE}
+tit.sex.class.add <- glm(survived ~ class + sex, family = binomial, data = titanic)
+summary(tit.sex.class.add)
 ```
 
 
 ## Plot additive model
 
 ```{r}
-plot(allEffects(tit.sex.class))
+plot(allEffects(tit.sex.class.add))
 ```
 
 
 
-## Fit model with both factors (interactions)
+## Fit model with the interaction of both factors
 
-```{r tit_sex_class, echo=1}
-tit.sex.class <- glm(survived ~ class * sex, family = binomial, data = titanic)
-arm::display(tit.sex.class)
+\footnotesize
+
+```{r tit_sex_class, echo=FALSE}
+tit.sex.class.int <- glm(survived ~ class * sex, family = binomial, data = titanic)
+summary(tit.sex.class.int)
 ```
 
 
-## Effects
+## Women had higher survival than men, even within the same class
 
+:::::::::::::: {.columns align=center}
 
-\begincols
-\begincol
+::: {.column width="40%"}
 ```{r tit_sex_class_effects, echo=FALSE}
-allEffects(tit.sex.class)
+allEffects(tit.sex.class.int)
 ```
-\endcol
+:::
 
-\begincol
-```{r tit_sex_class_effects2, echo=FALSE, fig.height=5, fig.width=4}
-plot(allEffects(tit.sex.class))
+::: {.column width="60%" }
+```{r tit_sex_class_effects2, echo=FALSE}
+plot(allEffects(tit.sex.class.int))
 # visreg(tit.sex.class, by = "sex", xvar = "class")
 ```
-\endcol
-\endcols
+:::
+::::::::::::::
 
 
-So, **women had higher probability of survival than men, even within the same class**.
 
-## Effects (sjPlot)
+## Visualising model (`sjPlot`)
 
-```{r}
-plot_model(tit.sex.class, type = "int")
+```{r echo=TRUE, out.width="80%"}
+plot_model(tit.sex.class.int, type = "int")
 ```
+
+
+## Comparing models
+
+\footnotesize
+
+```{r echo=T}
+library("performance")
+compare_performance(tit.sex.class.add, tit.sex.class.int)
+```
+
+
+## Comparing parameters
+
+\footnotesize
+
+```{r echo=T}
+compare_parameters(tit.sex.class.add, tit.sex.class.int)
+```
+
+
 
 
 ## Extra exercises:
+
+\Large
 
 Is survival related to age?
 
@@ -534,7 +631,9 @@ head(tit.prop)
 These are the same data, but summarized (see `Freq` variable).
 
 
-## Use cbind(n.success, n.failures) as response
+## Use `cbind(n.success, n.failures)` as response
+
+\footnotesize
 
 ```{r binom_prop, echo=1}
 prop.glm <- glm(cbind(Yes, No) ~ Class, data = tit.prop, family = binomial)
@@ -549,7 +648,7 @@ allEffects(prop.glm)
 
 \vspace{5mm}
 
-**Compare with former model based on raw data:**
+**Compare with former model based on binary data:**
 \vspace{3mm}
 
 ```{r comp, echo=FALSE}
@@ -593,7 +692,7 @@ summary(gdp)
 https://pollev.com/franciscorod726
 
 
-## EDA
+## Visualising data
 
 ```{r gdp_eda}
 plot(mortality ~ gdp, data = gdp, main = "Infant mortality (per 1000 births)")
@@ -601,6 +700,8 @@ plot(mortality ~ gdp, data = gdp, main = "Infant mortality (per 1000 births)")
 
 
 ## Fit model
+
+\footnotesize
 
 ```{r gdp_glm, echo=1}
 gdp.glm <- glm(cbind(mortality, 1000 - mortality) ~ gdp, 
@@ -611,7 +712,7 @@ summary(gdp.glm)
 
 ## Effects
 
-```{r gdp_effects}
+```{r gdp_effects, echo=T}
 allEffects(gdp.glm)
 ```
 
@@ -645,6 +746,12 @@ simulateResiduals(gdp.glm, plot = TRUE)
 
 # Overdispersion
 
+---
+
+**Overdispersion**:
+
+more variation in the data than assumed by statistical model
+
 
 ## Testing for overdispersion (DHARMa)
 
@@ -654,7 +761,14 @@ testDispersion(simres, plot = FALSE)
 ```
 
 
+---
+
+`quasibinomial` allows us to model overdispersed binomial data
+
+
 ## Overdispersion in logistic regression with proportion data
+
+\footnotesize 
 
 ```{r logreg_overdisp, echo=1}
 gdp.overdisp <- glm(cbind(mortality, 1000 - mortality) ~ gdp, 
@@ -665,100 +779,73 @@ summary(gdp.overdisp)
 
 ## Mean estimates do not change after accounting for overdispersion
 
-```{r logreg_overdisp2, echo=FALSE}
-allEffects(gdp.overdisp)
-allEffects(gdp.glm)
+```{r logreg_overdisp2, echo=TRUE}
+coef(gdp.overdisp)
+```
+
+\vspace{5mm}
+
+```{r echo=T}
+coef(gdp.glm)
 ```
 
 
 
 ## But standard errors (uncertainty) do!
 
-\begincols
-\begincol
-```{r overdisp_eff1, echo=FALSE, fig.height=5, fig.width=4}
-plot(allEffects(gdp.overdisp))
-```
-\endcol
+:::::::::::::: {.columns align=center}
 
-\begincol
-```{r overdisp_eff2, echo=FALSE, fig.height=5, fig.width=4}
-plot(allEffects(gdp.glm))
+::: {.column width="50%"}
+```{r overdisp_eff2, echo=FALSE, out.width="100%"}
+plot(allEffects(gdp.glm), main = "binomial")
 ```
-\endcol
-\endcols
 
+:::
+
+::: {.column width="50%" }
+```{r overdisp_eff1, echo=FALSE, out.width="100%"}
+plot(allEffects(gdp.overdisp), main = "quasibinomial")
+```
+:::
+::::::::::::::
 
 
 
 
 ## Plot model and data
 
-\begincols
-\begincol
+:::::::::::::: {.columns align=center}
 
-```{r overdisp_plot1, echo=FALSE, fig.height=5, fig.width=4}
+::: {.column width="50%"}
+```{r overdisp_plot1, echo=FALSE, out.width="100%"}
 visreg(gdp.glm, scale = "response", main = "Binomial")
 points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
-\endcol
+:::
 
-\begincol
-
-```{r overdisp_plot2, echo=FALSE, fig.height=5, fig.width=4}
+::: {.column width="50%" }
+```{r overdisp_plot2, echo=FALSE, out.width="100%"}
 visreg(gdp.overdisp, scale = "response", main = "Quasibinomial")
 points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
-\endcol
-\endcols
+:::
+::::::::::::::
 
 
 
-## Overdispersion
-
-Whenever you fit logistic regression to **proportion** data, check family `quasibinomial`.
-
+# Think about the shape of relationships
 
 
 ## Think about the shape of relationships
 
-y ~ x + z
-
-Really? Not everything has to be linear! Actually, it often is not.
-
-**Think** about shape of relationship. See chapter 3 in Bolker's book.
-
-
-\begincols
-
-\begincol
-
-```{r echo=FALSE}
-curve(0.7 + 0.3*x, ylab="y", las=1)
-```
-
-\endcol
-
-\begincol
-
-```{r echo=FALSE}
-curve(0.7*x^0.3, ylab="y", las=1)
-```
-
-\endcol
-
-\endcols
-
-
-
-## Think about the shape of relationships
+Not everything has to be linear...
 
 ```{r}
 visreg(gdp.glm, ylab = "Mortality (logit scale)")
 ```
 
 
-## Think about the shape of relationships
+## Residuals show non-linear pattern
 
 ```{r echo=FALSE}
 library(ggResidpanel)
@@ -766,106 +853,108 @@ resid_panel(gdp.glm)
 ```
 
 
+## Calibration plot shows non-linear pattern
 
-## Think about the shape of relationships
+```{r echo=FALSE}
+gdp.na <- na.omit(gdp)
+gdp.na$fit <- fitted(gdp.glm)
+plot(gdp.na$fit, gdp.na$mortality, 
+     xlab = "Probability of mortality (predicted)",
+     ylab = "Mortality (observed)")
+```
 
-\begincols
-\begincol
 
-```{r echo=FALSE, fig.height=5, fig.width=4}
+## Trying polynomial predictor (GDP + GDP^2^)
+
+:::::::::::::: {.columns align=center}
+
+::: {.column width="50%"}
+```{r echo=FALSE, out.width="100%"}
 visreg(gdp.overdisp, main = "Mortality ~ GDP", ylab = "Mortality (logit scale)")
 ```
-\endcol
+:::
 
-\begincol
-
-```{r echo=FALSE, fig.height=5, fig.width=4}
+::: {.column width="50%" }
+```{r echo=FALSE, out.width="100%"}
 gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ gdp + I(gdp*gdp), 
                data = gdp, family = quasibinomial)
 visreg(gdp.overdisp2, main = "Mortality ~ GDP + GDP^2", ylab = "Mortality (logit scale)")
 ```
-\endcol
-\endcols
+:::
+::::::::::::::
+
+
+
 
 
 
 ## Think about the shape of relationships
 
-\begincols
-\begincol
+:::::::::::::: {.columns align=center}
 
-```{r echo=FALSE, fig.height=5, fig.width=4}
+::: {.column width="50%"}
+```{r echo=FALSE, out.width="100%"}
 visreg(gdp.overdisp, main = "Mortality ~ GDP", scale = "response", ylab = "Mortality")
 points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
-\endcol
+:::
 
-\begincol
-
-```{r echo=FALSE, fig.height=5, fig.width=4}
+::: {.column width="50%" }
+```{r echo=FALSE, out.width="100%"}
 gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ gdp + I(gdp*gdp), 
                data = gdp, family = quasibinomial)
 visreg(gdp.overdisp2, main = "Mortality ~ GDP + GDP^2", scale = "response", ylab = "Mortality")
 points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
-\endcol
-\endcols
+:::
+::::::::::::::
 
 
 
-## Think about the shape of relationships
 
-\begincols
-\begincol
 
-```{r echo=FALSE, fig.height=5, fig.width=4}
+## Trying log(GDP)
+
+:::::::::::::: {.columns align=center}
+
+::: {.column width="50%"}
+```{r echo=FALSE, out.width="100%"}
 visreg(gdp.overdisp, main = "Mortality ~ GDP", ylab = "Mortality (logit scale)")
 ```
-\endcol
+:::
 
-\begincol
-
-```{r echo=FALSE, fig.height=5, fig.width=4}
+::: {.column width="50%" }
+```{r echo=FALSE, out.width="100%"}
 gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ log(gdp), 
                data = gdp, family = quasibinomial)
 visreg(gdp.overdisp2, main = "Mortality ~ log(GDP)", ylab = "Mortality (logit scale)")
 ```
-\endcol
-\endcols
+:::
+::::::::::::::
 
 
+## Trying log(GDP)
 
-## Think about the shape of relationships
+:::::::::::::: {.columns align=center}
 
-\begincols
-\begincol
-
-```{r echo=FALSE, fig.height=5, fig.width=4}
+::: {.column width="50%"}
+```{r echo=FALSE, out.width="100%"}
 visreg(gdp.overdisp, main = "Mortality ~ GDP", scale = "response", ylab = "Mortality")
 points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
-\endcol
+:::
 
-\begincol
-
-```{r echo=FALSE, fig.height=5, fig.width=4}
+::: {.column width="50%" }
+```{r echo=FALSE, out.width="100%"}
 gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ log(gdp), 
                data = gdp, family = quasibinomial)
 visreg(gdp.overdisp2, main = "Mortality ~ log(GDP)", scale = "response", ylab = "Mortality")
 points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
-\endcol
-\endcols
+:::
+::::::::::::::
 
 
-
-
-```{r echo=2, eval=FALSE}
-## Think about the shape of relationships
-gdp.log <- glm(cbind(mortality, 1000 - mortality) ~ log(gdp), 
-               data = gdp, family = quasibinomial)
-resid_panel(gdp.log)
-```
 
 
 
@@ -875,13 +964,28 @@ m <- glm(mortality ~ log(gdp), data = gdp, family = quasipoisson)
 summary(m)
 visreg(m, scale = "response")
 points(mortality ~ gdp, data = gdp)
+
+gdp.na <- na.omit(gdp)
+gdp.na$fit <- fitted(m)
+plot(gdp.na$fit, gdp.na$mortality, 
+     xlab = "Probability of mortality (predicted)",
+     ylab = "Mortality (observed)")
 ```
+
+
 
 
 ## More examples
 
 - seedset.csv: Comparing seed set among plants (Data from [Harder et al. 2011](https://datadryad.org/resource/doi:10.5061/dryad.0vf86nb1.2))
 
+
+
+## Seed set among plants
+
+```{r}
+include_graphics("images/tomato.jpg")
+```
 
 
 ## Seed set among plants
