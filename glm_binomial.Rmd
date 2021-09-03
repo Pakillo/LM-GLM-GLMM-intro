@@ -164,7 +164,29 @@ logit(P(alive)) = a + bx \\
 P(alive) = invlogit(a + bx) = \dfrac {e^{a+bx}} {1+e^{a+bx}} \\  
 \end{aligned} 
 $$
-  
+
+## Where is the variance?
+
+In a Gaussian GLM
+
+$$
+y \sim Normal(\mu, \sigma)
+$$
+
+In a Binomial GLM
+
+$$
+y \sim Binomial(n, p)
+$$
+n = number of trials
+
+p = probability of success
+
+$$
+{Var}(y)=np(1-p)
+$$
+(maximum variance when `p` around 0.5)
+
 
 
 # Back to survival of Titanic passengers 
@@ -752,6 +774,10 @@ simulateResiduals(gdp.glm, plot = TRUE)
 
 more variation in the data than assumed by statistical model
 
+$$
+{Var}(y)=np(1-p)
+$$
+
 
 ## Testing for overdispersion (DHARMa)
 
@@ -977,13 +1003,41 @@ plot(gdp.na$fit, gdp.na$mortality,
 
 ## More examples
 
-- seedset.csv: Comparing seed set among plants (Data from [Harder et al. 2011](https://datadryad.org/resource/doi:10.5061/dryad.0vf86nb1.2))
+- `seedset.csv`: Comparing seed set among plants (Data from [Harder et al. 2011](https://datadryad.org/resource/doi:10.5061/dryad.0vf86nb1.2))
+
+- `moth.csv`: Probability of moth predation on trunk trees depending on morph (light/dark) and distance to Liverpool ([Bishop 1972](https://doi.org/10.2307/3513))
+
+- `soccer.csv`: Probability of scoring penalty depending on goalkeeper's team being ahead, behind or tied ([Roskes et al 2011](https://doi.org/10.1177%2F0956797611418677))
 
 
+# Probability of scoring penalty
+
+## Data on penalty shots
+
+```{r echo = TRUE}
+soccer <- read.csv("data/soccer.csv")
+soccer
+```
+
+Does probability of scoring penalty depends on match situation?
+
+https://pollev.com/franciscorod726
+
+
+## Probability of scoring depending on match situation
+
+```{r echo=FALSE}
+soccer.mod <- glm(cbind(Scored, Nshots - Scored) ~ GoalkeeperTeam, data = soccer, family = binomial)
+visreg(soccer.mod, scale = "response", 
+       ylab = "Probability of scoring")
+```
+
+
+# Seed set among plants
 
 ## Seed set among plants
 
-```{r}
+```{r echo=FALSE}
 include_graphics("images/tomato.jpg")
 ```
 
