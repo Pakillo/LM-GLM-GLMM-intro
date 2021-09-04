@@ -75,7 +75,7 @@ head(titanic)
 ```
 
 
-## Quiz
+## Quiz: Did passenger class influence survival?
 
 https://pollev.com/franciscorod726
 
@@ -104,9 +104,13 @@ hist(resid(m5))
 
 Binary variables (0/1)
 
-\vspace{5mm}
+\vspace{3mm}
 
 Counts (0, 1, 2, 3, ...)
+
+\vspace{3mm}
+
+Categories ("small", "medium", "large"...)
 
 \vspace{5mm}
 Generalised Linear Models to the rescue!
@@ -178,9 +182,9 @@ In a Binomial GLM
 $$
 y \sim Binomial(n, p)
 $$
-n = number of trials
+`n` = number of trials
 
-p = probability of success
+`p` = probability of success
 
 $$
 {Var}(y)=np(1-p)
