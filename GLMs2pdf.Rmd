@@ -1,58 +1,62 @@
 ---
-title: "Linear, Generalized, and Mixed/Multilevel models - an introduction with R"
+title: "Linear, Generalized, and Mixed/Multilevel models in R"
 author: "Francisco Rodríguez-Sánchez"
 date: "https://frodriguezsanchez.net"
-output:
-  beamer_presentation:
-    fig_height: 5
-    fig_width: 7
-    includes:
-      in_header: header.tex
-    incremental: yes
-    keep_tex: no
-    latex_engine: xelatex
+aspectratio: 43  # use 169 for wide format
 fontsize: 10pt
+output: 
+  binb::metropolis:
+    keep_tex: no
+    incremental: yes
+    fig_caption: no
+    pandoc_args: ["--lua-filter=hideslide.lua"]
 urlcolor: blue
 linkcolor: blue
+header-includes:
+  - \definecolor{shadecolor}{RGB}{230,230,230}
+  # - \setbeamercolor{frametitle}{bg=black}
 ---
 
 
-```{r include=FALSE, cache=FALSE}
 
-library(rmarkdown)
-library(knitr)
+```{r knitr_setup, include=FALSE, cache=FALSE}
+
+library("knitr")
 
 ### Chunk options ###
 
 ## Text results
-opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, size = 'tiny')
 
 ## Code decoration
-opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, size = "footnotesize")
+opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
 
 # ## Cache
-opts_chunk$set(cache = TRUE, cache.path = "knitr_cache/")
-# opts_chunk$set(cache.extra = rand_seed)
-# 
+# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
+
 # ## Plots
-opts_chunk$set(fig.align = "center") 
-#opts_chunk$set(fig.path = "knitr_output/figures/")
-# opts_chunk$set(dpi = 300, fig.align = "default")   # may want 'center' sometimes
-# 
-# # Figure format
-# opts_chunk$set(dev='pdf')  # e.g. choose among 'pdf', 'png', 'svg'...
-# # may include specific dev.args as a list... see knitr help
-
-
+# opts_chunk$set(fig.path = "knitr_output/figures/")
+opts_chunk$set(fig.align = 'center', out.width = '90%')
 
 ### Hooks ###
-
 ## Crop plot margins
-#knit_hooks$set(crop = hook_pdfcrop)   
+knit_hooks$set(crop = hook_pdfcrop)
 
+## Reduce font size
+## use tinycode = TRUE as chunk option to reduce code font size
+# see http://stackoverflow.com/a/39961605
+knit_hooks$set(tinycode = function(before, options, envir) {
+  if (before) return(paste0("\n \\", options$size, "\n\n"))
+  else return("\n\n \\normalsize \n")
+  })
 
 ```
 
+
+# GLM as unified framework for data analysis
+
+```{r child = 'framework.Rmd'}
+```
 
 # Introduction to linear models
 
@@ -65,8 +69,20 @@ opts_chunk$set(fig.align = "center")
 ```{r child = 'lm.Rmd'}
 ```
 
+# Variable and model selection
 
-# Generalised Linear Models: Logistic regression
+```{r child = 'model_selection.Rmd'}
+```
+
+# Model comparison
+
+```{r child = 'model_comparison_trees.Rmd'}
+```
+
+
+# Generalised Linear Models
+
+# Binomial GLM (logistic regression)
 
 ```{r child = 'glm_binomial.Rmd'}
 ```
@@ -74,7 +90,13 @@ opts_chunk$set(fig.align = "center")
 
 # GLM for count data: Poisson regression
 
-```{r child = 'glm_poisson.Rmd'}
+```{r child = 'glm_count.Rmd'}
+```
+
+
+# Modelling zero-inflated count data
+
+```{r child = 'glm_count_zeroinfl.Rmd'}
 ```
 
 
@@ -85,7 +107,7 @@ opts_chunk$set(fig.align = "center")
 
 -----
 
-```{r echo=FALSE, out.height='4in', out.width='4.5in'}
+```{r echo=FALSE, out.width="100%"}
 knitr::include_graphics("images/flowchart.png")
 ```
 

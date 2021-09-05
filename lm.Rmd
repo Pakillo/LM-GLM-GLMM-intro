@@ -979,6 +979,8 @@ summary(m4)
 
 ## Presenting model results
 
+\footnotesize
+
 ```{r echo=TRUE}
 parameters(m4)
 ```
@@ -1056,7 +1058,7 @@ ggplot(trees) +
 
 ## Slope is the same for all sites
 
-\tiny
+\scriptsize
 
 ```{r}
 estimate_slopes(m4)

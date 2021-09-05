@@ -338,7 +338,7 @@ kable(xtable::xtable(tit.glm), digits = 2)
 
 \footnotesize
 
-```{r echo=TRUE}
+```{r echo=TRUE, eval=FALSE}
 library("modelsummary")
 modelsummary(tit.glm)
 ```
