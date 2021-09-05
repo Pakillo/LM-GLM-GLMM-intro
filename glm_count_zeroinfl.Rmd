@@ -1,5 +1,5 @@
 ---
-title: "Zero inflation in count data"
+title: "Modelling zero-inflated (and overdispersed) count data"
 author: "Francisco Rodríguez-Sánchez"
 institute: "https://frodriguezsanchez.net"
 aspectratio: 43  # use 169 for wide format
@@ -182,7 +182,7 @@ Mixture model:
 
 Nests may be occupied or not:
 
-  > Probability nest occupied ~ old \hspace{12mm} (Binomial)
+  > Probability nest not occupied ~ old \hspace{12mm} (Binomial)
 
 For occupied nests:
 
