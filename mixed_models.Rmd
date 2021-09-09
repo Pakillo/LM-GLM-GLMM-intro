@@ -263,9 +263,10 @@ Especially for groups with low sample size
 
 ## Fitting mixed/multilevel models
 
-\footnotesize
+\scriptsize
+
 ```{r mixed, echo=1:2}
-library(lme4)
+library("lme4")
 mixed <- lmer(height ~ dbh + (1|site), data = trees)
 summary(mixed)
 ```
@@ -299,7 +300,7 @@ See also [broom.mixed](https://github.com/bbolker/broom.mixed)
 :::::::::::::: {.columns align=center}
 
 ::: {.column width="50%"}
-```{r mixed_vis1, echo=FALSE}
+```{r mixed_vis1, echo=2}
 library(effects)
 allEffects(mixed)
 ```
@@ -327,7 +328,7 @@ visreg(mixed, xvar = "dbh", by = "site", re.form = NULL)
 
 ## Visualising model
 
-```{r echo=TRUE}
+```{r echo=TRUE, tinycode = TRUE}
 visreg(mixed, xvar = "dbh", by = "site", re.form = NULL, overlay = TRUE)
 ```
 
@@ -352,7 +353,7 @@ sjPlot::plot_model(mixed, type = "re")
 ## Using merTools to understand fitted model
 
 ```{r eval=FALSE}
-library(merTools)
+library("merTools")
 shinyMer(mixed)
 ```
 
@@ -368,24 +369,25 @@ plot(mixed)
 
 ## Checking residuals
 
+\footnotesize
+
 ```{r echo=TRUE}
-ggResidpanel::resid_panel(mixed)
+library("performance")
+check_model(mixed)
 ```
 
 
 ## Checking residuals (DHARMa)
 
 ```{r}
-DHARMa::simulateResiduals(mixed, plot = TRUE, use.u = TRUE)
+DHARMa::simulateResiduals(mixed, plot = TRUE, re.form = NULL)
 ```
 
 
 ## Model checking with simulated data
 
-```{r }
-library(bayesplot)
-sims <- simulate(mixed, nsim = 100)  
-ppc_dens_overlay(trees$height, yrep = t(as.matrix(sims)))
+```{r echo=TRUE}
+pp_check(mixed)
 ```
 
 
@@ -396,8 +398,7 @@ Many approaches! Somewhat polemic (e.g. see [this](https://m-clark.github.io/mix
 Nakagawa & Schielzeth propose **marginal** (considering fixed effects only) and **conditional** $R^{2}$ (including random effects too):
 
 ```{r}
-library(MuMIn)
-r.squaredGLMM(mixed)
+r2(mixed)
 ```
 
 
@@ -602,7 +603,7 @@ summary(sleep)
 
 ## Varying intercepts and slopes (lme4)
 
-```{r eval=FALSE}
+```{r eval=TRUE}
 visreg(sleep, xvar = "Days", by = "Subject", re.form = NULL)
 ```
 
@@ -656,6 +657,8 @@ plot(factor(dead) ~ dbh, data = trees)
 
 ## Fit simple logistic regression
 
+\scriptsize
+
 ```{r, echo=1}
 simple.logis <- glm(dead ~ dbh, data = trees, family=binomial)
 summary(simple.logis)
@@ -664,7 +667,7 @@ summary(simple.logis)
 
 ## Logistic regression with *independent* site effects
 
-\footnotesize
+\scriptsize
 
 ```{r, echo=1}
 logis2 <- glm(dead ~ dbh + factor(site), data = trees, family=binomial)
@@ -675,7 +678,8 @@ summary(logis2)
 
 ## Fit multilevel logistic regression
 
-\footnotesize
+\scriptsize
+
 ```{r mixed_logis, echo=1}
 mixed.logis <- glmer(dead ~ dbh + (1|site), data=trees, family = binomial)
 summary(mixed.logis)
@@ -690,16 +694,25 @@ coef(mixed.logis)
 ```
 
 
+## Visualising model: `visreg`
+
+```{r echo = TRUE}
+visreg(mixed.logis, xvar = "dbh", by = "site", scale = "response")
+```
+
+
 ## Visualising model: `sjPlot`
 
-```{r}
+```{r out.width="70%"}
 plot_model(mixed.logis, type = "eff", show.ci = TRUE)
 ```
 
 
+
+::: hide :::
 # Poisson multilevel regression
 
-
+:::
 
 
 ## Advantages of multilevel models
@@ -712,7 +725,7 @@ plot_model(mixed.logis, type = "eff", show.ci = TRUE)
 
 - More **efficient inference** of regression parameters
 
-- Using all the data to perform inferences for groups with small sample size
+- Using all the data to perform inferences for groups with **small sample size**
 
 
 ## Formula syntax for different models
