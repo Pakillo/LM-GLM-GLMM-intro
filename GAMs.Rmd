@@ -208,7 +208,7 @@ visreg(mort.glm.log)
 ```{r echo = 1:2}
 library("mgcv")
 mort.gam <- gam(infant.mortality ~ s(log.gdp), family = nb, data = mort)
-summary(m)
+summary(mort.gam)
 ```
 
 
