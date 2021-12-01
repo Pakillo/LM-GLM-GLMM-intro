@@ -70,7 +70,8 @@ data(iris)
 setosa <- iris[iris$Species == "setosa", ]
 
 m <- lm(Petal.Width ~ Petal.Length, data = setosa)
-ggplot(setosa) +
+
+gglm <- ggplot(setosa) +
   aes(x = Petal.Length, y = Petal.Width) +
   geom_point(size = 3) +
   theme_minimal(base_size = 20) +
@@ -88,6 +89,8 @@ ggplot(setosa) +
   geom_segment(aes(x = 1.9, y = 0.205, xend = 1.9, yend = 0.33), colour = "grey60",
                arrow = arrow(ends = "both")) +
   annotate("text", x = 2.05, y = 0.27, label = "residual", size = 6)
+
+gglm
 ```
 
 :::
@@ -154,6 +157,11 @@ If `x` increases 1 unit, `y` decreases 2 units
 ---
 
 ## What are residuals?
+
+```{r out.width="50%"}
+gglm
+```
+
 
 How far points fall from the regression line
 
