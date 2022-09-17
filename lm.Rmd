@@ -179,6 +179,11 @@ equatiomatic::extract_eq(m1)
 ```
 
 
+```{r}
+equatiomatic::extract_eq(m1, use_coefs = TRUE)
+```
+
+
 # Model interpretation
 
 
@@ -237,6 +242,8 @@ ggplot(res) +
 
 ## Degrees of freedom
 
+\LARGE
+
 DF = n - p
 
 n = sample size
@@ -248,6 +255,8 @@ p = number of estimated parameters
 
 ## R-squared
 
+\LARGE
+
 Proportion of 'explained' variance
 
 $R^{2} = 1 - \frac{Residual Variation}{Total Variation}$
@@ -256,9 +265,11 @@ $R^{2} = 1 - \frac{Residual Variation}{Total Variation}$
 
 ## Adjusted R-squared
 
+\LARGE
+
 Accounts for model complexity (number of parameters)
 
-$1 - (1 - R^2) \frac{n - 1}{n - p - 1}$
+$R^2_{adj} = 1 - (1 - R^2) \frac{n - 1}{n - p - 1}$
 
 
 ## Quiz 
@@ -320,7 +331,6 @@ summary(allEffects(m1))
 ```
 
 
-
 # Communicating results
 
 ## Avoid dichotomania of statistical significance
@@ -329,16 +339,18 @@ summary(allEffects(m1))
 include_graphics("images/nature_significance.PNG")
 ```
 
-- 'Never conclude there is ‘no difference’ or ‘no association’ just because p > 0.05 or CI includes zero'
+- "Never conclude there is **‘no difference’** or ‘no association’ just because **p > 0.05 or CI includes zero**"
 
-- Estimate and communicate effect sizes and their uncertainty
+- Estimate and communicate **effect sizes and their uncertainty**
 
 - https://doi.org/10.1038/d41586-019-00857-9
 
 
 ## Communicating results
 
-We found a significant relationship between DBH and Height (p<0.05).
+\Large
+
+We found a **significant relationship** between DBH and Height **(p<0.05)**.
 
 We found a ~~significant~~ positive relationship between DBH and Height ~~(p<0.05)~~ (b = 0.61, SE = 0.01).
 
@@ -503,6 +515,14 @@ check_model(m1)
 ```
 
 
+## A dashboard to explore the full model
+
+```{r eval=FALSE}
+library("easystats")
+model_dashboard(m1)
+```
+
+
 
 # Using model for prediction
 
@@ -565,7 +585,7 @@ predict(m1, new.dbh, interval = "prediction")
 
 ```{r echo=FALSE}
 library("modelbased")
-conf <- estimate_relation(m1, data = NULL)
+conf <- estimate_expectation(m1, data = NULL)
 conf$obs <- trees$height
 
 ggplot(conf) +
@@ -583,7 +603,7 @@ ggplot(conf) +
 
 ```{r echo=FALSE}
 
-pred <- estimate_response(m1)
+pred <- estimate_prediction(m1)
 pred$obs <- trees$height
 
 ggplot(pred) +
@@ -622,7 +642,7 @@ ggplot(pred) +
 
 
 
-`
+
 
 
 
@@ -782,7 +802,11 @@ check_model(m2)
 ```
 
 
+## Model dashboard
 
+```{r eval=FALSE}
+model_dashboard(m2)
+```
 
 
 # Q: Does height differ among field sites?
@@ -1100,7 +1124,7 @@ Simulating response data from fitted model (`yrep`)
 and comparing with observed response (`y`)
 
 ```{r out.width="70%"}
-performance::pp_check(m4)
+performance::check_predictions(m4)
 ```
 
 
@@ -1178,6 +1202,16 @@ visreg(m5, xvar = "dbh", by = "site")
 
 
 
+## Examining fitted model with {modelStudio}
+
+```{r eval=FALSE}
+library("modelStudio")
+m5.explain <- DALEX::explain(
+  m5, 
+  data = trees, 
+  y = trees$height)
+modelStudio(m5.explain)
+```
 
 
 ## Extra exercises
