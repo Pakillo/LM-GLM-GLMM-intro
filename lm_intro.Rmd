@@ -149,7 +149,7 @@ $y = 0.5 - 2*x$
 
   - If x = 10 -> $y = 0.5 - 2*10 = -19.5$
   
-  - If x = 11 -> $y = 0.5 + 2*11 = -21.5$ 
+  - If x = 11 -> $y = 0.5 - 2*11 = -21.5$ 
   
 If `x` increases 1 unit, `y` decreases 2 units 
 
