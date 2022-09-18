@@ -311,8 +311,8 @@ bayesplot::ppc_rootogram(seedl$count, yrep)
 
 Simulate data from fitted model (`yrep`) and compare with observed data (`y`)
 
-```{r}
-pp_check(seedl.glm)
+```{r echo=TRUE, out.width="80%"}
+check_predictions(seedl.glm)
 ```
 
 
@@ -410,6 +410,15 @@ seedl.nb <- glm.nb(count ~ light, data = seedl)
 summary(seedl.nb)
 ```
 
+
+## Comparing Poisson and Negative Binomial
+
+\scriptsize
+
+```{r echo=TRUE}
+compare_models(seedl.glm, seedl.nb)
+compare_performance(seedl.glm, seedl.nb)
+```
 
 
 # What if survey plots have different area?
