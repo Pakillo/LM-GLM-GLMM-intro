@@ -425,7 +425,7 @@ Simulate data from fitted model (**yrep**) and compare with observed data (**y**
 
 ```{r out.width="70%", echo = 2, tinycode = TRUE}
 library("performance")
-pp_check(tit.glm)
+check_predictions(tit.glm)
 ```
 
 
@@ -436,7 +436,35 @@ ppc_bars(titanic$survived, yrep = t(as.matrix(sims)))
 ```
 
 
+## Calibration plot
 
+Compares predicted vs observed probabilities (grouped by quantiles)
+
+\footnotesize
+
+```{r echo=TRUE, out.width="60%"}
+library("predtools")
+titanic$surv.pred <- predict(tit.glm, type = "response")
+calibration_plot(data = titanic, obs = "survived", pred = "surv.pred", 
+                 x_lim = c(0,1), y_lim = c(0,1)) 
+```
+
+---
+
+Passenger class was important, but lots of unexplained variation
+
+```{r echo=FALSE}
+visreg(tit.glm, scale = "response")
+```
+
+
+---
+
+The goal is not to test whether the model's assumptions are "true", because all models are false.
+
+Rather, the goal is to assess exactly **how the model fails to describe the data**, as a path towards **model comprehension, revision, and improvement**.
+
+Richard McElreath. _Statistical Rethinking_
 
 
 
@@ -445,23 +473,23 @@ ppc_bars(titanic$survived, yrep = t(as.matrix(sims)))
 
 1. **Visualise data**
 
-\vspace{3mm}
+\vspace{2mm}
 
 2. **Fit model**: `glm`. Don't forget to specify `family`!
 
-\vspace{3mm}
+\vspace{2mm}
 
 3. **Examine model**: `summary`
 
-\vspace{3mm}
+\vspace{2mm}
 
 4. **Back-transform parameters** from *logit* into probability scale (e.g. `allEffects`)
 
-\vspace{3mm}
+\vspace{2mm}
 
-5. **Plot model**: `plot(allEffects(model))`, `visreg`, `plot_model`...
+5. **Plot model**: `plot(allEffects(model))`, `visreg`, `plot_model`, calibration plot...
 
-\vspace{3mm}
+\vspace{2mm}
 
 6. **Examine residuals**: `DHARMa::simulateResiduals`.
 
@@ -624,6 +652,18 @@ compare_performance(tit.sex.class.add, tit.sex.class.int)
 ```{r echo=T}
 compare_parameters(tit.sex.class.add, tit.sex.class.int)
 ```
+
+
+
+
+```{r echo=FALSE, eval = FALSE}
+## Calibration plot
+titanic$surv.pred <- predict(tit.sex.class.int, type = "response")
+calibration_plot(data = titanic, obs = "survived", pred = "surv.pred", 
+                 x_lim = c(0,1), y_lim = c(0,1), nTiles = 10)
+```
+
+
 
 
 
