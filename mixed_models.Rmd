@@ -387,7 +387,7 @@ DHARMa::simulateResiduals(mixed, plot = TRUE, re.form = NULL)
 ## Model checking with simulated data
 
 ```{r echo=TRUE}
-pp_check(mixed)
+check_predictions(mixed)
 ```
 
 
