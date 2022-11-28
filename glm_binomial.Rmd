@@ -113,7 +113,7 @@ Counts (0, 1, 2, 3, ...)
 Categories ("small", "medium", "large"...)
 
 \vspace{5mm}
-Generalised Linear Models to the rescue!
+> Generalised Linear Models to the rescue!
 
 
 ## Generalised Linear Models
@@ -390,12 +390,12 @@ dev.off()
 ```
 
 
-
+::: hide :::
 
 ## Binned residual plots for logistic regression
 
 ```{r echo=TRUE, out.width="80%"}
-binned_residuals(tit.glm)
+plot(binned_residuals(tit.glm))
 ```
 
 
@@ -405,19 +405,15 @@ predvals <- predict(tit.glm, type="response")
 arm::binnedplot(predvals, titanic$survived - predvals)
 ```
 
+:::
 
-
-## Residual diagnostics with DHARMa
-
-\footnotesize
+## easystats::check_model
 
 ```{r echo=TRUE}
-library("DHARMa")
-simulateResiduals(tit.glm, plot = TRUE)
+check_model(tit.glm)
 ```
 
-See https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html
-
+::: hide :::
 
 ## Posterior predictive checking
 
@@ -434,6 +430,20 @@ library(bayesplot)
 sims <- simulate(tit.glm, nsim = 100)
 ppc_bars(titanic$survived, yrep = t(as.matrix(sims)))
 ```
+
+:::
+
+
+## Residual diagnostics with DHARMa
+
+\footnotesize
+
+```{r echo=TRUE}
+library("DHARMa")
+simulateResiduals(tit.glm, plot = TRUE)
+```
+
+See https://cran.r-project.org/web/packages/DHARMa/vignettes/DHARMa.html
 
 
 ## Calibration plot
@@ -483,15 +493,15 @@ Richard McElreath. _Statistical Rethinking_
 
 \vspace{2mm}
 
-4. **Back-transform parameters** from *logit* into probability scale (e.g. `allEffects`)
+4. **Back-transform parameters** from *logit* into probability scale (e.g. `allEffects`, `estimate_means`)
 
 \vspace{2mm}
 
-5. **Plot model**: `plot(allEffects(model))`, `visreg`, `plot_model`, calibration plot...
+5. **Plot model**: `plot(allEffects(model))`, `visreg`, `plot_model`...
 
 \vspace{2mm}
 
-6. **Examine residuals**: `DHARMa::simulateResiduals`.
+6. **Check model**: `check_model`, `DHARMa::simulateResiduals`, `calibration_plot`
 
 
 
@@ -621,7 +631,7 @@ allEffects(tit.sex.class.int)
 ::: {.column width="60%" }
 ```{r tit_sex_class_effects2, echo=FALSE}
 plot(allEffects(tit.sex.class.int))
-# visreg(tit.sex.class, by = "sex", xvar = "class")
+# visreg(tit.sex.class.int, by = "sex", xvar = "class")
 ```
 :::
 ::::::::::::::
@@ -931,6 +941,16 @@ gdp.na$fit <- fitted(gdp.glm)
 plot(gdp.na$fit, gdp.na$mortality, 
      xlab = "Probability of mortality (predicted)",
      ylab = "Mortality (observed)")
+```
+
+
+## Calibration plot shows non-linear pattern
+
+```{r}
+gdp.na$mort.pred <- predict(gdp.glm, type = "response")
+gdp.na$mort.prob <- gdp.na$mortality/1000
+calibration_plot(data = gdp.na, obs = "mort.prob", pred = "mort.pred", 
+                 x_lim = c(0,0.1), y_lim = c(0,0.1), nTiles = 10)
 ```
 
 
