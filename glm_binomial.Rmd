@@ -296,18 +296,20 @@ summary(allEffects(tit.glm))
 ```
 
 
-## Interpreting logistic regression output (`modelbased`)
+## Interpreting logistic regression output (`easystats`)
 
 ```{r echo=TRUE}
-library("modelbased")
+library("easystats")   # 'modelbased' pkg
 estimate_means(tit.glm)
 ```
 
 
 ## Analysing differences among factor levels (class)
 
+\footnotesize
+
 ```{r echo=TRUE}
-library("modelbased")
+library("easystats")   # 'modelbased' pkg
 estimate_contrasts(tit.glm)
 ```
 
@@ -315,7 +317,7 @@ estimate_contrasts(tit.glm)
 ## Pseudo R-squared for GLMs
 
 ```{r echo=TRUE}
-library("performance")
+library("easystats")   # 'performance' pkg
 r2(tit.glm)
 ```
 
@@ -369,7 +371,7 @@ sjPlot::plot_model(tit.glm, type = "eff")
 ```
 
 
-## Visualising model: `see` package
+## Visualising model: `easystats` (`see` package)
 
 ```{r echo=3}
 library("parameters")
@@ -647,10 +649,10 @@ plot_model(tit.sex.class.int, type = "int")
 
 ## Comparing models
 
-\footnotesize
+\scriptsize
 
 ```{r echo=T}
-library("performance")
+library("easystats")   # 'performance' pkg
 compare_performance(tit.sex.class.add, tit.sex.class.int)
 ```
 
@@ -1067,33 +1069,86 @@ plot(gdp.na$fit, gdp.na$mortality,
 
 ## More examples
 
-- `seedset.csv`: Comparing seed set among plants (Data from [Harder et al. 2011](https://datadryad.org/resource/doi:10.5061/dryad.0vf86nb1.2))
-
 - `moth.csv`: Probability of moth predation on trunk trees depending on morph (light/dark) and distance to Liverpool ([Bishop 1972](https://doi.org/10.2307/3513))
+
+- `seedset.csv`: Comparing seed set among plants (Data from [Harder et al. 2011](https://datadryad.org/resource/doi:10.5061/dryad.0vf86nb1.2))
 
 - `soccer.csv`: Probability of scoring penalty depending on goalkeeper's team being ahead, behind or tied ([Roskes et al 2011](https://doi.org/10.1177%2F0956797611418677))
 
 
-# Probability of scoring penalty
+# Moth predation
 
-## Data on penalty shots
+## The industrial revolution and evolution of dark morphs 
 
-```{r echo = TRUE}
-soccer <- read.csv("data/soccer.csv")
-soccer
+```{r out.width="90%"}
+include_graphics("images/moths.jpg")
 ```
 
-Does probability of scoring penalty depends on match situation?
+## The data
 
-https://pollev.com/franciscorod726
+```{r echo = 1}
+moth <- read.csv("data/moth.csv")
+head(moth)
+```
+
+## Creating new variable: REMAIN
+
+```{r echo = 1}
+moth$REMAIN <- moth$PLACED - moth$REMOVED
+head(moth)
+```
+
+## Did some morph have higher predation overall?
+
+\footnotesize
+
+```{r}
+pred.morph <- glm(cbind(REMOVED, REMAIN) ~ MORPH, data = moth, family = binomial)
+summary(pred.morph)
+```
+
+## Did some morph have higher predation overall?
+
+```{r}
+plot(allEffects(pred.morph))
+```
 
 
-## Probability of scoring depending on match situation
+## Did predation increase farther from city centre?
 
-```{r echo=FALSE}
-soccer.mod <- glm(cbind(Scored, Nshots - Scored) ~ GoalkeeperTeam, data = soccer, family = binomial)
-visreg(soccer.mod, scale = "response", 
-       ylab = "Probability of scoring")
+\footnotesize
+
+```{r }
+pred.dist <- glm(cbind(REMOVED, REMAIN) ~ DISTANCE, data = moth, family = binomial)
+summary(pred.dist)
+```
+
+## Did predation increase farther from city centre?
+
+```{r }
+plot(allEffects(pred.dist))
+```
+
+## Did dark morph have lower predation in city & light have lower predation in countryside?
+
+\footnotesize
+
+```{r }
+pred.int <- glm(cbind(REMOVED, REMAIN) ~ MORPH * DISTANCE, data = moth, family = binomial)
+summary(pred.int)
+```
+
+
+## Did dark morph have lower predation in city & light have lower predation in countryside?
+
+```{r }
+plot(allEffects(pred.int))
+```
+
+## Model check
+
+```{r echo = TRUE}
+simulateResiduals(pred.int, plot = TRUE)
 ```
 
 
@@ -1159,3 +1214,25 @@ seedm <- glm(cbind(seeds, ovulecnt - seeds) ~ plant + pcmass, data = seed, famil
 plot(allEffects(seedm))
 ```
 
+
+# Probability of scoring penalty
+
+## Data on penalty shots
+
+```{r echo = TRUE}
+soccer <- read.csv("data/soccer.csv")
+soccer
+```
+
+Does probability of scoring penalty depends on match situation?
+
+https://pollev.com/franciscorod726
+
+
+## Probability of scoring depending on match situation
+
+```{r echo=FALSE}
+soccer.mod <- glm(cbind(Scored, Nshots - Scored) ~ GoalkeeperTeam, data = soccer, family = binomial)
+visreg(soccer.mod, scale = "response", 
+       ylab = "Probability of scoring")
+```
