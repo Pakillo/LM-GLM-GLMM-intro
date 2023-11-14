@@ -68,13 +68,15 @@ head(trees)
 
 ## Questions
 
+\Large
+
 - What is the relationship between DBH and height?
 
-\vspace{10mm}
+\vspace{5mm}
 
 - Do taller trees have bigger trunks?
 
-\vspace{10mm}
+\vspace{5mm}
 
 - Can we predict height from DBH? How well?
 
@@ -135,7 +137,7 @@ plot(height ~ dbh, data = trees, las = 1)
 library(ggplot2)
 theme_set(theme_minimal(base_size = 18))
 ggplot(trees) +
-  geom_point(aes(dbh, height)) 
+  geom_point(aes(x = dbh, y = height)) 
 ```
 
 
@@ -184,6 +186,13 @@ equatiomatic::extract_eq(m1, use_coefs = TRUE)
 ```
 
 
+## To preview LaTeX:
+
+```{r eval=FALSE}
+library(texPreview)
+tex_preview(equatiomatic::extract_eq(m1))
+```
+
 # Model interpretation
 
 
@@ -205,6 +214,12 @@ include_graphics("images/gaussian.png")
 
 ## Estimated distribution of the **intercept** parameter
 
+\scriptsize
+
+```{r echo=FALSE, message=FALSE}
+parameters::parameters(m1)[1,]
+```
+
 ```{r echo=FALSE}
 library(arm)
 library(ggplot2)
@@ -220,6 +235,12 @@ ggplot(coefs) +
 
 
 ## Estimated distribution of the **slope** parameter
+
+\scriptsize
+
+```{r echo=FALSE, message=FALSE}
+parameters::parameters(m1)[2,]
+```
 
 ```{r echo=FALSE}
 ggplot(coefs) +
@@ -267,7 +288,9 @@ $R^{2} = 1 - \frac{Residual Variation}{Total Variation}$
 
 \LARGE
 
-Accounts for model complexity (number of parameters)
+Accounts for model complexity 
+
+(number of parameters)
 
 $R^2_{adj} = 1 - (1 - R^2) \frac{n - 1}{n - p - 1}$
 
@@ -321,6 +344,7 @@ parameters(m1)
 https://easystats.github.io/parameters/
 
 
+::: hide :::
 
 ## Understanding the fitted effects with `effects` package
 
@@ -329,6 +353,8 @@ https://easystats.github.io/parameters/
 library("effects")
 summary(allEffects(m1))
 ```
+
+:::
 
 
 # Communicating results
@@ -352,7 +378,9 @@ include_graphics("images/nature_significance.PNG")
 
 We found a **significant relationship** between DBH and Height **(p<0.05)**.
 
-We found a ~~significant~~ positive relationship between DBH and Height ~~(p<0.05)~~ (b = 0.61, SE = 0.01).
+We found a {*significant*} **positive** relationship between DBH and Height {*(p<0.05)*} **(b = 0.61, SE = 0.01)**.
+
+(add p-value if you wish)
 
 
 ## Models that describe themselves
@@ -365,6 +393,8 @@ report(m1)
 https://easystats.github.io/report/
 
 
+
+::: hide :::
 ## Generating table with model results: `xtable`
 
 ```{r echo=TRUE, results='asis'}
@@ -380,15 +410,16 @@ library("texreg")
 texreg(m1, single.row = TRUE)
 ```
 
+:::
 
 ## Generating table with model results: `modelsummary`
 
 ```{r results='asis'}
 library("modelsummary")
-modelsummary(m1, output = "markdown")
+modelsummary(m1, output = "markdown")  # docx, LaTeX, png...
 ```
 
-https://vincentarelbundock.github.io/modelsummary/
+https://modelsummary.com/
 
 
 ## Generating table with model results: `gtsummary`
@@ -430,9 +461,10 @@ visreg(m1, gg = TRUE) + theme_bw()
 https://pbreheny.github.io/visreg
 
 
+
 ## Plot model: `sjPlot`
 
-```{r out.width="70%"}
+```{r out.width="70%", eval=FALSE}
 library("sjPlot")
 plot_model(m1, type = "eff")
 ```
@@ -440,18 +472,54 @@ plot_model(m1, type = "eff")
 https://strengejacke.github.io/sjPlot
 
 
-## Plot model: `see`
+## ggeffects
+
+\scriptsize
+
+```{r}
+library("ggeffects")
+```
+
+:::::::::::::: {.columns align=center}
+
+::: {.column width="40%"}
+```{r}
+mydf <- ggpredict(m1, terms = "dbh")
+mydf
+```
+
+:::
+
+::: {.column width="60%" }
+```{r}
+ggplot(mydf, aes(x, predicted)) +
+  geom_line() +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), 
+              alpha = 0.1)
+```
+
+:::
+::::::::::::::
+
+
+## modelsummary
+
+```{r}
+modelplot(m1)
+```
+
+
+## Plot model: `see` package (easystats)
 
 \footnotesize
 
 ```{r out.width="80%"}
-library("see")
-plot(parameters(m1), show_intercept = TRUE) +
-  labs(title = "Height ~ Diameter")   # ggplot2
+library("easystats")
+plot(parameters(m1), show_intercept = TRUE)
 ```
 
 
-## Plot parameters' estimated distribution: `see`
+## Plot parameters' estimated distribution
 
 ```{r out.width="70%"}
 plot(simulate_parameters(m1)) +
@@ -507,10 +575,10 @@ par(def.par)
 ```
 
 
-## Model checking with `performance` package
+## Model checking with `performance` (easystats)
 
 ```{r}
-library("performance")
+library("easystats")
 check_model(m1)
 ```
 
@@ -626,11 +694,11 @@ ggplot(pred) +
 
 \vspace{5mm}
 
-- **Understand fitted model** (`summary`, `allEffects`...)
+- **Understand fitted model** (`summary`)
 
 \vspace{5mm}
 
-- **Visualise model** (`plot(allEffects)`, `visreg`, `see`, `plot_model`...)
+- **Visualise model** (`visreg`...)
 
 \vspace{5mm}
 
@@ -710,7 +778,14 @@ report(m2)
 
 Intercept = Height of females
 
-```{r echo=FALSE}
+\scriptsize
+
+```{r echo=FALSE, message=FALSE}
+parameters(m2)[1,]
+```
+
+
+```{r echo=FALSE, out.width="60%"}
 coefs <- as.data.frame(coef(sim(m2)))
 names(coefs) <- c("intercept", "slope")
 
@@ -725,8 +800,13 @@ ggplot(coefs) +
 
 *beta* = height difference of males vs females
 
+\scriptsize
 
-```{r echo=FALSE}
+```{r echo=FALSE, message=FALSE}
+parameters(m2)[1,]
+```
+
+```{r echo=FALSE, out.width = "60%"}
 ggplot(coefs) +
   geom_density(aes(slope), fill = "grey80") +
   xlim(-3, 2) +
@@ -740,7 +820,7 @@ ggplot(coefs) +
 ## Analysing differences among factor levels
 
 ```{r}
-library("modelbased")
+library("easystats")  # modelbased
 estimate_means(m2)
 ```
 
@@ -770,11 +850,15 @@ visreg(m2)
 ```
 
 
+
 ## Plot model (sjPlot)
 
-```{r out.width="60%"}
+```{r out.width="60%", eval=FALSE}
+library("sjPlot")
 plot_model(m2, type = "eff")
 ```
+
+
 
 
 ## Model checking: residuals
@@ -797,7 +881,7 @@ par(def.par)
 ## Model checking
 
 ```{r}
-library("performance")
+library("easystats")
 check_model(m2)
 ```
 
@@ -889,10 +973,9 @@ plot(simulate_parameters(m3), stack = FALSE)
 
 
 
-## Analysing differences among factor levels
+## Estimated tree heights for each site
 
 ```{r}
-library("modelbased")
 estimate_means(m3)
 ```
 
@@ -908,25 +991,28 @@ estimate_contrasts(m3)
 ```
 
 
+## Presenting model results
+
+\footnotesize
+
+```{r}
+parameters(m3)
+```
 
 ## Presenting model results
 
 ```{r }
-kable(xtable::xtable(m3), digits = 2)
+library("gtsummary")
+tbl_regression(m3)
 ```
 
+## Presenting model results
 
-## Estimated tree heights for each site
+\footnotesize
 
-\scriptsize
-```{r}
-summary(allEffects(m3))
+```{r }
+modelsummary(m3, estimate  = "{estimate} ({std.error})", statistic = NULL, output = "markdown")
 ```
-\normalsize
-
-
-
-
 
 
 ## Plot
@@ -946,11 +1032,40 @@ visreg(m3)
 
 ## Plot model (sjPlot)
 
-```{r out.width="70%"}
+```{r out.width="70%", eval=FALSE}
 plot_model(m3, type = "eff")
 ```
 
 
+## Plot model (modelsummary)
+
+```{r out.width="70%"}
+modelplot(m3)
+```
+
+
+## Plot model (easystats)
+
+```{r out.width="70%"}
+plot(parameters(m3))
+```
+
+
+## Fit model without intercept
+
+\footnotesize
+
+```{r echo=1}
+m3bis <- lm(height ~ site - 1, data = trees)
+summary(m3bis)
+```
+
+
+## Model without intercept
+
+```{r}
+modelplot(m3bis)
+```
 
 ## Model checking: residuals
 
@@ -1013,11 +1128,10 @@ parameters(m4)
 
 ## Estimated tree heights for each site
 
-\scriptsize
 ```{r}
-summary(allEffects(m4))
+estimate_means(m4)
 ```
-\normalsize
+
 
 
 ## Plot
@@ -1039,24 +1153,30 @@ dev.off()
 
 ## Plot model (sjPlot)
 
-```{r echo=TRUE, out.width='30%'}
+```{r echo=TRUE, out.width='30%', eval=FALSE}
 plot_model(m4, type = "eff")
 
 ```
 
 ## Plot model (sjPlot)
 
-```{r echo=TRUE}
+```{r echo=TRUE, eval=FALSE}
 plot_model(m4, type = "est")
 ```
 
 
-## Plot model (see)
+## Plot model (easystats)
 
 ```{r}
 plot(parameters(m4))
 ```
 
+
+## Plot model (modelsummary)
+
+```{r}
+modelplot(m4)
+```
 
 ## We have fitted model w/ many intercepts and single slope
 
@@ -1082,7 +1202,7 @@ ggplot(trees) +
 
 ## Slope is the same for all sites
 
-\scriptsize
+\footnotesize
 
 ```{r}
 estimate_slopes(m4)
