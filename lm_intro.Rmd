@@ -132,26 +132,30 @@ If x = 0:
 
 If we have model
 
-$y = 0.5 + 2*x$
+$y = 0.5 + \textbf{2*x}$
 
-  - If x = 10 -> $y = 0.5 + 2*10 = 20.5$
+If `x` increases 1 unit, `y` increases **2 units** 
+
+  - If x = 10 ---> $y = 0.5 + 2*10 = \textbf{20.5}$
   
-  - If x = 11 -> $y = 0.5 + 2*11 = 22.5$ 
+  - If x = 11 ---> $y = 0.5 + 2*11 = \textbf{22.5}$ 
   
-If `x` increases 1 unit, `y` increases 2 units 
+
 
 
 ## Slopes can be negative
 
 If we have model
 
-$y = 0.5 - 2*x$
+$y = 0.5 \textbf{- 2*x}$
 
-  - If x = 10 -> $y = 0.5 - 2*10 = -19.5$
-  
-  - If x = 11 -> $y = 0.5 - 2*11 = -21.5$ 
-  
 If `x` increases 1 unit, `y` decreases 2 units 
+
+  - If x = 10 -> $y = 0.5 - 2*10 = \textbf{-19.5}$
+  
+  - If x = 11 -> $y = 0.5 - 2*11 = \textbf{-21.5}$ 
+  
+
 
 
 ---
@@ -165,7 +169,7 @@ gglm
 
 How far points fall from the regression line
 
-Difference between observed values and values predicted by model (regresssion line)
+Difference between **observed values** and values **predicted** by model (regression line)
 
 
 
