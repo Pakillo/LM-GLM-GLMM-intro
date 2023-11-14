@@ -151,7 +151,7 @@ ANOVA
 
 regression
 
-.
+...
 
 are special cases of GLM
 
@@ -183,5 +183,12 @@ using many predictors
 - **Bayesian** modelling
 
 
+---
 
+The Generalised Linear Model (GLM) is a particularly reasonable vantage point on statistical analyses, as **many tests and procedures are special cases** of the GLM. The downside of that (and any other) vantage point is that **we ﬁrst have to climb it**. There are the morass of unfamiliar terminology, the scree slopes of probability and the cliffs of distributions. **The vista, however, is magniﬁcent**. From the GLM, t-test, ANOVA and regression neatly arrange themselves into regular patterns, and we can see the paths
+leading towards the horizon: to time series analyses, Bayesian statistics, spatial statistics and
+so forth.
+
+\footnotesize 
+[Dormann 2020](https://www.springer.com/gp/book/9783030550196)
 
