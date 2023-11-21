@@ -606,10 +606,13 @@ par(def.par)
 
 ## Model checking with `performance` (easystats)
 
-```{r}
+```{r out.width="80%"}
 library("easystats")
 check_model(m1)
 ```
+
+\tiny https://easystats.github.io/performance/articles/check_model.html
+
 
 
 ## A dashboard to explore the full model
