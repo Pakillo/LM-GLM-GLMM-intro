@@ -82,11 +82,12 @@ https://pollev.com/franciscorod726
 
 ## Let's check linear model:
 
-```{r titanic_lm, echo=1, out.width="100%"}
+\footnotesize
+
+```{r titanic_lm, echo=TRUE}
 m5 <- lm(survived ~ class, data = titanic)
-layout(matrix(1:4, nrow=2))
-plot(m5)
-dev.off()
+library("easystats")
+check_model(m5)
 ```
 
 
@@ -102,18 +103,15 @@ hist(resid(m5))
 
 \Large
 
-Binary variables (0/1)
+- Binary variables (0/1)
 
-\vspace{3mm}
+- Counts (0, 1, 2, 3, ...)
 
-Counts (0, 1, 2, 3, ...)
-
-\vspace{3mm}
-
-Categories ("small", "medium", "large"...)
+- Categories ("small", "medium", "large"...)
 
 \vspace{5mm}
-> Generalised Linear Models to the rescue!
+
+- **Generalised Linear Models to the rescue!**
 
 
 ## Generalised Linear Models
@@ -274,8 +272,10 @@ We need to **back-transform** (apply *inverse logit*):
 
   - Manually: `plogis`
 
-  - Automatically: `effects`, `modelbased`, etc.
+  - Automatically: `easystats`, etc.
   
+
+::: hide :::
 
 ## Interpreting logistic regression output (`effects` pkg)
 
@@ -295,6 +295,7 @@ Including confidence intervals:
 summary(allEffects(tit.glm))
 ```
 
+:::
 
 ## Interpreting logistic regression output (`easystats`)
 
@@ -309,7 +310,6 @@ estimate_means(tit.glm)
 \footnotesize
 
 ```{r echo=TRUE}
-library("easystats")   # 'modelbased' pkg
 estimate_contrasts(tit.glm)
 ```
 
@@ -340,9 +340,9 @@ kable(xtable::xtable(tit.glm), digits = 2)
 
 \footnotesize
 
-```{r echo=TRUE, eval=FALSE}
+```{r echo=TRUE}
 library("modelsummary")
-modelsummary(tit.glm)
+modelsummary(tit.glm, output = "markdown")
 ```
 
 
@@ -356,14 +356,15 @@ plot(allEffects(tit.glm))
 ## Visualising model: `visreg` package
 
 ```{r echo=2}
-library(visreg)
+library("visreg")
 visreg(tit.glm, scale = "response", rug = FALSE)
 ```
 
 
+
 ## Visualising model: `sjPlot` package
 
-```{r echo=4, out.width="70%"}
+```{r echo=4, out.width="70%", eval=FALSE}
 library(ggplot2)
 library(sjPlot)
 theme_set(theme_minimal(base_size = 16))
@@ -373,12 +374,18 @@ sjPlot::plot_model(tit.glm, type = "eff")
 
 ## Visualising model: `easystats` (`see` package)
 
-```{r echo=3}
-library("parameters")
-library("see")
+```{r echo=2}
+library("easystats")
 plot(parameters(tit.glm), show_intercept = TRUE)
 ```
 
+
+## Model without intercept
+
+```{r echo=TRUE, out.width="70%"}
+no.intercept <- glm(survived ~ class - 1, family = binomial, data = titanic)
+plot(parameters(no.intercept))
+```
 
 
 # Model checking
@@ -396,7 +403,7 @@ dev.off()
 
 ## Binned residual plots for logistic regression
 
-```{r echo=TRUE, out.width="80%"}
+```{r echo=TRUE, out.width="80%", eval=FALSE}
 plot(binned_residuals(tit.glm))
 ```
 
@@ -409,9 +416,9 @@ arm::binnedplot(predvals, titanic$survived - predvals)
 
 :::
 
-## easystats::check_model
+## check_model (easystats)
 
-```{r echo=TRUE}
+```{r echo=TRUE, eval=FALSE}
 check_model(tit.glm)
 ```
 
@@ -422,7 +429,7 @@ check_model(tit.glm)
 Simulate data from fitted model (**yrep**) and compare with observed data (**y**)
 
 ```{r out.width="70%", echo = 2, tinycode = TRUE}
-library("performance")
+library("easystats")
 check_predictions(tit.glm)
 ```
 
@@ -495,11 +502,11 @@ Richard McElreath. _Statistical Rethinking_
 
 \vspace{2mm}
 
-4. **Back-transform parameters** from *logit* into probability scale (e.g. `allEffects`, `estimate_means`)
+4. **Back-transform parameters** from *logit* into probability scale (`estimate_means`)
 
 \vspace{2mm}
 
-5. **Plot model**: `plot(allEffects(model))`, `visreg`, `plot_model`...
+5. **Plot model**: `visreg`, ...
 
 \vspace{2mm}
 
@@ -534,20 +541,18 @@ summary(tit.sex)
 
 ## Model interpretation
 
-:::::::::::::: {.columns align=center}
+\footnotesize
 
-::: {.column width="30%"}
-```{r tit_sex_effects}
-allEffects(tit.sex)
+```{r tit_sex_effects, echo=TRUE}
+estimate_means(tit.sex)
 ```
-:::
 
-::: {.column width="70%" }
-```{r }
-plot(allEffects(tit.sex))
+```{r echo=FALSE, out.width="50%"}
+visreg(tit.sex, scale = "response", rug = FALSE)
 ```
-:::
-::::::::::::::
+
+
+
 
 
 ## Model checking
@@ -604,8 +609,10 @@ summary(tit.sex.class.add)
 
 ## Plot additive model
 
-```{r}
-plot(allEffects(tit.sex.class.add))
+```{r echo=2}
+par(mfcol = c(1, 2))
+visreg(tit.sex.class.add, scale = "response", rug = FALSE)
+dev.off()
 ```
 
 
@@ -622,27 +629,24 @@ summary(tit.sex.class.int)
 
 ## Women had higher survival than men, even within the same class
 
-:::::::::::::: {.columns align=center}
-
-::: {.column width="40%"}
 ```{r tit_sex_class_effects, echo=FALSE}
-allEffects(tit.sex.class.int)
+estimate_means(tit.sex.class.int)
 ```
-:::
 
-::: {.column width="60%" }
+
+## Women had higher survival than men, even within the same class
+
 ```{r tit_sex_class_effects2, echo=FALSE}
-plot(allEffects(tit.sex.class.int))
-# visreg(tit.sex.class.int, by = "sex", xvar = "class")
+visreg(tit.sex.class.int, by = "sex", xvar = "class", scale = "response", rug = FALSE)
 ```
-:::
-::::::::::::::
+
 
 
 
 ## Visualising model (`sjPlot`)
 
 ```{r echo=TRUE, out.width="80%"}
+library("sjPlot")
 plot_model(tit.sex.class.int, type = "int")
 ```
 
@@ -718,6 +722,9 @@ prop.glm <- glm(cbind(Yes, No) ~ Class, data = tit.prop, family = binomial)
 summary(prop.glm)
 ```
 
+
+::: hide :::
+
 ## Effects
 
 ```{r prop_glm_effects, echo=FALSE}
@@ -737,8 +744,14 @@ allEffects(tit.glm)
 
 Same results!
 
+:::
 
 
+## Survival probability by class
+
+```{r echo=TRUE}
+estimate_means(prop.glm)
+```
 
 
 
@@ -788,6 +801,8 @@ summary(gdp.glm)
 ```
 
 
+::: hide :::
+
 ## Effects
 
 ```{r gdp_effects, echo=T}
@@ -800,7 +815,7 @@ allEffects(gdp.glm)
 plot(allEffects(gdp.glm))
 ```
 
-
+:::
 
 
 
@@ -861,40 +876,23 @@ summary(gdp.overdisp)
 
 ## Mean estimates do not change after accounting for overdispersion
 
+But standard errors (uncertainty) do!
+
+\scriptsize
+
 ```{r logreg_overdisp2, echo=TRUE}
-coef(gdp.overdisp)
+parameters(gdp.overdisp)
 ```
 
 \vspace{5mm}
 
 ```{r echo=T}
-coef(gdp.glm)
+parameters(gdp.glm)
 ```
 
 
 
 ## But standard errors (uncertainty) do!
-
-:::::::::::::: {.columns align=center}
-
-::: {.column width="50%"}
-```{r overdisp_eff2, echo=FALSE, out.width="100%"}
-plot(allEffects(gdp.glm), main = "binomial")
-```
-
-:::
-
-::: {.column width="50%" }
-```{r overdisp_eff1, echo=FALSE, out.width="100%"}
-plot(allEffects(gdp.overdisp), main = "quasibinomial")
-```
-:::
-::::::::::::::
-
-
-
-
-## Plot model and data
 
 :::::::::::::: {.columns align=center}
 
