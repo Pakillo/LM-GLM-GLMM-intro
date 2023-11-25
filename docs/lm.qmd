@@ -167,7 +167,7 @@ p = number of estimated parameters
 
 Proportion of 'explained' variance
 
-$R^{2} = 1 - \frac{webr-residual Variation}{Total Variation}$
+$R^{2} = 1 - \frac{Residual Variation}{Total Variation}$
 
 
 
