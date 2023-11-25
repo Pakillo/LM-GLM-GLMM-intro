@@ -1,0 +1,61 @@
+---
+title: "Linear models"
+author: "Francisco Rodríguez-Sánchez"
+engine: knitr
+format: html
+filters:
+  - webr
+webr: 
+  packages: ['visreg']
+  autoload-packages: false
+  channel-type: "post-message"
+---
+
+## Example dataset: forest trees
+
+- Download [this dataset](https://raw.githubusercontent.com/Pakillo/LM-GLM-GLMM-intro/trees/data/trees.csv) (or the entire [zip file](https://github.com/Pakillo/LM-GLM-GLMM-intro/raw/trees/datasets.zip))
+
+- Import:
+
+```{webr-r}
+trees <- read.csv("data/trees.csv")
+head(trees)
+```
+
+
+## Questions
+
+\Large
+
+- What is the relationship between DBH and height?
+
+\vspace{5mm}
+
+- Do taller trees have bigger trunks?
+
+\vspace{5mm}
+
+- Can we predict height from DBH? How well?
+
+
+
+# Always plot your data first!
+
+
+## Always plot your data first!
+
+```{webr-r}
+#| echo: false
+library("knitr")
+include_graphics("images/anscombe.png")
+```
+
+
+
+## Exploratory Data Analysis (EDA)
+
+Outliers
+
+```{webr-r }
+plot(trees$height)
+```
