@@ -3,4 +3,6 @@
 .RData
 GLMs2pdf.tex
 knitr_cache
-
+hideslide.lua
+GLM_AEET.pdf
+ModelosLineales.pdf
