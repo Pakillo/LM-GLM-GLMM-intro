@@ -1,0 +1,9 @@
+---
+title: "Generalised Linear Models in R"
+author: "Francisco Rodríguez-Sánchez"
+format: html
+---
+
+Links to interactive tutorials (made with Quarto and webR):
+
+- [Linear Models](lm_webR.html)
