@@ -10,11 +10,7 @@ Introductory statistics are typically taught as a sequence of disconnected tests
 
 <br>
 
-Slides: https://github.com/Pakillo/LM-GLM-GLMM-intro/blob/trees/GLMs2pdf.pdf (https://tinyurl.com/glm-intro-r)
-
-<br>
-
-### Contents
+### Slides (PDF)
 
 - [Framework](framework.pdf)
 - [Introduction to linear models](lm_intro.pdf)
@@ -27,6 +23,12 @@ Slides: https://github.com/Pakillo/LM-GLM-GLMM-intro/blob/trees/GLMs2pdf.pdf (ht
 - [Mixed effects / Multilevel models](mixed_models.pdf)
 - [Generalised Additive Models (GAMs)](GAMs.pdf)
 - [An introduction to Bayesian modelling](Bayes_intro.pdf)
+
+
+### Interactive tutorials, R scripts, etc
+
+https://pakillo.github.io/LM-GLM-GLMM-intro/
+
 
 
 ##### LICENSE
