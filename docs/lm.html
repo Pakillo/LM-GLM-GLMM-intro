@@ -1,0 +1,2293 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Francisco Rodríguez-Sánchez">
+
+<title>Linear models</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="lm_files/libs/clipboard/clipboard.min.js"></script>
+<script src="lm_files/libs/quarto-html/quarto.js"></script>
+<script src="lm_files/libs/quarto-html/popper.min.js"></script>
+<script src="lm_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="lm_files/libs/quarto-html/anchor.min.js"></script>
+<link href="lm_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="lm_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="lm_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="lm_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="lm_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+<script src="lm_files/libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="lm_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#a-simple-linear-model" id="toc-a-simple-linear-model" class="nav-link active" data-scroll-target="#a-simple-linear-model">A simple linear model</a>
+  <ul class="collapse">
+  <li><a href="#example-dataset-forest-trees" id="toc-example-dataset-forest-trees" class="nav-link" data-scroll-target="#example-dataset-forest-trees">Example dataset: forest trees</a></li>
+  <li><a href="#questions" id="toc-questions" class="nav-link" data-scroll-target="#questions">Questions</a></li>
+  <li><a href="#plot-your-data-first" id="toc-plot-your-data-first" class="nav-link" data-scroll-target="#plot-your-data-first">Plot your data first!</a>
+  <ul class="collapse">
+  <li><a href="#exploratory-data-analysis-eda" id="toc-exploratory-data-analysis-eda" class="nav-link" data-scroll-target="#exploratory-data-analysis-eda">Exploratory Data Analysis (EDA)</a></li>
+  <li><a href="#histogram-of-response-variable" id="toc-histogram-of-response-variable" class="nav-link" data-scroll-target="#histogram-of-response-variable">Histogram of response variable</a></li>
+  <li><a href="#histogram-of-predictor-variable" id="toc-histogram-of-predictor-variable" class="nav-link" data-scroll-target="#histogram-of-predictor-variable">Histogram of predictor variable</a></li>
+  <li><a href="#scatterplot" id="toc-scatterplot" class="nav-link" data-scroll-target="#scatterplot">Scatterplot</a></li>
+  </ul></li>
+  <li><a href="#model-fitting" id="toc-model-fitting" class="nav-link" data-scroll-target="#model-fitting">Model fitting</a>
+  <ul class="collapse">
+  <li><a href="#now-fit-model" id="toc-now-fit-model" class="nav-link" data-scroll-target="#now-fit-model">Now fit model</a></li>
+  <li><a href="#package-equatiomatic-returns-model-structure" id="toc-package-equatiomatic-returns-model-structure" class="nav-link" data-scroll-target="#package-equatiomatic-returns-model-structure">Package <code>equatiomatic</code> returns model structure</a></li>
+  </ul></li>
+  <li><a href="#model-interpretation" id="toc-model-interpretation" class="nav-link" data-scroll-target="#model-interpretation">Model interpretation</a>
+  <ul class="collapse">
+  <li><a href="#what-does-this-mean" id="toc-what-does-this-mean" class="nav-link" data-scroll-target="#what-does-this-mean">What does this mean?</a></li>
+  <li><a href="#estimated-distribution-of-the-intercept-parameter" id="toc-estimated-distribution-of-the-intercept-parameter" class="nav-link" data-scroll-target="#estimated-distribution-of-the-intercept-parameter">Estimated distribution of the <strong>intercept</strong> parameter</a></li>
+  <li><a href="#estimated-distribution-of-the-slope-parameter" id="toc-estimated-distribution-of-the-slope-parameter" class="nav-link" data-scroll-target="#estimated-distribution-of-the-slope-parameter">Estimated distribution of the <strong>slope</strong> parameter</a></li>
+  <li><a href="#distribution-of-residuals" id="toc-distribution-of-residuals" class="nav-link" data-scroll-target="#distribution-of-residuals">Distribution of residuals</a></li>
+  <li><a href="#degrees-of-freedom" id="toc-degrees-of-freedom" class="nav-link" data-scroll-target="#degrees-of-freedom">Degrees of freedom</a></li>
+  <li><a href="#r-squared" id="toc-r-squared" class="nav-link" data-scroll-target="#r-squared">R-squared</a></li>
+  <li><a href="#adjusted-r-squared" id="toc-adjusted-r-squared" class="nav-link" data-scroll-target="#adjusted-r-squared">Adjusted R-squared</a></li>
+  <li><a href="#quiz" id="toc-quiz" class="nav-link" data-scroll-target="#quiz">Quiz</a></li>
+  <li><a href="#retrieving-model-coefficients" id="toc-retrieving-model-coefficients" class="nav-link" data-scroll-target="#retrieving-model-coefficients">Retrieving model coefficients</a></li>
+  <li><a href="#confidence-intervals-for-parameters" id="toc-confidence-intervals-for-parameters" class="nav-link" data-scroll-target="#confidence-intervals-for-parameters">Confidence intervals for parameters</a></li>
+  <li><a href="#retrieving-model-parameters-easystats" id="toc-retrieving-model-parameters-easystats" class="nav-link" data-scroll-target="#retrieving-model-parameters-easystats">Retrieving model parameters (easystats)</a></li>
+  </ul></li>
+  <li><a href="#communicating-results" id="toc-communicating-results" class="nav-link" data-scroll-target="#communicating-results">Communicating results</a>
+  <ul class="collapse">
+  <li><a href="#avoid-dichotomania-of-statistical-significance" id="toc-avoid-dichotomania-of-statistical-significance" class="nav-link" data-scroll-target="#avoid-dichotomania-of-statistical-significance">Avoid dichotomania of statistical significance</a></li>
+  <li><a href="#communicating-results-1" id="toc-communicating-results-1" class="nav-link" data-scroll-target="#communicating-results-1">Communicating results</a></li>
+  <li><a href="#models-that-describe-themselves-easystats" id="toc-models-that-describe-themselves-easystats" class="nav-link" data-scroll-target="#models-that-describe-themselves-easystats">Models that describe themselves (easystats)</a></li>
+  <li><a href="#generating-table-with-model-results-modelsummary" id="toc-generating-table-with-model-results-modelsummary" class="nav-link" data-scroll-target="#generating-table-with-model-results-modelsummary">Generating table with model results: <code>modelsummary</code></a></li>
+  <li><a href="#generating-table-with-model-results-modelsummary-1" id="toc-generating-table-with-model-results-modelsummary-1" class="nav-link" data-scroll-target="#generating-table-with-model-results-modelsummary-1">Generating table with model results: <code>modelsummary</code></a></li>
+  </ul></li>
+  <li><a href="#visualising-fitted-model" id="toc-visualising-fitted-model" class="nav-link" data-scroll-target="#visualising-fitted-model">Visualising fitted model</a>
+  <ul class="collapse">
+  <li><a href="#plot-model-visreg" id="toc-plot-model-visreg" class="nav-link" data-scroll-target="#plot-model-visreg">Plot model: <code>visreg</code></a></li>
+  <li><a href="#plot-easystats" id="toc-plot-easystats" class="nav-link" data-scroll-target="#plot-easystats">Plot (easystats)</a></li>
+  <li><a href="#plot-modelsummary" id="toc-plot-modelsummary" class="nav-link" data-scroll-target="#plot-modelsummary">Plot (modelsummary)</a></li>
+  <li><a href="#plot-model-parameters-with-easystats-see-package" id="toc-plot-model-parameters-with-easystats-see-package" class="nav-link" data-scroll-target="#plot-model-parameters-with-easystats-see-package">Plot model parameters with easystats (<code>see</code> package)</a></li>
+  <li><a href="#plot-parameters-estimated-distribution" id="toc-plot-parameters-estimated-distribution" class="nav-link" data-scroll-target="#plot-parameters-estimated-distribution">Plot parameters’ estimated distribution</a></li>
+  </ul></li>
+  <li><a href="#model-checking" id="toc-model-checking" class="nav-link" data-scroll-target="#model-checking">Model checking</a>
+  <ul class="collapse">
+  <li><a href="#linear-model-assumptions" id="toc-linear-model-assumptions" class="nav-link" data-scroll-target="#linear-model-assumptions">Linear model assumptions</a></li>
+  <li><a href="#are-residuals-normal" id="toc-are-residuals-normal" class="nav-link" data-scroll-target="#are-residuals-normal">Are residuals normal?</a></li>
+  <li><a href="#model-checking-plotmodel" id="toc-model-checking-plotmodel" class="nav-link" data-scroll-target="#model-checking-plotmodel">Model checking: <code>plot(model)</code></a></li>
+  <li><a href="#model-checking-with-performance-easystats" id="toc-model-checking-with-performance-easystats" class="nav-link" data-scroll-target="#model-checking-with-performance-easystats">Model checking with <code>performance</code> (easystats)</a></li>
+  <li><a href="#a-dashboard-to-explore-the-full-model" id="toc-a-dashboard-to-explore-the-full-model" class="nav-link" data-scroll-target="#a-dashboard-to-explore-the-full-model">A dashboard to explore the full model</a></li>
+  </ul></li>
+  <li><a href="#making-predictions-with-easystats" id="toc-making-predictions-with-easystats" class="nav-link" data-scroll-target="#making-predictions-with-easystats">Making predictions with easystats</a>
+  <ul class="collapse">
+  <li><a href="#estimate-expected-values" id="toc-estimate-expected-values" class="nav-link" data-scroll-target="#estimate-expected-values">Estimate expected values</a></li>
+  <li><a href="#expected-values-given-dbh" id="toc-expected-values-given-dbh" class="nav-link" data-scroll-target="#expected-values-given-dbh">Expected values given DBH</a></li>
+  <li><a href="#calibration-plot-observed-vs-predicted" id="toc-calibration-plot-observed-vs-predicted" class="nav-link" data-scroll-target="#calibration-plot-observed-vs-predicted">Calibration plot: observed vs predicted</a></li>
+  <li><a href="#estimate-prediction-interval" id="toc-estimate-prediction-interval" class="nav-link" data-scroll-target="#estimate-prediction-interval">Estimate prediction interval</a></li>
+  <li><a href="#confidence-vs-prediction-interval" id="toc-confidence-vs-prediction-interval" class="nav-link" data-scroll-target="#confidence-vs-prediction-interval">Confidence vs Prediction interval</a></li>
+  <li><a href="#make-predictions-for-new-data" id="toc-make-predictions-for-new-data" class="nav-link" data-scroll-target="#make-predictions-for-new-data">Make predictions for new data</a></li>
+  </ul></li>
+  <li><a href="#workflow" id="toc-workflow" class="nav-link" data-scroll-target="#workflow">Workflow</a></li>
+  </ul></li>
+  <li><a href="#categorical-predictors-factors" id="toc-categorical-predictors-factors" class="nav-link" data-scroll-target="#categorical-predictors-factors">Categorical predictors (factors)</a>
+  <ul class="collapse">
+  <li><a href="#q-does-tree-height-vary-with-sex" id="toc-q-does-tree-height-vary-with-sex" class="nav-link" data-scroll-target="#q-does-tree-height-vary-with-sex">Q: Does tree height vary with sex?</a>
+  <ul class="collapse">
+  <li><a href="#model-height-sex" id="toc-model-height-sex" class="nav-link" data-scroll-target="#model-height-sex">Model height ~ sex</a></li>
+  <li><a href="#linear-model-with-categorical-predictors" id="toc-linear-model-with-categorical-predictors" class="nav-link" data-scroll-target="#linear-model-with-categorical-predictors">Linear model with categorical predictors</a></li>
+  <li><a href="#model-height-sex-1" id="toc-model-height-sex-1" class="nav-link" data-scroll-target="#model-height-sex-1">Model height ~ sex</a></li>
+  <li><a href="#quiz-1" id="toc-quiz-1" class="nav-link" data-scroll-target="#quiz-1">Quiz</a></li>
+  <li><a href="#lets-read-the-model-report" id="toc-lets-read-the-model-report" class="nav-link" data-scroll-target="#lets-read-the-model-report">Let’s read the model report…</a></li>
+  <li><a href="#estimated-distribution-of-the-intercept-parameter-1" id="toc-estimated-distribution-of-the-intercept-parameter-1" class="nav-link" data-scroll-target="#estimated-distribution-of-the-intercept-parameter-1">Estimated distribution of the <strong>intercept</strong> parameter</a></li>
+  <li><a href="#estimated-distribution-of-the-beta-parameter" id="toc-estimated-distribution-of-the-beta-parameter" class="nav-link" data-scroll-target="#estimated-distribution-of-the-beta-parameter">Estimated distribution of the <em>beta</em> parameter</a></li>
+  <li><a href="#analysing-differences-among-factor-levels" id="toc-analysing-differences-among-factor-levels" class="nav-link" data-scroll-target="#analysing-differences-among-factor-levels">Analysing differences among factor levels</a></li>
+  <li><a href="#visualising-the-fitted-model" id="toc-visualising-the-fitted-model" class="nav-link" data-scroll-target="#visualising-the-fitted-model">Visualising the fitted model</a></li>
+  <li><a href="#plot-visreg" id="toc-plot-visreg" class="nav-link" data-scroll-target="#plot-visreg">Plot (visreg)</a></li>
+  <li><a href="#plot-easystats-1" id="toc-plot-easystats-1" class="nav-link" data-scroll-target="#plot-easystats-1">Plot (easystats)</a></li>
+  <li><a href="#model-checking-1" id="toc-model-checking-1" class="nav-link" data-scroll-target="#model-checking-1">Model checking</a></li>
+  <li><a href="#model-checking-residuals" id="toc-model-checking-residuals" class="nav-link" data-scroll-target="#model-checking-residuals">Model checking: residuals</a></li>
+  <li><a href="#model-checking-easystats" id="toc-model-checking-easystats" class="nav-link" data-scroll-target="#model-checking-easystats">Model checking (easystats)</a></li>
+  </ul></li>
+  <li><a href="#q-does-height-differ-among-field-sites" id="toc-q-does-height-differ-among-field-sites" class="nav-link" data-scroll-target="#q-does-height-differ-among-field-sites">Q: Does height differ among field sites?</a>
+  <ul class="collapse">
+  <li><a href="#quiz-2" id="toc-quiz-2" class="nav-link" data-scroll-target="#quiz-2">Quiz</a></li>
+  <li><a href="#plot-data-first" id="toc-plot-data-first" class="nav-link" data-scroll-target="#plot-data-first">Plot data first</a></li>
+  <li><a href="#linear-model-with-categorical-predictors-1" id="toc-linear-model-with-categorical-predictors-1" class="nav-link" data-scroll-target="#linear-model-with-categorical-predictors-1">Linear model with categorical predictors</a></li>
+  <li><a href="#model-height-site" id="toc-model-height-site" class="nav-link" data-scroll-target="#model-height-site">Model Height ~ site</a></li>
+  <li><a href="#site-is-a-factor" id="toc-site-is-a-factor" class="nav-link" data-scroll-target="#site-is-a-factor">site is a factor!</a></li>
+  <li><a href="#model-height-site-1" id="toc-model-height-site-1" class="nav-link" data-scroll-target="#model-height-site-1">Model Height ~ site</a></li>
+  <li><a href="#estimated-parameter-distributions" id="toc-estimated-parameter-distributions" class="nav-link" data-scroll-target="#estimated-parameter-distributions">Estimated parameter distributions</a></li>
+  <li><a href="#estimated-tree-heights-for-each-site" id="toc-estimated-tree-heights-for-each-site" class="nav-link" data-scroll-target="#estimated-tree-heights-for-each-site">Estimated tree heights for each site</a></li>
+  <li><a href="#plot-estimated-tree-heights-for-each-site" id="toc-plot-estimated-tree-heights-for-each-site" class="nav-link" data-scroll-target="#plot-estimated-tree-heights-for-each-site">Plot estimated tree heights for each site</a></li>
+  <li><a href="#analysing-differences-among-factor-levels-1" id="toc-analysing-differences-among-factor-levels-1" class="nav-link" data-scroll-target="#analysing-differences-among-factor-levels-1">Analysing differences among factor levels</a></li>
+  <li><a href="#analysing-differences-among-factor-levels-2" id="toc-analysing-differences-among-factor-levels-2" class="nav-link" data-scroll-target="#analysing-differences-among-factor-levels-2">Analysing differences among factor levels</a></li>
+  <li><a href="#presenting-model-results" id="toc-presenting-model-results" class="nav-link" data-scroll-target="#presenting-model-results">Presenting model results</a></li>
+  <li><a href="#plot-visreg-1" id="toc-plot-visreg-1" class="nav-link" data-scroll-target="#plot-visreg-1">Plot (visreg)</a></li>
+  <li><a href="#plot-easystats-2" id="toc-plot-easystats-2" class="nav-link" data-scroll-target="#plot-easystats-2">Plot (easystats)</a></li>
+  <li><a href="#plot-model-modelsummary" id="toc-plot-model-modelsummary" class="nav-link" data-scroll-target="#plot-model-modelsummary">Plot model (modelsummary)</a></li>
+  <li><a href="#plot-model-easystats" id="toc-plot-model-easystats" class="nav-link" data-scroll-target="#plot-model-easystats">Plot model (easystats)</a></li>
+  <li><a href="#fit-model-without-intercept" id="toc-fit-model-without-intercept" class="nav-link" data-scroll-target="#fit-model-without-intercept">Fit model without intercept</a></li>
+  <li><a href="#model-checking-residuals-1" id="toc-model-checking-residuals-1" class="nav-link" data-scroll-target="#model-checking-residuals-1">Model checking: residuals</a></li>
+  <li><a href="#model-checking-residuals-2" id="toc-model-checking-residuals-2" class="nav-link" data-scroll-target="#model-checking-residuals-2">Model checking: residuals</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#combining-continuous-and-categorical-predictors" id="toc-combining-continuous-and-categorical-predictors" class="nav-link" data-scroll-target="#combining-continuous-and-categorical-predictors">Combining continuous and categorical predictors</a>
+  <ul class="collapse">
+  <li><a href="#predicting-tree-height-based-on-dbh-and-site" id="toc-predicting-tree-height-based-on-dbh-and-site" class="nav-link" data-scroll-target="#predicting-tree-height-based-on-dbh-and-site">Predicting tree height based on dbh and site</a></li>
+  <li><a href="#predicting-tree-height-based-on-dbh-and-site-1" id="toc-predicting-tree-height-based-on-dbh-and-site-1" class="nav-link" data-scroll-target="#predicting-tree-height-based-on-dbh-and-site-1">Predicting tree height based on dbh and site</a></li>
+  <li><a href="#presenting-model-results-1" id="toc-presenting-model-results-1" class="nav-link" data-scroll-target="#presenting-model-results-1">Presenting model results</a></li>
+  <li><a href="#estimated-tree-heights-for-each-site-1" id="toc-estimated-tree-heights-for-each-site-1" class="nav-link" data-scroll-target="#estimated-tree-heights-for-each-site-1">Estimated tree heights for each site</a></li>
+  <li><a href="#fit-model-without-intercept-1" id="toc-fit-model-without-intercept-1" class="nav-link" data-scroll-target="#fit-model-without-intercept-1">Fit model without intercept</a></li>
+  <li><a href="#plot-visreg-2" id="toc-plot-visreg-2" class="nav-link" data-scroll-target="#plot-visreg-2">Plot (visreg)</a></li>
+  <li><a href="#plot-model-easystats-1" id="toc-plot-model-easystats-1" class="nav-link" data-scroll-target="#plot-model-easystats-1">Plot model (easystats)</a></li>
+  <li><a href="#plot-model-modelsummary-1" id="toc-plot-model-modelsummary-1" class="nav-link" data-scroll-target="#plot-model-modelsummary-1">Plot model (modelsummary)</a></li>
+  <li><a href="#what-happened-to-site-8" id="toc-what-happened-to-site-8" class="nav-link" data-scroll-target="#what-happened-to-site-8">What happened to site 8?</a></li>
+  <li><a href="#we-have-fitted-model-w-many-intercepts-and-single-slope" id="toc-we-have-fitted-model-w-many-intercepts-and-single-slope" class="nav-link" data-scroll-target="#we-have-fitted-model-w-many-intercepts-and-single-slope">We have fitted model w/ many intercepts and single slope</a></li>
+  <li><a href="#slope-is-the-same-for-all-sites" id="toc-slope-is-the-same-for-all-sites" class="nav-link" data-scroll-target="#slope-is-the-same-for-all-sites">Slope is the same for all sites</a></li>
+  <li><a href="#model-checking-residuals-3" id="toc-model-checking-residuals-3" class="nav-link" data-scroll-target="#model-checking-residuals-3">Model checking: residuals</a></li>
+  <li><a href="#model-checking-with-easystats" id="toc-model-checking-with-easystats" class="nav-link" data-scroll-target="#model-checking-with-easystats">Model checking with easystats</a></li>
+  <li><a href="#how-good-is-this-model-calibration-plot" id="toc-how-good-is-this-model-calibration-plot" class="nav-link" data-scroll-target="#how-good-is-this-model-calibration-plot">How good is this model? Calibration plot</a></li>
+  <li><a href="#how-good-is-this-model-calibration-plot-easystats" id="toc-how-good-is-this-model-calibration-plot-easystats" class="nav-link" data-scroll-target="#how-good-is-this-model-calibration-plot-easystats">How good is this model? Calibration plot (easystats)</a></li>
+  <li><a href="#posterior-predictive-checking" id="toc-posterior-predictive-checking" class="nav-link" data-scroll-target="#posterior-predictive-checking"><em>Posterior</em> predictive checking</a></li>
+  <li><a href="#predicting-heights-of-new-trees-easystats" id="toc-predicting-heights-of-new-trees-easystats" class="nav-link" data-scroll-target="#predicting-heights-of-new-trees-easystats">Predicting heights of new trees (easystats)</a>
+  <ul class="collapse">
+  <li><a href="#using-model-for-prediction" id="toc-using-model-for-prediction" class="nav-link" data-scroll-target="#using-model-for-prediction">Using model for prediction</a></li>
+  <li><a href="#using-model-for-prediction-1" id="toc-using-model-for-prediction-1" class="nav-link" data-scroll-target="#using-model-for-prediction-1">Using model for prediction</a></li>
+  <li><a href="#using-model-for-prediction-2" id="toc-using-model-for-prediction-2" class="nav-link" data-scroll-target="#using-model-for-prediction-2">Using model for prediction</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#q-does-allometric-relationship-between-height-and-diameter-vary-among-sites" id="toc-q-does-allometric-relationship-between-height-and-diameter-vary-among-sites" class="nav-link" data-scroll-target="#q-does-allometric-relationship-between-height-and-diameter-vary-among-sites">Q: Does allometric relationship between Height and Diameter vary among sites?</a>
+  <ul class="collapse">
+  <li><a href="#model-with-interactions" id="toc-model-with-interactions" class="nav-link" data-scroll-target="#model-with-interactions">Model with interactions</a></li>
+  <li><a href="#does-slope-vary-among-sites" id="toc-does-slope-vary-among-sites" class="nav-link" data-scroll-target="#does-slope-vary-among-sites">Does slope vary among sites?</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Linear models</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Francisco Rodríguez-Sánchez </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="a-simple-linear-model" class="level1">
+<h1>A simple linear model</h1>
+<section id="example-dataset-forest-trees" class="level3">
+<h3 class="anchored" data-anchor-id="example-dataset-forest-trees">Example dataset: forest trees</h3>
+<ul>
+<li>Download <a href="https://raw.githubusercontent.com/Pakillo/LM-GLM-GLMM-intro/trees/data/trees.csv">this dataset</a></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">download.file</span>(<span class="st">"https://raw.githubusercontent.com/Pakillo/LM-GLM-GLMM-intro/trees/data/trees.csv"</span>,</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>              <span class="at">destfile =</span> <span class="st">"trees.csv"</span>, <span class="at">mode =</span> <span class="st">"wb"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li>Import:</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>trees <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">"trees.csv"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trees)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  site   dbh height    sex dead
+1    4 29.68   36.1   male    0
+2    5 33.29   42.3   male    0
+3    2 28.03   41.9 female    0
+4    5 39.86   46.5 female    0
+5    1 47.94   43.9 female    0
+6    1 10.82   26.2   male    0</code></pre>
+</div>
+</div>
+</section>
+<section id="questions" class="level3">
+<h3 class="anchored" data-anchor-id="questions">Questions</h3>
+<ul>
+<li><p>What is the relationship between DBH and height?</p></li>
+<li><p>Do taller trees have bigger trunks?</p></li>
+<li><p>Can we predict height from DBH? How well?</p></li>
+</ul>
+</section>
+<section id="plot-your-data-first" class="level2">
+<h2 class="anchored" data-anchor-id="plot-your-data-first">Plot your data first!</h2>
+<section id="exploratory-data-analysis-eda" class="level3">
+<h3 class="anchored" data-anchor-id="exploratory-data-analysis-eda">Exploratory Data Analysis (EDA)</h3>
+<p>Outliers</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(trees<span class="sc">$</span>height)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="histogram-of-response-variable" class="level3">
+<h3 class="anchored" data-anchor-id="histogram-of-response-variable">Histogram of response variable</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trees<span class="sc">$</span>height)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="histogram-of-predictor-variable" class="level3">
+<h3 class="anchored" data-anchor-id="histogram-of-predictor-variable">Histogram of predictor variable</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(trees<span class="sc">$</span>dbh)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="scatterplot" class="level3">
+<h3 class="anchored" data-anchor-id="scatterplot">Scatterplot</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(height <span class="sc">~</span> dbh, <span class="at">data =</span> trees, <span class="at">las =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="model-fitting" class="level2">
+<h2 class="anchored" data-anchor-id="model-fitting">Model fitting</h2>
+<section id="now-fit-model" class="level3">
+<h3 class="anchored" data-anchor-id="now-fit-model">Now fit model</h3>
+<p>Hint: <code>lm</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(height <span class="sc">~</span> dbh, <span class="at">data =</span> trees)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>which corresponds to</p>
+<p><span class="math display">\[
+  \begin{aligned}  
+  Height_{i} = a + b \cdot DBH_{i} + \varepsilon _{i} \\  
+  \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\  
+  \end{aligned}  
+\]</span></p>
+</section>
+<section id="package-equatiomatic-returns-model-structure" class="level3">
+<h3 class="anchored" data-anchor-id="package-equatiomatic-returns-model-structure">Package <code>equatiomatic</code> returns model structure</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"equatiomatic"</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(height <span class="sc">~</span> dbh, <span class="at">data =</span> trees)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>equatiomatic<span class="sc">::</span><span class="fu">extract_eq</span>(m1, <span class="at">use_coefs =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="model-interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="model-interpretation">Model interpretation</h2>
+<section id="what-does-this-mean" class="level3">
+<h3 class="anchored" data-anchor-id="what-does-this-mean">What does this mean?</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = height ~ dbh, data = trees)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-13.3270  -2.8978   0.1057   2.7924  12.9511 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 19.33920    0.31064   62.26   &lt;2e-16 ***
+dbh          0.61570    0.01013   60.79   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 4.093 on 998 degrees of freedom
+Multiple R-squared:  0.7874,    Adjusted R-squared:  0.7871 
+F-statistic:  3695 on 1 and 998 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="estimated-distribution-of-the-intercept-parameter" class="level3">
+<h3 class="anchored" data-anchor-id="estimated-distribution-of-the-intercept-parameter">Estimated distribution of the <strong>intercept</strong> parameter</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"easystats"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code># Attaching packages: easystats 0.7.0
+✔ bayestestR  0.13.1   ✔ correlation 0.8.4 
+✔ datawizard  0.9.0    ✔ effectsize  0.8.6 
+✔ insight     0.19.6   ✔ modelbased  0.8.6 
+✔ performance 0.10.8   ✔ parameters  0.21.3
+✔ report      0.5.7    ✔ see         0.8.1 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(m1)[<span class="dv">1</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter   | Coefficient |   SE |         95% CI | t(998) |      p
+-------------------------------------------------------------------
+(Intercept) |       19.34 | 0.31 | [18.73, 19.95] |  62.26 | &lt; .001</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
+  using a Wald t-distribution approximation.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">simulate_parameters</span>(m1), <span class="at">show_intercept =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="estimated-distribution-of-the-slope-parameter" class="level3">
+<h3 class="anchored" data-anchor-id="estimated-distribution-of-the-slope-parameter">Estimated distribution of the <strong>slope</strong> parameter</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>parameters<span class="sc">::</span><span class="fu">parameters</span>(m1)[<span class="dv">2</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter | Coefficient |   SE |       95% CI | t(998) |      p
+---------------------------------------------------------------
+dbh       |        0.62 | 0.01 | [0.60, 0.64] |  60.79 | &lt; .001</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
+  using a Wald t-distribution approximation.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">simulate_parameters</span>(m1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="distribution-of-residuals" class="level3">
+<h3 class="anchored" data-anchor-id="distribution-of-residuals">Distribution of residuals</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">residuals</span>(m1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="degrees-of-freedom" class="level3">
+<h3 class="anchored" data-anchor-id="degrees-of-freedom">Degrees of freedom</h3>
+<p>DF = n - p</p>
+<p>n = sample size</p>
+<p>p = number of estimated parameters</p>
+</section>
+<section id="r-squared" class="level3">
+<h3 class="anchored" data-anchor-id="r-squared">R-squared</h3>
+<p>Proportion of ‘explained’ variance</p>
+<p><span class="math inline">\(R^{2} = 1 - \frac{webr-residual Variation}{Total Variation}\)</span></p>
+</section>
+<section id="adjusted-r-squared" class="level3">
+<h3 class="anchored" data-anchor-id="adjusted-r-squared">Adjusted R-squared</h3>
+<p>Accounts for model complexity</p>
+<p>(number of parameters)</p>
+<p><span class="math inline">\(R^2_{adj} = 1 - (1 - R^2) \frac{n - 1}{n - p - 1}\)</span></p>
+</section>
+<section id="quiz" class="level3">
+<h3 class="anchored" data-anchor-id="quiz">Quiz</h3>
+<p>https://pollev.com/franciscorod726</p>
+</section>
+<section id="retrieving-model-coefficients" class="level3">
+<h3 class="anchored" data-anchor-id="retrieving-model-coefficients">Retrieving model coefficients</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coef</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept)         dbh 
+ 19.3391968   0.6157036 </code></pre>
+</div>
+</div>
+</section>
+<section id="confidence-intervals-for-parameters" class="level3">
+<h3 class="anchored" data-anchor-id="confidence-intervals-for-parameters">Confidence intervals for parameters</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">confint</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 2.5 %    97.5 %
+(Intercept) 18.7296053 19.948788
+dbh          0.5958282  0.635579</code></pre>
+</div>
+</div>
+</section>
+<section id="retrieving-model-parameters-easystats" class="level3">
+<h3 class="anchored" data-anchor-id="retrieving-model-parameters-easystats">Retrieving model parameters (easystats)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter   | Coefficient |   SE |         95% CI | t(998) |      p
+-------------------------------------------------------------------
+(Intercept) |       19.34 | 0.31 | [18.73, 19.95] |  62.26 | &lt; .001
+dbh         |        0.62 | 0.01 | [ 0.60,  0.64] |  60.79 | &lt; .001</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
+  using a Wald t-distribution approximation.</code></pre>
+</div>
+</div>
+<p><a href="https://easystats.github.io/parameters/" class="uri">https://easystats.github.io/parameters/</a></p>
+</section>
+</section>
+<section id="communicating-results" class="level2">
+<h2 class="anchored" data-anchor-id="communicating-results">Communicating results</h2>
+<section id="avoid-dichotomania-of-statistical-significance" class="level3">
+<h3 class="anchored" data-anchor-id="avoid-dichotomania-of-statistical-significance">Avoid dichotomania of statistical significance</h3>
+<ul>
+<li><p>“Never conclude there is <strong>‘no difference’</strong> or ‘no association’ just because <strong>p &gt; 0.05 or CI includes zero</strong>”</p></li>
+<li><p>Estimate and communicate <strong>effect sizes and their uncertainty</strong></p></li>
+<li><p>https://doi.org/10.1038/d41586-019-00857-9</p></li>
+</ul>
+</section>
+<section id="communicating-results-1" class="level3">
+<h3 class="anchored" data-anchor-id="communicating-results-1">Communicating results</h3>
+<ul>
+<li><p>We found a <strong>significant relationship</strong> between DBH and Height <strong>(p&lt;0.05)</strong>.</p></li>
+<li><p>We found a {<em>significant</em>} <strong>positive</strong> relationship between DBH and Height {<em>(p&lt;0.05)</em>} <strong>(b = 0.61, SE = 0.01)</strong>.</p></li>
+<li><p>(add p-value if you wish)</p></li>
+</ul>
+</section>
+<section id="models-that-describe-themselves-easystats" class="level3">
+<h3 class="anchored" data-anchor-id="models-that-describe-themselves-easystats">Models that describe themselves (easystats)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">report</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>We fitted a linear model (estimated using OLS) to predict height with dbh
+(formula: height ~ dbh). The model explains a statistically significant and
+substantial proportion of variance (R2 = 0.79, F(1, 998) = 3695.40, p &lt; .001,
+adj. R2 = 0.79). The model's intercept, corresponding to dbh = 0, is at 19.34
+(95% CI [18.73, 19.95], t(998) = 62.26, p &lt; .001). Within this model:
+
+  - The effect of dbh is statistically significant and positive (beta = 0.62, 95%
+CI [0.60, 0.64], t(998) = 60.79, p &lt; .001; Std. beta = 0.89, 95% CI [0.86,
+0.92])
+
+Standardized parameters were obtained by fitting the model on a standardized
+version of the dataset. 95% Confidence Intervals (CIs) and p-values were
+computed using a Wald t-distribution approximation.</code></pre>
+</div>
+</div>
+<p><a href="https://easystats.github.io/report/" class="uri">https://easystats.github.io/report/</a></p>
+</section>
+<section id="generating-table-with-model-results-modelsummary" class="level3">
+<h3 class="anchored" data-anchor-id="generating-table-with-model-results-modelsummary">Generating table with model results: <code>modelsummary</code></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"modelsummary"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'modelsummary'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:parameters':
+
+    supported_models</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:insight':
+
+    supported_models</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">modelsummary</span>(m1, <span class="at">output =</span> <span class="st">"html"</span>)  <span class="do">## Word, PDF, PowerPoint, png...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">&nbsp;(1)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: center;">19.339</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"></td>
+<td style="text-align: center;">(0.311)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">dbh</td>
+<td style="text-align: center;">0.616</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; box-shadow: 0px 1.5px;"></td>
+<td style="text-align: center; box-shadow: 0px 1.5px;">(0.010)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Num.Obs.</td>
+<td style="text-align: center;">1000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">R2</td>
+<td style="text-align: center;">0.787</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">R2 Adj.</td>
+<td style="text-align: center;">0.787</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">AIC</td>
+<td style="text-align: center;">5660.3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BIC</td>
+<td style="text-align: center;">5675.0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Log.Lik.</td>
+<td style="text-align: center;">−2827.125</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">F</td>
+<td style="text-align: center;">3695.395</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">RMSE</td>
+<td style="text-align: center;">4.09</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p><a href="https://modelsummary.com/" class="uri">https://modelsummary.com/</a></p>
+</section>
+<section id="generating-table-with-model-results-modelsummary-1" class="level3">
+<h3 class="anchored" data-anchor-id="generating-table-with-model-results-modelsummary-1">Generating table with model results: <code>modelsummary</code></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">modelsummary</span>(m1, <span class="at">fmt =</span> <span class="dv">2</span>, </span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">estimate =</span> <span class="st">"{estimate} ({std.error})"</span>, </span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">statistic =</span> <span class="cn">NULL</span>,</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>             <span class="at">gof_map =</span> <span class="fu">c</span>(<span class="st">"nobs"</span>, <span class="st">"r.squared"</span>, <span class="st">"rmse"</span>),</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">output =</span> <span class="st">"html"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">&nbsp;(1)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(Intercept)</td>
+<td style="text-align: center;">19.34 (0.31)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; box-shadow: 0px 1.5px;">dbh</td>
+<td style="text-align: center; box-shadow: 0px 1.5px;">0.62 (0.01)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Num.Obs.</td>
+<td style="text-align: center;">1000</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">R2</td>
+<td style="text-align: center;">0.787</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">RMSE</td>
+<td style="text-align: center;">4.09</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</section>
+</section>
+<section id="visualising-fitted-model" class="level2">
+<h2 class="anchored" data-anchor-id="visualising-fitted-model">Visualising fitted model</h2>
+<section id="plot-model-visreg" class="level3">
+<h3 class="anchored" data-anchor-id="plot-model-visreg">Plot model: <code>visreg</code></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"visreg"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visreg</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><code>visreg</code> can use ggplot2 too</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visreg</span>(m1, <span class="at">gg =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><a href="https://pbreheny.github.io/visreg" class="uri">https://pbreheny.github.io/visreg</a></p>
+</section>
+<section id="plot-easystats" class="level3">
+<h3 class="anchored" data-anchor-id="plot-easystats">Plot (easystats)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">estimate_expectation</span>(m1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="plot-modelsummary" class="level3">
+<h3 class="anchored" data-anchor-id="plot-modelsummary">Plot (modelsummary)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">modelplot</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-28-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="plot-model-parameters-with-easystats-see-package" class="level3">
+<h3 class="anchored" data-anchor-id="plot-model-parameters-with-easystats-see-package">Plot model parameters with easystats (<code>see</code> package)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">parameters</span>(m1), <span class="at">show_intercept =</span> <span class="cn">TRUE</span>, <span class="at">show_labels =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-29-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="plot-parameters-estimated-distribution" class="level3">
+<h3 class="anchored" data-anchor-id="plot-parameters-estimated-distribution">Plot parameters’ estimated distribution</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">simulate_parameters</span>(m1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-30-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="model-checking" class="level2">
+<h2 class="anchored" data-anchor-id="model-checking">Model checking</h2>
+<section id="linear-model-assumptions" class="level3">
+<h3 class="anchored" data-anchor-id="linear-model-assumptions">Linear model assumptions</h3>
+<ul>
+<li><p><strong>Linearity</strong> (transformations, GAM…)</p></li>
+<li><p><strong>Residuals</strong>:</p>
+<ul>
+<li>Independent</li>
+<li>Equal variance</li>
+<li>Normal</li>
+</ul></li>
+<li><p>Negligible <strong>measurement error</strong> in predictors</p></li>
+</ul>
+</section>
+<section id="are-residuals-normal" class="level3">
+<h3 class="anchored" data-anchor-id="are-residuals-normal">Are residuals normal?</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">residuals</span>(m1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-31-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>SD = 4.09</p>
+</section>
+<section id="model-checking-plotmodel" class="level3">
+<h3 class="anchored" data-anchor-id="model-checking-plotmodel">Model checking: <code>plot(model)</code></h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>def.par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">no.readonly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">layout</span>(<span class="fu">matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">nrow=</span><span class="dv">2</span>))</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-32-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(def.par)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-checking-with-performance-easystats" class="level3">
+<h3 class="anchored" data-anchor-id="model-checking-with-performance-easystats">Model checking with <code>performance</code> (easystats)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_model</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-33-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><a href="https://easystats.github.io/performance/articles/check_model.html" class="uri">https://easystats.github.io/performance/articles/check_model.html</a></p>
+</section>
+<section id="a-dashboard-to-explore-the-full-model" class="level3">
+<h3 class="anchored" data-anchor-id="a-dashboard-to-explore-the-full-model">A dashboard to explore the full model</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">model_dashboard</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="making-predictions-with-easystats" class="level2">
+<h2 class="anchored" data-anchor-id="making-predictions-with-easystats">Making predictions with easystats</h2>
+<section id="estimate-expected-values" class="level3">
+<h3 class="anchored" data-anchor-id="estimate-expected-values">Estimate expected values</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">estimate_expectation</span>(m1)</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model-based Expectation
+
+dbh   | Predicted |   SE |         95% CI | Residuals
+-----------------------------------------------------
+29.68 |     37.61 | 0.13 | [37.36, 37.87] |     -1.51
+33.29 |     39.84 | 0.14 | [39.56, 40.11] |      2.46
+28.03 |     36.60 | 0.13 | [36.34, 36.85] |      5.30
+39.86 |     43.88 | 0.18 | [43.53, 44.23] |      2.62
+47.94 |     48.86 | 0.24 | [48.38, 49.33] |     -4.96
+10.82 |     26.00 | 0.22 | [25.58, 26.42] |      0.20
+
+Variable predicted: height</code></pre>
+</div>
+</div>
+</section>
+<section id="expected-values-given-dbh" class="level3">
+<h3 class="anchored" data-anchor-id="expected-values-given-dbh">Expected values given DBH</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">estimate_expectation</span>(m1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="calibration-plot-observed-vs-predicted" class="level3">
+<h3 class="anchored" data-anchor-id="calibration-plot-observed-vs-predicted">Calibration plot: observed vs predicted</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>pred<span class="sc">$</span>height.obs <span class="ot">&lt;-</span> trees<span class="sc">$</span>height</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(height.obs <span class="sc">~</span> Predicted, <span class="at">data =</span> pred, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">60</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">60</span>))</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> <span class="dv">0</span>, <span class="at">b =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="estimate-prediction-interval" class="level3">
+<h3 class="anchored" data-anchor-id="estimate-prediction-interval">Estimate prediction interval</h3>
+<p>Accounting for residual variation!</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">estimate_prediction</span>(m1)</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model-based Prediction
+
+dbh   | Predicted |   SE |         95% CI | Residuals
+-----------------------------------------------------
+29.68 |     37.61 | 4.09 | [29.58, 45.65] |     -1.51
+33.29 |     39.84 | 4.10 | [31.80, 47.87] |      2.46
+28.03 |     36.60 | 4.09 | [28.56, 44.63] |      5.30
+39.86 |     43.88 | 4.10 | [35.84, 51.92] |      2.62
+47.94 |     48.86 | 4.10 | [40.81, 56.90] |     -4.96
+10.82 |     26.00 | 4.10 | [17.96, 34.04] |      0.20
+
+Variable predicted: height</code></pre>
+</div>
+</div>
+</section>
+<section id="confidence-vs-prediction-interval" class="level3">
+<h3 class="anchored" data-anchor-id="confidence-vs-prediction-interval">Confidence vs Prediction interval</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">estimate_expectation</span>(m1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">estimate_prediction</span>(m1))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-40-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="make-predictions-for-new-data" class="level3">
+<h3 class="anchored" data-anchor-id="make-predictions-for-new-data">Make predictions for new data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_expectation</span>(m1, <span class="at">data =</span> <span class="fu">data.frame</span>(<span class="at">dbh =</span> <span class="dv">39</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model-based Expectation
+
+dbh   | Predicted |   SE |         95% CI
+-----------------------------------------
+39.00 |     43.35 | 0.17 | [43.01, 43.69]
+
+Variable predicted: height</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_prediction</span>(m1, <span class="at">data =</span> <span class="fu">data.frame</span>(<span class="at">dbh =</span> <span class="dv">39</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model-based Prediction
+
+dbh   | Predicted |   SE |         95% CI
+-----------------------------------------
+39.00 |     43.35 | 4.10 | [35.31, 51.39]
+
+Variable predicted: height</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="workflow" class="level2">
+<h2 class="anchored" data-anchor-id="workflow">Workflow</h2>
+<ul>
+<li><p><strong>Visualise data</strong></p></li>
+<li><p><strong>Understand fitted model</strong> (<code>summary</code>)</p></li>
+<li><p><strong>Visualise model</strong> (<code>visreg</code>…)</p></li>
+<li><p><strong>Check model</strong> (<code>plot</code>, <code>check_model</code>, calibration plot…)</p></li>
+<li><p><strong>Predict</strong> (<code>predict</code>, <code>estimate_expectation</code>, <code>estimate_prediction</code>)</p></li>
+</ul>
+</section>
+</section>
+<section id="categorical-predictors-factors" class="level1">
+<h1>Categorical predictors (factors)</h1>
+<section id="q-does-tree-height-vary-with-sex" class="level2">
+<h2 class="anchored" data-anchor-id="q-does-tree-height-vary-with-sex">Q: Does tree height vary with sex?</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(height <span class="sc">~</span> sex, <span class="at">data =</span> trees)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-43-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="model-height-sex" class="level3">
+<h3 class="anchored" data-anchor-id="model-height-sex">Model height ~ sex</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(height <span class="sc">~</span> sex, <span class="at">data =</span> trees)</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = height ~ sex, data = trees)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-22.6881  -6.7881  -0.0097   6.7261  22.3687 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  36.9312     0.3981  92.778   &lt;2e-16 ***
+sexmale      -0.8432     0.5607  -1.504    0.133    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 8.865 on 998 degrees of freedom
+Multiple R-squared:  0.002261,  Adjusted R-squared:  0.001261 
+F-statistic: 2.261 on 1 and 998 DF,  p-value: 0.133</code></pre>
+</div>
+</div>
+</section>
+<section id="linear-model-with-categorical-predictors" class="level3">
+<h3 class="anchored" data-anchor-id="linear-model-with-categorical-predictors">Linear model with categorical predictors</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(height <span class="sc">~</span> sex, <span class="at">data =</span> trees)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>corresponds to</p>
+<p><span class="math display">\[
+  \begin{aligned}
+  Height_{i} = a + b_{male} + \varepsilon _{i} \\
+  \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\
+  \end{aligned}
+\]</span></p>
+</section>
+<section id="model-height-sex-1" class="level3">
+<h3 class="anchored" data-anchor-id="model-height-sex-1">Model height ~ sex</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(height <span class="sc">~</span> sex, <span class="at">data =</span> trees)</span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = height ~ sex, data = trees)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-22.6881  -6.7881  -0.0097   6.7261  22.3687 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  36.9312     0.3981  92.778   &lt;2e-16 ***
+sexmale      -0.8432     0.5607  -1.504    0.133    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 8.865 on 998 degrees of freedom
+Multiple R-squared:  0.002261,  Adjusted R-squared:  0.001261 
+F-statistic: 2.261 on 1 and 998 DF,  p-value: 0.133</code></pre>
+</div>
+</div>
+</section>
+<section id="quiz-1" class="level3">
+<h3 class="anchored" data-anchor-id="quiz-1">Quiz</h3>
+<p>https://pollev.com/franciscorod726</p>
+</section>
+<section id="lets-read-the-model-report" class="level3">
+<h3 class="anchored" data-anchor-id="lets-read-the-model-report">Let’s read the model report…</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">report</span>(m2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>We fitted a linear model (estimated using OLS) to predict height with sex
+(formula: height ~ sex). The model explains a statistically not significant and
+very weak proportion of variance (R2 = 2.26e-03, F(1, 998) = 2.26, p = 0.133,
+adj. R2 = 1.26e-03). The model's intercept, corresponding to sex = female, is
+at 36.93 (95% CI [36.15, 37.71], t(998) = 92.78, p &lt; .001). Within this model:
+
+  - The effect of sex [male] is statistically non-significant and negative (beta
+= -0.84, 95% CI [-1.94, 0.26], t(998) = -1.50, p = 0.133; Std. beta = -0.10,
+95% CI [-0.22, 0.03])
+
+Standardized parameters were obtained by fitting the model on a standardized
+version of the dataset. 95% Confidence Intervals (CIs) and p-values were
+computed using a Wald t-distribution approximation.</code></pre>
+</div>
+</div>
+</section>
+<section id="estimated-distribution-of-the-intercept-parameter-1" class="level3">
+<h3 class="anchored" data-anchor-id="estimated-distribution-of-the-intercept-parameter-1">Estimated distribution of the <strong>intercept</strong> parameter</h3>
+<p><strong>Intercept = Height of females</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(m2)[<span class="dv">1</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter   | Coefficient |   SE |         95% CI | t(998) |      p
+-------------------------------------------------------------------
+(Intercept) |       36.93 | 0.40 | [36.15, 37.71] |  92.78 | &lt; .001</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
+  using a Wald t-distribution approximation.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">simulate_parameters</span>(m2), <span class="at">show_intercept =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-49-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="estimated-distribution-of-the-beta-parameter" class="level3">
+<h3 class="anchored" data-anchor-id="estimated-distribution-of-the-beta-parameter">Estimated distribution of the <em>beta</em> parameter</h3>
+<p><em>beta</em> = <strong>height difference</strong> of males vs females</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(m2)[<span class="dv">2</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter  | Coefficient |   SE |        95% CI | t(998) |     p
+----------------------------------------------------------------
+sex [male] |       -0.84 | 0.56 | [-1.94, 0.26] |  -1.50 | 0.133</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
+  using a Wald t-distribution approximation.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">simulate_parameters</span>(m2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-51-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="analysing-differences-among-factor-levels" class="level3">
+<h3 class="anchored" data-anchor-id="analysing-differences-among-factor-levels">Analysing differences among factor levels</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_means</span>(m2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>We selected `at = c("sex")`.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimated Marginal Means
+
+sex    |  Mean |   SE |         95% CI
+--------------------------------------
+male   | 36.09 | 0.39 | [35.31, 36.86]
+female | 36.93 | 0.40 | [36.15, 37.71]
+
+Marginal means estimated at sex</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_contrasts</span>(m2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>No variable was specified for contrast estimation. Selecting `contrast = "sex"`.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Marginal Contrasts Analysis
+
+Level1 | Level2 | Difference |        95% CI |   SE | t(998) |     p
+--------------------------------------------------------------------
+male   | female |      -0.84 | [-1.94, 0.26] | 0.56 |  -1.50 | 0.133
+
+Marginal contrasts estimated at sex
+p-value adjustment method: Holm (1979)</code></pre>
+</div>
+</div>
+</section>
+<section id="visualising-the-fitted-model" class="level3">
+<h3 class="anchored" data-anchor-id="visualising-the-fitted-model">Visualising the fitted model</h3>
+</section>
+<section id="plot-visreg" class="level3">
+<h3 class="anchored" data-anchor-id="plot-visreg">Plot (visreg)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visreg</span>(m2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-54-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="plot-easystats-1" class="level3">
+<h3 class="anchored" data-anchor-id="plot-easystats-1">Plot (easystats)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">estimate_means</span>(m2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>We selected `at = c("sex")`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-55-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="model-checking-1" class="level3">
+<h3 class="anchored" data-anchor-id="model-checking-1">Model checking</h3>
+</section>
+<section id="model-checking-residuals" class="level3">
+<h3 class="anchored" data-anchor-id="model-checking-residuals">Model checking: residuals</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(<span class="fu">resid</span>(m2))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-56-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a>def.par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">no.readonly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a><span class="fu">layout</span>(<span class="fu">matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">nrow=</span><span class="dv">2</span>))</span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(m2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-57-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(def.par)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-checking-easystats" class="level3">
+<h3 class="anchored" data-anchor-id="model-checking-easystats">Model checking (easystats)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_model</span>(m2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-58-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="q-does-height-differ-among-field-sites" class="level2">
+<h2 class="anchored" data-anchor-id="q-does-height-differ-among-field-sites">Q: Does height differ among field sites?</h2>
+<section id="quiz-2" class="level3">
+<h3 class="anchored" data-anchor-id="quiz-2">Quiz</h3>
+<p>https://pollev.com/franciscorod726</p>
+</section>
+<section id="plot-data-first" class="level3">
+<h3 class="anchored" data-anchor-id="plot-data-first">Plot data first</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(height <span class="sc">~</span> site, <span class="at">data =</span> trees)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-59-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="linear-model-with-categorical-predictors-1" class="level3">
+<h3 class="anchored" data-anchor-id="linear-model-with-categorical-predictors-1">Linear model with categorical predictors</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb93"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>m3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(height <span class="sc">~</span> site, <span class="at">data =</span> trees)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><span class="math display">\[
+  \begin{aligned}
+  y_{i} = a + b_{site2} + c_{site3} + d_{site4} + e_{site5} +...+ \varepsilon _{i} \\   
+  \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\
+  \end{aligned}
+\]</span></p>
+</section>
+<section id="model-height-site" class="level3">
+<h3 class="anchored" data-anchor-id="model-height-site">Model Height ~ site</h3>
+<p><strong>All right here?</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>m3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(height <span class="sc">~</span> site, <span class="at">data =</span> trees)</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = height ~ site, data = trees)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-22.4498  -6.7049   0.0709   6.7537  23.0640 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  35.4636     0.4730  74.975  &lt; 2e-16 ***
+site          0.3862     0.1413   2.733  0.00639 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 8.842 on 998 degrees of freedom
+Multiple R-squared:  0.007429,  Adjusted R-squared:  0.006435 
+F-statistic:  7.47 on 1 and 998 DF,  p-value: 0.006385</code></pre>
+</div>
+</div>
+</section>
+<section id="site-is-a-factor" class="level3">
+<h3 class="anchored" data-anchor-id="site-is-a-factor">site is a factor!</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>trees<span class="sc">$</span>site <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(trees<span class="sc">$</span>site)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-height-site-1" class="level3">
+<h3 class="anchored" data-anchor-id="model-height-site-1">Model Height ~ site</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a>m3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(height <span class="sc">~</span> site, <span class="at">data =</span> trees)</span>
+<span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = height ~ site, data = trees)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-20.4416  -6.9004   0.0379   6.3051  19.7584 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  33.8416     0.4266  79.329  &lt; 2e-16 ***
+site2         6.3411     0.7126   8.899  &lt; 2e-16 ***
+site3         4.9991     0.9828   5.086 4.36e-07 ***
+site4         0.5329     0.9872   0.540  0.58949    
+site5         4.3723     0.9425   4.639 3.97e-06 ***
+site6         4.7601     1.1709   4.065 5.18e-05 ***
+site7        -0.7416     1.8506  -0.401  0.68871    
+site8        -0.6832     2.4753  -0.276  0.78258    
+site9         9.1709     3.0165   3.040  0.00243 ** 
+site10       -0.5816     3.8013  -0.153  0.87843    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 8.446 on 990 degrees of freedom
+Multiple R-squared:  0.1016,    Adjusted R-squared:  0.09344 
+F-statistic: 12.44 on 9 and 990 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="estimated-parameter-distributions" class="level3">
+<h3 class="anchored" data-anchor-id="estimated-parameter-distributions">Estimated parameter distributions</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">simulate_parameters</span>(m3))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-64-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="estimated-tree-heights-for-each-site" class="level3">
+<h3 class="anchored" data-anchor-id="estimated-tree-heights-for-each-site">Estimated tree heights for each site</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb100"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_means</span>(m3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>We selected `at = c("site")`.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimated Marginal Means
+
+site |  Mean |   SE |         95% CI
+------------------------------------
+1    | 33.84 | 0.43 | [33.00, 34.68]
+2    | 40.18 | 0.57 | [39.06, 41.30]
+3    | 38.84 | 0.89 | [37.10, 40.58]
+4    | 34.37 | 0.89 | [32.63, 36.12]
+5    | 38.21 | 0.84 | [36.56, 39.86]
+6    | 38.60 | 1.09 | [36.46, 40.74]
+7    | 33.10 | 1.80 | [29.57, 36.63]
+8    | 33.16 | 2.44 | [28.37, 37.94]
+9    | 43.01 | 2.99 | [37.15, 48.87]
+10   | 33.26 | 3.78 | [25.85, 40.67]
+
+Marginal means estimated at site</code></pre>
+</div>
+</div>
+</section>
+<section id="plot-estimated-tree-heights-for-each-site" class="level3">
+<h3 class="anchored" data-anchor-id="plot-estimated-tree-heights-for-each-site">Plot estimated tree heights for each site</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">estimate_means</span>(m3))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>We selected `at = c("site")`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-66-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="analysing-differences-among-factor-levels-1" class="level3">
+<h3 class="anchored" data-anchor-id="analysing-differences-among-factor-levels-1">Analysing differences among factor levels</h3>
+<p>For finer control see <code>emmeans</code> package</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb105"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb105-1"><a href="#cb105-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_contrasts</span>(m3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>No variable was specified for contrast estimation. Selecting `contrast = "site"`.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Marginal Contrasts Analysis
+
+Level1 | Level2 | Difference |          95% CI |   SE | t(990) |      p
+-----------------------------------------------------------------------
+site1  | site10 |       0.58 | [-11.85, 13.01] | 3.80 |   0.15 | &gt; .999
+site1  |  site2 |      -6.34 | [ -8.67, -4.01] | 0.71 |  -8.90 | &lt; .001
+site1  |  site3 |      -5.00 | [ -8.21, -1.78] | 0.98 |  -5.09 | &lt; .001
+site1  |  site4 |      -0.53 | [ -3.76,  2.70] | 0.99 |  -0.54 | &gt; .999
+site1  |  site5 |      -4.37 | [ -7.45, -1.29] | 0.94 |  -4.64 | &lt; .001
+site1  |  site6 |      -4.76 | [ -8.59, -0.93] | 1.17 |  -4.07 | 0.002 
+site1  |  site7 |       0.74 | [ -5.31,  6.79] | 1.85 |   0.40 | &gt; .999
+site1  |  site8 |       0.68 | [ -7.41,  8.78] | 2.48 |   0.28 | &gt; .999
+site1  |  site9 |      -9.17 | [-19.04,  0.69] | 3.02 |  -3.04 | 0.090 
+site2  | site10 |       6.92 | [ -5.57, 19.42] | 3.82 |   1.81 | &gt; .999
+site2  |  site3 |       1.34 | [ -2.10,  4.79] | 1.05 |   1.27 | &gt; .999
+site2  |  site4 |       5.81 | [  2.35,  9.27] | 1.06 |   5.49 | &lt; .001
+site2  |  site5 |       1.97 | [ -1.35,  5.29] | 1.02 |   1.94 | &gt; .999
+site2  |  site6 |       1.58 | [ -2.44,  5.61] | 1.23 |   1.28 | &gt; .999
+site2  |  site7 |       7.08 | [  0.90, 13.26] | 1.89 |   3.75 | 0.008 
+site2  |  site8 |       7.02 | [ -1.17, 15.21] | 2.50 |   2.81 | 0.169 
+site2  |  site9 |      -2.83 | [-12.77,  7.11] | 3.04 |  -0.93 | &gt; .999
+site3  | site10 |       5.58 | [ -7.11, 18.27] | 3.88 |   1.44 | &gt; .999
+site3  |  site4 |       4.47 | [  0.36,  8.57] | 1.26 |   3.56 | 0.015 
+site3  |  site5 |       0.63 | [ -3.37,  4.62] | 1.22 |   0.51 | &gt; .999
+site3  |  site6 |       0.24 | [ -4.35,  4.83] | 1.40 |   0.17 | &gt; .999
+site3  |  site7 |       5.74 | [ -0.82, 12.30] | 2.01 |   2.86 | 0.151 
+site3  |  site8 |       5.68 | [ -2.80, 14.17] | 2.59 |   2.19 | 0.804 
+site3  |  site9 |      -4.17 | [-14.36,  6.01] | 3.11 |  -1.34 | &gt; .999
+site4  | site10 |       1.11 | [-11.58, 13.81] | 3.88 |   0.29 | &gt; .999
+site4  |  site5 |      -3.84 | [ -7.84,  0.16] | 1.22 |  -3.14 | 0.067 
+site4  |  site6 |      -4.23 | [ -8.83,  0.38] | 1.41 |  -3.00 | 0.099 
+site4  |  site7 |       1.27 | [ -5.30,  7.84] | 2.01 |   0.63 | &gt; .999
+site4  |  site8 |       1.22 | [ -7.27,  9.70] | 2.60 |   0.47 | &gt; .999
+site4  |  site9 |      -8.64 | [-18.83,  1.55] | 3.12 |  -2.77 | 0.182 
+site5  | site10 |       4.95 | [ -7.70, 17.61] | 3.87 |   1.28 | &gt; .999
+site5  |  site6 |      -0.39 | [ -4.89,  4.11] | 1.38 |  -0.28 | &gt; .999
+site5  |  site7 |       5.11 | [ -1.39, 11.61] | 1.99 |   2.57 | 0.306 
+site5  |  site8 |       5.06 | [ -3.38, 13.49] | 2.58 |   1.96 | &gt; .999
+site5  |  site9 |      -4.80 | [-14.94,  5.35] | 3.10 |  -1.55 | &gt; .999
+site6  | site10 |       5.34 | [ -7.52, 18.20] | 3.93 |   1.36 | &gt; .999
+site6  |  site7 |       5.50 | [ -1.38, 12.39] | 2.11 |   2.61 | 0.282 
+site6  |  site8 |       5.44 | [ -3.29, 14.18] | 2.67 |   2.04 | &gt; .999
+site6  |  site9 |      -4.41 | [-14.81,  5.99] | 3.18 |  -1.39 | &gt; .999
+site7  | site10 |      -0.16 | [-13.85, 13.53] | 4.18 |  -0.04 | &gt; .999
+site7  |  site8 |      -0.06 | [ -9.97,  9.85] | 3.03 |  -0.02 | &gt; .999
+site7  |  site9 |      -9.91 | [-21.32,  1.49] | 3.49 |  -2.84 | 0.155 
+site8  | site10 |      -0.10 | [-14.80, 14.60] | 4.50 |  -0.02 | &gt; .999
+site8  |  site9 |      -9.85 | [-22.46,  2.75] | 3.86 |  -2.56 | 0.311 
+site9  | site10 |       9.75 | [ -5.99, 25.50] | 4.82 |   2.03 | &gt; .999
+
+Marginal contrasts estimated at site
+p-value adjustment method: Holm (1979)</code></pre>
+</div>
+</div>
+</section>
+<section id="analysing-differences-among-factor-levels-2" class="level3">
+<h3 class="anchored" data-anchor-id="analysing-differences-among-factor-levels-2">Analysing differences among factor levels</h3>
+<p>How different are site 2 and site 9?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"marginaleffects"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hypotheses</span>(m3, <span class="st">"site2 = site9"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+          Term Estimate Std. Error      z Pr(&gt;|z|)   S 2.5 % 97.5 %
+ site2 = site9    -2.83       3.04 -0.931    0.352 1.5 -8.79   3.13
+
+Columns: term, estimate, std.error, statistic, p.value, s.value, conf.low, conf.high </code></pre>
+</div>
+</div>
+</section>
+<section id="presenting-model-results" class="level3">
+<h3 class="anchored" data-anchor-id="presenting-model-results">Presenting model results</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(m3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter   | Coefficient |   SE |         95% CI | t(990) |      p
+-------------------------------------------------------------------
+(Intercept) |       33.84 | 0.43 | [33.00, 34.68] |  79.33 | &lt; .001
+site [2]    |        6.34 | 0.71 | [ 4.94,  7.74] |   8.90 | &lt; .001
+site [3]    |        5.00 | 0.98 | [ 3.07,  6.93] |   5.09 | &lt; .001
+site [4]    |        0.53 | 0.99 | [-1.40,  2.47] |   0.54 | 0.589 
+site [5]    |        4.37 | 0.94 | [ 2.52,  6.22] |   4.64 | &lt; .001
+site [6]    |        4.76 | 1.17 | [ 2.46,  7.06] |   4.07 | &lt; .001
+site [7]    |       -0.74 | 1.85 | [-4.37,  2.89] |  -0.40 | 0.689 
+site [8]    |       -0.68 | 2.48 | [-5.54,  4.17] |  -0.28 | 0.783 
+site [9]    |        9.17 | 3.02 | [ 3.25, 15.09] |   3.04 | 0.002 
+site [10]   |       -0.58 | 3.80 | [-8.04,  6.88] |  -0.15 | 0.878 </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
+  using a Wald t-distribution approximation.</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="fu">modelsummary</span>(m3, <span class="at">estimate  =</span> <span class="st">"{estimate} ({std.error})"</span>, <span class="at">statistic =</span> <span class="cn">NULL</span>, </span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a>             <span class="at">fmt =</span> <span class="dv">1</span>, <span class="at">gof_map =</span> <span class="cn">NA</span>, <span class="at">coef_rename =</span> <span class="fu">paste0</span>(<span class="st">"site"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>), <span class="at">output =</span> <span class="st">"html"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th"></th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">&nbsp;(1)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">site1</td>
+<td style="text-align: center;">33.8 (0.4)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">site2</td>
+<td style="text-align: center;">6.3 (0.7)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">site3</td>
+<td style="text-align: center;">5.0 (1.0)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">site4</td>
+<td style="text-align: center;">0.5 (1.0)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">site5</td>
+<td style="text-align: center;">4.4 (0.9)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">site6</td>
+<td style="text-align: center;">4.8 (1.2)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">site7</td>
+<td style="text-align: center;">−0.7 (1.9)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">site8</td>
+<td style="text-align: center;">−0.7 (2.5)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">site9</td>
+<td style="text-align: center;">9.2 (3.0)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">site10</td>
+<td style="text-align: center;">−0.6 (3.8)</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</section>
+<section id="plot-visreg-1" class="level3">
+<h3 class="anchored" data-anchor-id="plot-visreg-1">Plot (visreg)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb115"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb115-1"><a href="#cb115-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visreg</span>(m3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-72-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="plot-easystats-2" class="level3">
+<h3 class="anchored" data-anchor-id="plot-easystats-2">Plot (easystats)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">estimate_means</span>(m3))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>We selected `at = c("site")`.</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-73-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="plot-model-modelsummary" class="level3">
+<h3 class="anchored" data-anchor-id="plot-model-modelsummary">Plot model (modelsummary)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="fu">modelplot</span>(m3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-74-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="plot-model-easystats" class="level3">
+<h3 class="anchored" data-anchor-id="plot-model-easystats">Plot model (easystats)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">parameters</span>(m3), <span class="at">show_intercept =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-75-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="fit-model-without-intercept" class="level3">
+<h3 class="anchored" data-anchor-id="fit-model-without-intercept">Fit model without intercept</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a>m3bis <span class="ot">&lt;-</span> <span class="fu">lm</span>(height <span class="sc">~</span> site <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> trees)</span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m3bis)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = height ~ site - 1, data = trees)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-20.4416  -6.9004   0.0379   6.3051  19.7584 
+
+Coefficients:
+       Estimate Std. Error t value Pr(&gt;|t|)    
+site1   33.8416     0.4266  79.329   &lt;2e-16 ***
+site2   40.1826     0.5707  70.404   &lt;2e-16 ***
+site3   38.8407     0.8854  43.868   &lt;2e-16 ***
+site4   34.3744     0.8903  38.610   &lt;2e-16 ***
+site5   38.2139     0.8404  45.469   &lt;2e-16 ***
+site6   38.6017     1.0904  35.401   &lt;2e-16 ***
+site7   33.1000     1.8007  18.381   &lt;2e-16 ***
+site8   33.1583     2.4382  13.599   &lt;2e-16 ***
+site9   43.0125     2.9862  14.404   &lt;2e-16 ***
+site10  33.2600     3.7773   8.805   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 8.446 on 990 degrees of freedom
+Multiple R-squared:   0.95, Adjusted R-squared:  0.9495 
+F-statistic:  1879 on 10 and 990 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">parameters</span>(m3bis))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-77-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="model-checking-residuals-1" class="level3">
+<h3 class="anchored" data-anchor-id="model-checking-residuals-1">Model checking: residuals</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb123"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a>def.par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">no.readonly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb123-2"><a href="#cb123-2" aria-hidden="true" tabindex="-1"></a><span class="fu">layout</span>(<span class="fu">matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">nrow =</span> <span class="dv">2</span>))</span>
+<span id="cb123-3"><a href="#cb123-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(m3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-78-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(def.par)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-checking-residuals-2" class="level3">
+<h3 class="anchored" data-anchor-id="model-checking-residuals-2">Model checking: residuals</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_model</span>(m3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-79-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="combining-continuous-and-categorical-predictors" class="level1">
+<h1>Combining continuous and categorical predictors</h1>
+<section id="predicting-tree-height-based-on-dbh-and-site" class="level3">
+<h3 class="anchored" data-anchor-id="predicting-tree-height-based-on-dbh-and-site">Predicting tree height based on dbh and site</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lm</span>(height <span class="sc">~</span> site <span class="sc">+</span> dbh, <span class="at">data =</span> trees)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = height ~ site + dbh, data = trees)
+
+Coefficients:
+(Intercept)        site2        site3        site4        site5        site6  
+    16.6990       6.5043       4.3575       1.9347       3.6374       4.2045  
+      site7        site8        site9       site10          dbh  
+    -0.1762      -5.3126       5.4370       2.2633       0.6171  </code></pre>
+</div>
+</div>
+<p>corresponds to</p>
+<p><span class="math display">\[
+  \begin{aligned}
+  y_{i} = a + b_{site2} + c_{site3} + d_{site4} + e_{site5} +...+ k \cdot DBH_{i} + \varepsilon _{i} \\
+  \varepsilon _{i}\sim N\left( 0,\sigma^2 \right) \\
+  \end{aligned}
+\]</span></p>
+</section>
+<section id="predicting-tree-height-based-on-dbh-and-site-1" class="level3">
+<h3 class="anchored" data-anchor-id="predicting-tree-height-based-on-dbh-and-site-1">Predicting tree height based on dbh and site</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a>m4 <span class="ot">&lt;-</span> <span class="fu">lm</span>(height <span class="sc">~</span> site <span class="sc">+</span> dbh, <span class="at">data =</span> trees)</span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = height ~ site + dbh, data = trees)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-10.1130  -1.9885   0.0582   2.0314  11.3320 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 16.699037   0.260565  64.088  &lt; 2e-16 ***
+site2        6.504303   0.256730  25.335  &lt; 2e-16 ***
+site3        4.357457   0.354181  12.303  &lt; 2e-16 ***
+site4        1.934650   0.356102   5.433 6.98e-08 ***
+site5        3.637432   0.339688  10.708  &lt; 2e-16 ***
+site6        4.204511   0.421906   9.966  &lt; 2e-16 ***
+site7       -0.176193   0.666772  -0.264   0.7916    
+site8       -5.312648   0.893603  -5.945 3.82e-09 ***
+site9        5.437049   1.087766   4.998 6.84e-07 ***
+site10       2.263338   1.369986   1.652   0.0988 .  
+dbh          0.617075   0.007574  81.473  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.043 on 989 degrees of freedom
+Multiple R-squared:  0.8835,    Adjusted R-squared:  0.8823 
+F-statistic:   750 on 10 and 989 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="presenting-model-results-1" class="level3">
+<h3 class="anchored" data-anchor-id="presenting-model-results-1">Presenting model results</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(m4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter   | Coefficient |       SE |         95% CI | t(989) |      p
+-----------------------------------------------------------------------
+(Intercept) |       16.70 |     0.26 | [16.19, 17.21] |  64.09 | &lt; .001
+site [2]    |        6.50 |     0.26 | [ 6.00,  7.01] |  25.34 | &lt; .001
+site [3]    |        4.36 |     0.35 | [ 3.66,  5.05] |  12.30 | &lt; .001
+site [4]    |        1.93 |     0.36 | [ 1.24,  2.63] |   5.43 | &lt; .001
+site [5]    |        3.64 |     0.34 | [ 2.97,  4.30] |  10.71 | &lt; .001
+site [6]    |        4.20 |     0.42 | [ 3.38,  5.03] |   9.97 | &lt; .001
+site [7]    |       -0.18 |     0.67 | [-1.48,  1.13] |  -0.26 | 0.792 
+site [8]    |       -5.31 |     0.89 | [-7.07, -3.56] |  -5.95 | &lt; .001
+site [9]    |        5.44 |     1.09 | [ 3.30,  7.57] |   5.00 | &lt; .001
+site [10]   |        2.26 |     1.37 | [-0.43,  4.95] |   1.65 | 0.099 
+dbh         |        0.62 | 7.57e-03 | [ 0.60,  0.63] |  81.47 | &lt; .001</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
+  using a Wald t-distribution approximation.</code></pre>
+</div>
+</div>
+</section>
+<section id="estimated-tree-heights-for-each-site-1" class="level3">
+<h3 class="anchored" data-anchor-id="estimated-tree-heights-for-each-site-1">Estimated tree heights for each site</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb133"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a><span class="fu">estimate_means</span>(m4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>We selected `at = c("site")`.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Estimated Marginal Means
+
+site |  Mean |   SE |         95% CI
+------------------------------------
+1    | 33.90 | 0.15 | [33.60, 34.21]
+2    | 40.41 | 0.21 | [40.01, 40.81]
+3    | 38.26 | 0.32 | [37.64, 38.89]
+4    | 35.84 | 0.32 | [35.21, 36.47]
+5    | 37.54 | 0.30 | [36.95, 38.14]
+6    | 38.11 | 0.39 | [37.34, 38.88]
+7    | 33.73 | 0.65 | [32.45, 35.00]
+8    | 28.59 | 0.88 | [26.86, 30.32]
+9    | 39.34 | 1.08 | [37.23, 41.45]
+10   | 36.17 | 1.36 | [33.50, 38.84]
+
+Marginal means estimated at site</code></pre>
+</div>
+</div>
+</section>
+<section id="fit-model-without-intercept-1" class="level3">
+<h3 class="anchored" data-anchor-id="fit-model-without-intercept-1">Fit model without intercept</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a>m4 <span class="ot">&lt;-</span> <span class="fu">lm</span>(height <span class="sc">~</span> <span class="sc">-</span><span class="dv">1</span> <span class="sc">+</span> site <span class="sc">+</span> dbh, <span class="at">data =</span> trees)</span>
+<span id="cb136-2"><a href="#cb136-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = height ~ -1 + site + dbh, data = trees)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-10.1130  -1.9885   0.0582   2.0314  11.3320 
+
+Coefficients:
+        Estimate Std. Error t value Pr(&gt;|t|)    
+site1  16.699037   0.260565   64.09   &lt;2e-16 ***
+site2  23.203340   0.292773   79.25   &lt;2e-16 ***
+site3  21.056494   0.386532   54.48   &lt;2e-16 ***
+site4  18.633687   0.374456   49.76   &lt;2e-16 ***
+site5  20.336469   0.373942   54.38   &lt;2e-16 ***
+site6  20.903548   0.448913   46.56   &lt;2e-16 ***
+site7  16.522844   0.679936   24.30   &lt;2e-16 ***
+site8  11.386389   0.918198   12.40   &lt;2e-16 ***
+site9  22.136086   1.105970   20.02   &lt;2e-16 ***
+site10 18.962375   1.372158   13.82   &lt;2e-16 ***
+dbh     0.617075   0.007574   81.47   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.043 on 989 degrees of freedom
+Multiple R-squared:  0.9935,    Adjusted R-squared:  0.9934 
+F-statistic: 1.377e+04 on 11 and 989 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="plot-visreg-2" class="level3">
+<h3 class="anchored" data-anchor-id="plot-visreg-2">Plot (visreg)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb138"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visreg</span>(m4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-85-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-85-2.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb139"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href="#cb139-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visreg</span>(m4, <span class="at">xvar =</span> <span class="st">"dbh"</span>, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">overlay =</span> <span class="cn">TRUE</span>, <span class="at">band =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-86-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="plot-model-easystats-1" class="level3">
+<h3 class="anchored" data-anchor-id="plot-model-easystats-1">Plot model (easystats)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb140"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">parameters</span>(m4))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-87-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Keeping sites only, dropping “dbh”</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb141"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb141-1"><a href="#cb141-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">parameters</span>(m4, <span class="at">drop =</span> <span class="st">"dbh"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-88-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="plot-model-modelsummary-1" class="level3">
+<h3 class="anchored" data-anchor-id="plot-model-modelsummary-1">Plot model (modelsummary)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb142"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb142-1"><a href="#cb142-1" aria-hidden="true" tabindex="-1"></a><span class="fu">modelplot</span>(m4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-89-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Keeping sites only, dropping “dbh”</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb143"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a href="#cb143-1" aria-hidden="true" tabindex="-1"></a><span class="fu">modelplot</span>(m4, <span class="at">coef_omit =</span> <span class="st">"dbh"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-90-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="what-happened-to-site-8" class="level3">
+<h3 class="anchored" data-anchor-id="what-happened-to-site-8">What happened to site 8?</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb144"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visreg</span>(m3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-91-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb145"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a href="#cb145-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visreg</span>(m4, <span class="at">xvar =</span> <span class="st">"site"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-92-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>site 8 has the largest diameters:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb146"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href="#cb146-1" aria-hidden="true" tabindex="-1"></a><span class="fu">boxplot</span>(dbh <span class="sc">~</span> site, <span class="at">data =</span> trees)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-93-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p><strong>DBH</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb147"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb147-1"><a href="#cb147-1" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(trees<span class="sc">$</span>dbh <span class="sc">~</span> trees<span class="sc">$</span>site, <span class="at">FUN =</span> mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   trees$site trees$dbh
+1           1  27.78033
+2           2  27.51580
+3           3  28.82011
+4           4  25.50867
+5           5  28.97119
+6           6  28.68067
+7           7  26.86409
+8           8  35.28250
+9           9  33.83125
+10         10  23.17000</code></pre>
+</div>
+</div>
+<p><strong>HEIGHT</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb149"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb149-1"><a href="#cb149-1" aria-hidden="true" tabindex="-1"></a><span class="fu">aggregate</span>(trees<span class="sc">$</span>height <span class="sc">~</span> trees<span class="sc">$</span>site, <span class="at">FUN =</span> mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   trees$site trees$height
+1           1     33.84158
+2           2     40.18265
+3           3     38.84066
+4           4     34.37444
+5           5     38.21386
+6           6     38.60167
+7           7     33.10000
+8           8     33.15833
+9           9     43.01250
+10         10     33.26000</code></pre>
+</div>
+</div>
+</section>
+<section id="we-have-fitted-model-w-many-intercepts-and-single-slope" class="level3">
+<h3 class="anchored" data-anchor-id="we-have-fitted-model-w-many-intercepts-and-single-slope">We have fitted model w/ many intercepts and single slope</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb151"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb151-1"><a href="#cb151-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visreg</span>(m4, <span class="at">xvar =</span> <span class="st">"dbh"</span>, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">overlay =</span> <span class="cn">TRUE</span>, <span class="at">band =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-96-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="slope-is-the-same-for-all-sites" class="level3">
+<h3 class="anchored" data-anchor-id="slope-is-the-same-for-all-sites">Slope is the same for all sites</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb152"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb152-1"><a href="#cb152-1" aria-hidden="true" tabindex="-1"></a><span class="fu">parameters</span>(m4, <span class="at">keep =</span> <span class="st">"dbh"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Parameter | Coefficient |       SE |       95% CI | t(989) |      p
+-------------------------------------------------------------------
+dbh       |        0.62 | 7.57e-03 | [0.60, 0.63] |  81.47 | &lt; .001</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Uncertainty intervals (equal-tailed) and p-values (two-tailed) computed
+  using a Wald t-distribution approximation.</code></pre>
+</div>
+</div>
+</section>
+<section id="model-checking-residuals-3" class="level3">
+<h3 class="anchored" data-anchor-id="model-checking-residuals-3">Model checking: residuals</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb155"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb155-1"><a href="#cb155-1" aria-hidden="true" tabindex="-1"></a>def.par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">no.readonly =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb155-2"><a href="#cb155-2" aria-hidden="true" tabindex="-1"></a><span class="fu">layout</span>(<span class="fu">matrix</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">nrow=</span><span class="dv">2</span>))</span>
+<span id="cb155-3"><a href="#cb155-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(m4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-98-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="sourceCode cell-code" id="cb156"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb156-1"><a href="#cb156-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(def.par)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="model-checking-with-easystats" class="level3">
+<h3 class="anchored" data-anchor-id="model-checking-with-easystats">Model checking with easystats</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb157"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb157-1"><a href="#cb157-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_model</span>(m4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-99-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="how-good-is-this-model-calibration-plot" class="level3">
+<h3 class="anchored" data-anchor-id="how-good-is-this-model-calibration-plot">How good is this model? Calibration plot</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb158"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb158-1"><a href="#cb158-1" aria-hidden="true" tabindex="-1"></a>trees<span class="sc">$</span>height.pred <span class="ot">&lt;-</span> <span class="fu">fitted</span>(m4)</span>
+<span id="cb158-2"><a href="#cb158-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(trees<span class="sc">$</span>height.pred, trees<span class="sc">$</span>height, </span>
+<span id="cb158-3"><a href="#cb158-3" aria-hidden="true" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">"Tree height (predicted)"</span>, </span>
+<span id="cb158-4"><a href="#cb158-4" aria-hidden="true" tabindex="-1"></a>     <span class="at">ylab =</span> <span class="st">"Tree height (observed)"</span>, </span>
+<span id="cb158-5"><a href="#cb158-5" aria-hidden="true" tabindex="-1"></a>     <span class="at">las =</span> <span class="dv">1</span>, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">10</span>,<span class="dv">60</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">10</span>,<span class="dv">60</span>))</span>
+<span id="cb158-6"><a href="#cb158-6" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> <span class="dv">0</span>, <span class="at">b =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-100-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="how-good-is-this-model-calibration-plot-easystats" class="level3">
+<h3 class="anchored" data-anchor-id="how-good-is-this-model-calibration-plot-easystats">How good is this model? Calibration plot (easystats)</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb159"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb159-1"><a href="#cb159-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">estimate_expectation</span>(m4)</span>
+<span id="cb159-2"><a href="#cb159-2" aria-hidden="true" tabindex="-1"></a>pred<span class="sc">$</span>obs <span class="ot">&lt;-</span> trees<span class="sc">$</span>height</span>
+<span id="cb159-3"><a href="#cb159-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(obs <span class="sc">~</span> Predicted, <span class="at">data =</span> pred, <span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">60</span>), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">60</span>))</span>
+<span id="cb159-4"><a href="#cb159-4" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> <span class="dv">0</span>, <span class="at">b =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-101-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="posterior-predictive-checking" class="level3">
+<h3 class="anchored" data-anchor-id="posterior-predictive-checking"><em>Posterior</em> predictive checking</h3>
+<p>Simulating response data from fitted model (<code>yrep</code>)</p>
+<p>and comparing with observed response (<code>y</code>)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb160"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a href="#cb160-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_predictions</span>(m4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-102-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="predicting-heights-of-new-trees-easystats" class="level2">
+<h2 class="anchored" data-anchor-id="predicting-heights-of-new-trees-easystats">Predicting heights of new trees (easystats)</h2>
+<section id="using-model-for-prediction" class="level3">
+<h3 class="anchored" data-anchor-id="using-model-for-prediction">Using model for prediction</h3>
+<p>Expected height of 10-cm diameter tree in each site?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb161"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb161-1"><a href="#cb161-1" aria-hidden="true" tabindex="-1"></a>trees<span class="fl">.10</span>cm <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">site =</span> <span class="fu">as.factor</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>),</span>
+<span id="cb161-2"><a href="#cb161-2" aria-hidden="true" tabindex="-1"></a>                        <span class="at">dbh =</span> <span class="dv">10</span>)</span>
+<span id="cb161-3"><a href="#cb161-3" aria-hidden="true" tabindex="-1"></a>trees<span class="fl">.10</span>cm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   site dbh
+1     1  10
+2     2  10
+3     3  10
+4     4  10
+5     5  10
+6     6  10
+7     7  10
+8     8  10
+9     9  10
+10   10  10</code></pre>
+</div>
+</div>
+</section>
+<section id="using-model-for-prediction-1" class="level3">
+<h3 class="anchored" data-anchor-id="using-model-for-prediction-1">Using model for prediction</h3>
+<p>Expected height of 10-cm DBH trees at each site</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb163"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb163-1"><a href="#cb163-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">estimate_expectation</span>(m4, <span class="at">data =</span> trees<span class="fl">.10</span>cm)</span>
+<span id="cb163-2"><a href="#cb163-2" aria-hidden="true" tabindex="-1"></a>pred</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model-based Expectation
+
+site |   dbh | Predicted |   SE |         95% CI
+------------------------------------------------
+1    | 10.00 |     22.87 | 0.20 | [22.47, 23.27]
+2    | 10.00 |     29.37 | 0.24 | [28.89, 29.85]
+3    | 10.00 |     27.23 | 0.35 | [26.54, 27.91]
+4    | 10.00 |     24.80 | 0.34 | [24.13, 25.47]
+5    | 10.00 |     26.51 | 0.34 | [25.85, 27.16]
+6    | 10.00 |     27.07 | 0.42 | [26.25, 27.89]
+7    | 10.00 |     22.69 | 0.66 | [21.40, 23.99]
+8    | 10.00 |     17.56 | 0.90 | [15.79, 19.32]
+9    | 10.00 |     28.31 | 1.09 | [26.17, 30.45]
+10   | 10.00 |     25.13 | 1.36 | [22.46, 27.81]
+
+Variable predicted: height</code></pre>
+</div>
+</div>
+</section>
+<section id="using-model-for-prediction-2" class="level3">
+<h3 class="anchored" data-anchor-id="using-model-for-prediction-2">Using model for prediction</h3>
+<p>Prediction intervals (accounting for residual variance)</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb165"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb165-1"><a href="#cb165-1" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">estimate_prediction</span>(m4, <span class="at">data =</span> trees<span class="fl">.10</span>cm)</span>
+<span id="cb165-2"><a href="#cb165-2" aria-hidden="true" tabindex="-1"></a>pred</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Model-based Prediction
+
+site |   dbh | Predicted |   SE |         95% CI
+------------------------------------------------
+1    | 10.00 |     22.87 | 3.05 | [16.88, 28.85]
+2    | 10.00 |     29.37 | 3.05 | [23.38, 35.36]
+3    | 10.00 |     27.23 | 3.06 | [21.22, 33.24]
+4    | 10.00 |     24.80 | 3.06 | [18.80, 30.81]
+5    | 10.00 |     26.51 | 3.06 | [20.50, 32.51]
+6    | 10.00 |     27.07 | 3.07 | [21.05, 33.10]
+7    | 10.00 |     22.69 | 3.11 | [16.58, 28.80]
+8    | 10.00 |     17.56 | 3.17 | [11.33, 23.78]
+9    | 10.00 |     28.31 | 3.23 | [21.96, 34.65]
+10   | 10.00 |     25.13 | 3.33 | [18.59, 31.68]
+
+Variable predicted: height</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="q-does-allometric-relationship-between-height-and-diameter-vary-among-sites" class="level1">
+<h1>Q: Does allometric relationship between Height and Diameter vary among sites?</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb167"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb167-1"><a href="#cb167-1" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">dbh =</span> <span class="fu">seq</span>(<span class="dv">10</span>, <span class="dv">50</span>, <span class="at">by =</span> <span class="dv">1</span>), </span>
+<span id="cb167-2"><a href="#cb167-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">height =</span> <span class="fu">seq</span>(<span class="dv">20</span>, <span class="dv">60</span>, <span class="at">by =</span> <span class="dv">1</span>))</span>
+<span id="cb167-3"><a href="#cb167-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb167-4"><a href="#cb167-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(height <span class="sc">~</span> dbh, <span class="at">data =</span> df, <span class="at">type =</span> <span class="st">"n"</span>)</span>
+<span id="cb167-5"><a href="#cb167-5" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> <span class="dv">25</span>, <span class="fl">0.6</span>)</span>
+<span id="cb167-6"><a href="#cb167-6" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> <span class="dv">40</span>, <span class="at">b =</span> <span class="fl">0.1</span>, <span class="at">col =</span> <span class="st">"steelblue"</span>)</span>
+<span id="cb167-7"><a href="#cb167-7" aria-hidden="true" tabindex="-1"></a><span class="fu">abline</span>(<span class="at">a =</span> <span class="dv">50</span>, <span class="at">b =</span> <span class="sc">-</span><span class="fl">0.3</span>, <span class="at">col =</span> <span class="st">"orangered"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-106-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="model-with-interactions" class="level3">
+<h3 class="anchored" data-anchor-id="model-with-interactions">Model with interactions</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb168"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb168-1"><a href="#cb168-1" aria-hidden="true" tabindex="-1"></a>m5 <span class="ot">&lt;-</span> <span class="fu">lm</span>(height <span class="sc">~</span> site<span class="sc">*</span>dbh, <span class="at">data =</span> trees)</span>
+<span id="cb168-2"><a href="#cb168-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m5)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = height ~ site * dbh, data = trees)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-10.1017  -1.9839   0.0645   2.0486  11.1789 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 16.359437   0.360054  45.436  &lt; 2e-16 ***
+site2        7.684781   0.609657  12.605  &lt; 2e-16 ***
+site3        4.518568   0.867008   5.212 2.28e-07 ***
+site4        2.769336   0.813259   3.405 0.000688 ***
+site5        3.917607   0.870983   4.498 7.68e-06 ***
+site6        4.155161   1.009379   4.117 4.17e-05 ***
+site7       -2.306799   1.551303  -1.487 0.137334    
+site8       -2.616095   4.090671  -0.640 0.522630    
+site9        2.621560   5.073794   0.517 0.605492    
+site10       4.662340   2.991072   1.559 0.119378    
+dbh          0.629299   0.011722  53.685  &lt; 2e-16 ***
+site2:dbh   -0.042784   0.020033  -2.136 0.032950 *  
+site3:dbh   -0.006031   0.027640  -0.218 0.827312    
+site4:dbh   -0.031633   0.028225  -1.121 0.262677    
+site5:dbh   -0.010173   0.027887  -0.365 0.715334    
+site6:dbh    0.001337   0.032109   0.042 0.966797    
+site7:dbh    0.079728   0.052056   1.532 0.125951    
+site8:dbh   -0.079027   0.113386  -0.697 0.485984    
+site9:dbh    0.081035   0.146649   0.553 0.580679    
+site10:dbh  -0.101107   0.114520  -0.883 0.377522    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 3.041 on 980 degrees of freedom
+Multiple R-squared:  0.8847,    Adjusted R-squared:  0.8825 
+F-statistic: 395.7 on 19 and 980 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="does-slope-vary-among-sites" class="level3">
+<h3 class="anchored" data-anchor-id="does-slope-vary-among-sites">Does slope vary among sites?</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb170"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb170-1"><a href="#cb170-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visreg</span>(m5, <span class="at">xvar =</span> <span class="st">"dbh"</span>, <span class="at">by =</span> <span class="st">"site"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-108-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb171"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb171-1"><a href="#cb171-1" aria-hidden="true" tabindex="-1"></a><span class="fu">visreg</span>(m5, <span class="at">xvar =</span> <span class="st">"dbh"</span>, <span class="at">by =</span> <span class="st">"site"</span>, <span class="at">overlay =</span> <span class="cn">TRUE</span>, <span class="at">band =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="lm_files/figure-html/unnamed-chunk-109-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>END</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

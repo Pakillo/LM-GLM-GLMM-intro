@@ -6,4 +6,10 @@ format: html
 
 Links to interactive tutorials (made with Quarto and webR):
 
-- [Linear Models](lm_webR.html)
+**Linear Models**
+
+- [Interactive tutorial](lm_webR.html)
+
+- [Rendered document](lm.html)
+
+- [R code](lm.R)

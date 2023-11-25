@@ -19,14 +19,14 @@ webr:
 
 - Download [this dataset](https://raw.githubusercontent.com/Pakillo/LM-GLM-GLMM-intro/trees/data/trees.csv)
 
-```{webr-r}
+```{r}
 download.file("https://raw.githubusercontent.com/Pakillo/LM-GLM-GLMM-intro/trees/data/trees.csv",
               destfile = "trees.csv", mode = "wb")
 ```
 
 - Import:
 
-```{webr-r}
+```{r}
 trees <- read.csv("trees.csv")
 head(trees)
 ```
@@ -48,27 +48,27 @@ head(trees)
 
 Outliers
 
-```{webr-r}
+```{r}
 plot(trees$height)
 ```
 
 
 ### Histogram of response variable
 
-```{webr-r}
+```{r}
 hist(trees$height)
 ```
 
 
 ### Histogram of predictor variable
 
-```{webr-r}
+```{r}
 hist(trees$dbh)
 ```
 
 ### Scatterplot
 
-```{webr-r}
+```{r}
 plot(height ~ dbh, data = trees, las = 1)
 ```
 
@@ -80,7 +80,7 @@ plot(height ~ dbh, data = trees, las = 1)
 
 Hint: `lm`
 
-```{webr-r}
+```{r}
 m1 <- lm(height ~ dbh, data = trees)
 ```
 
@@ -115,39 +115,39 @@ equatiomatic::extract_eq(m1, use_coefs = TRUE)
 
 ### What does this mean?
 
-```{webr-r}
+```{r}
 summary(m1)
 ```
 
 
 ### Estimated distribution of the **intercept** parameter
 
-```{webr-r}
+```{r}
 library("easystats")
 ```
 
-```{webr-r}
+```{r}
 parameters(m1)[1,]
 ```
 
-```{webr-r}
+```{r}
 plot(simulate_parameters(m1), show_intercept = TRUE)
 ```
 
 
 ### Estimated distribution of the **slope** parameter
 
-```{webr-r}
+```{r}
 parameters::parameters(m1)[2,]
 ```
 
-```{webr-r}
+```{r}
 plot(simulate_parameters(m1))
 ```
 
 ### Distribution of residuals
 
-```{webr-r}
+```{r}
 hist(residuals(m1))
 ```
 
@@ -188,20 +188,20 @@ https://pollev.com/franciscorod726
 
 ### Retrieving model coefficients
 
-```{webr-r}
+```{r}
 coef(m1)
 ```
 
 ### Confidence intervals for parameters
 
-```{webr-r}
+```{r}
 confint(m1)
 ```
 
 
 ### Retrieving model parameters (easystats)
 
-```{webr-r}
+```{r}
 parameters(m1)
 ```
 
@@ -231,7 +231,7 @@ parameters(m1)
 
 ### Models that describe themselves (easystats)
 
-```{webr-r}
+```{r}
 report(m1)
 ```
 
@@ -241,11 +241,11 @@ report(m1)
 
 ### Generating table with model results: `modelsummary`
 
-```{webr-r}
+```{r}
 library("modelsummary")
 ```
 
-```{webr-r}
+```{r}
 modelsummary(m1, output = "html")  ## Word, PDF, PowerPoint, png...
 ```
 
@@ -254,7 +254,7 @@ modelsummary(m1, output = "html")  ## Word, PDF, PowerPoint, png...
 
 ### Generating table with model results: `modelsummary`
 
-```{webr-r}
+```{r}
 modelsummary(m1, fmt = 2, 
              estimate = "{estimate} ({std.error})", 
              statistic = NULL,
@@ -269,11 +269,11 @@ modelsummary(m1, fmt = 2,
 
 ### Plot model: `visreg`
 
-```{webr-r}
+```{r}
 library("visreg")
 ```
 
-```{webr-r}
+```{r}
 visreg(m1)
 ```
 
@@ -290,28 +290,28 @@ visreg(m1, gg = TRUE) + theme_bw()
 
 ### Plot (easystats)
 
-```{webr-r}
+```{r}
 plot(estimate_expectation(m1))
 ```
 
 
 ### Plot (modelsummary)
 
-```{webr-r}
+```{r}
 modelplot(m1)
 ```
 
 
 ### Plot model parameters with easystats (`see` package)
 
-```{webr-r}
+```{r}
 plot(parameters(m1), show_intercept = TRUE, show_labels = TRUE)
 ```
 
 
 ### Plot parameters' estimated distribution
 
-```{webr-r}
+```{r}
 plot(simulate_parameters(m1))
 ```
 
@@ -336,7 +336,7 @@ plot(simulate_parameters(m1))
 
 ### Are residuals normal? 
 
-```{webr-r}
+```{r}
 hist(residuals(m1))
 ```
 
@@ -345,7 +345,7 @@ SD = 4.09
 
 ### Model checking: `plot(model)`
 
-```{webr-r}
+```{r}
 def.par <- par(no.readonly = TRUE)
 layout(matrix(1:4, nrow=2))
 plot(m1)
@@ -355,7 +355,7 @@ par(def.par)
 
 ### Model checking with `performance` (easystats)
 
-```{webr-r}
+```{r}
 check_model(m1)
 ```
 
@@ -377,7 +377,7 @@ model_dashboard(m1)
 
 ### Estimate expected values
 
-```{webr-r}
+```{r}
 pred <- estimate_expectation(m1)
 head(pred)
 ```
@@ -385,7 +385,7 @@ head(pred)
 
 ### Expected values given DBH
 
-```{webr-r}
+```{r}
 plot(estimate_expectation(m1))
 ```
 
@@ -393,7 +393,7 @@ plot(estimate_expectation(m1))
 
 ### Calibration plot: observed vs predicted
 
-```{webr-r}
+```{r}
 pred$height.obs <- trees$height
 plot(height.obs ~ Predicted, data = pred, xlim = c(15, 60), ylim = c(15, 60))
 abline(a = 0, b = 1)
@@ -404,29 +404,29 @@ abline(a = 0, b = 1)
 
 Accounting for residual variation!
 
-```{webr-r}
+```{r}
 pred <- estimate_prediction(m1)
 head(pred)
 ```
 
 ### Confidence vs Prediction interval
 
-```{webr-r}
+```{r}
 plot(estimate_expectation(m1))
 ```
 
-```{webr-r}
+```{r}
 plot(estimate_prediction(m1))
 ```
 
 
 ### Make predictions for new data
 
-```{webr-r}
+```{r}
 estimate_expectation(m1, data = data.frame(dbh = 39))
 ```
 
-```{webr-r}
+```{r}
 estimate_prediction(m1, data = data.frame(dbh = 39))
 ```
 
@@ -455,7 +455,7 @@ estimate_prediction(m1, data = data.frame(dbh = 39))
 
 ## Q: Does tree height vary with sex?
 
-```{webr-r}
+```{r}
 boxplot(height ~ sex, data = trees)
 ```
 
@@ -463,7 +463,7 @@ boxplot(height ~ sex, data = trees)
 
 ### Model height ~ sex
 
-```{webr-r}
+```{r}
 m2 <- lm(height ~ sex, data = trees)
 summary(m2)
 ```
@@ -472,7 +472,7 @@ summary(m2)
 
 ### Linear model with categorical predictors
 
-```{webr-r}
+```{r}
 m2 <- lm(height ~ sex, data = trees)
 ```
 
@@ -489,7 +489,7 @@ $$
 
 ### Model height ~ sex
 
-```{webr-r}
+```{r}
 m2 <- lm(height ~ sex, data = trees)
 summary(m2)
 ```
@@ -502,7 +502,7 @@ https://pollev.com/franciscorod726
 
 ### Let's read the model report...
 
-```{webr-r}
+```{r}
 report(m2)
 ```
 
@@ -512,11 +512,11 @@ report(m2)
 
 **Intercept = Height of females**
 
-```{webr-r}
+```{r}
 parameters(m2)[1,]
 ```
 
-```{webr-r}
+```{r}
 plot(simulate_parameters(m2), show_intercept = TRUE)
 ```
 
@@ -525,11 +525,11 @@ plot(simulate_parameters(m2), show_intercept = TRUE)
 
 *beta* = **height difference** of males vs females
 
-```{webr-r}
+```{r}
 parameters(m2)[2,]
 ```
 
-```{webr-r}
+```{r}
 plot(simulate_parameters(m2))
 ```
 
@@ -539,11 +539,11 @@ plot(simulate_parameters(m2))
 
 ### Analysing differences among factor levels
 
-```{webr-r}
+```{r}
 estimate_means(m2)
 ```
 
-```{webr-r}
+```{r}
 estimate_contrasts(m2)
 ```
 
@@ -552,14 +552,14 @@ estimate_contrasts(m2)
 
 ### Plot (visreg)
 
-```{webr-r}
+```{r}
 visreg(m2)
 ```
 
 
 ### Plot (easystats)
 
-```{webr-r}
+```{r}
 plot(estimate_means(m2))
 ```
 
@@ -569,11 +569,11 @@ plot(estimate_means(m2))
 
 ### Model checking: residuals
 
-```{webr-r}
+```{r}
 hist(resid(m2))
 ```
 
-```{webr-r}
+```{r}
 def.par <- par(no.readonly = TRUE)
 layout(matrix(1:4, nrow=2))
 plot(m2)
@@ -583,7 +583,7 @@ par(def.par)
 
 ### Model checking (easystats)
 
-```{webr-r}
+```{r}
 check_model(m2)
 ```
 
@@ -598,14 +598,14 @@ https://pollev.com/franciscorod726
 
 ### Plot data first
 
-```{webr-r}
+```{r}
 plot(height ~ site, data = trees)
 ```
 
 
 ### Linear model with categorical predictors
 
-```{webr-r}
+```{r}
 m3 <- lm(height ~ site, data = trees)
 ```
 
@@ -625,7 +625,7 @@ $$
 
 **All right here?**
 
-```{webr-r}
+```{r}
 m3 <- lm(height ~ site, data = trees)
 summary(m3)
 ```
@@ -633,14 +633,14 @@ summary(m3)
 
 ### site is a factor!
 
-```{webr-r}
+```{r}
 trees$site <- as.factor(trees$site)
 ```
 
 
 ### Model Height ~ site
 
-```{webr-r}
+```{r}
 m3 <- lm(height ~ site, data = trees)
 summary(m3)
 ```
@@ -648,7 +648,7 @@ summary(m3)
 
 ### Estimated parameter distributions
 
-```{webr-r}
+```{r}
 plot(simulate_parameters(m3))
 ```
 
@@ -657,14 +657,14 @@ plot(simulate_parameters(m3))
 
 ### Estimated tree heights for each site
 
-```{webr-r}
+```{r}
 estimate_means(m3)
 ```
 
 
 ### Plot estimated tree heights for each site
 
-```{webr-r}
+```{r}
 plot(estimate_means(m3))
 ```
 
@@ -672,7 +672,7 @@ plot(estimate_means(m3))
 
 For finer control see `emmeans` package
 
-```{webr-r}
+```{r}
 estimate_contrasts(m3)
 ```
 
@@ -681,11 +681,11 @@ estimate_contrasts(m3)
 
 How different are site 2 and site 9?
 
-```{webr-r}
+```{r}
 library("marginaleffects")
 ```
 
-```{webr-r}
+```{r}
 hypotheses(m3, "site2 = site9")
 ```
 
@@ -693,12 +693,12 @@ hypotheses(m3, "site2 = site9")
 
 ### Presenting model results
 
-```{webr-r}
+```{r}
 parameters(m3)
 ```
 
 
-```{webr-r}
+```{r}
 modelsummary(m3, estimate  = "{estimate} ({std.error})", statistic = NULL, 
              fmt = 1, gof_map = NA, coef_rename = paste0("site", 1:10), output = "html")
 ```
@@ -707,13 +707,13 @@ modelsummary(m3, estimate  = "{estimate} ({std.error})", statistic = NULL,
 
 ### Plot (visreg)
 
-```{webr-r}
+```{r}
 visreg(m3)
 ```
 
 ### Plot (easystats)
 
-```{webr-r}
+```{r}
 plot(estimate_means(m3))
 ```
 
@@ -721,32 +721,32 @@ plot(estimate_means(m3))
 
 ### Plot model (modelsummary)
 
-```{webr-r}
+```{r}
 modelplot(m3)
 ```
 
 
 ### Plot model (easystats)
 
-```{webr-r}
+```{r}
 plot(parameters(m3), show_intercept = TRUE)
 ```
 
 
 ### Fit model without intercept
 
-```{webr-r}
+```{r}
 m3bis <- lm(height ~ site - 1, data = trees)
 summary(m3bis)
 ```
 
-```{webr-r}
+```{r}
 plot(parameters(m3bis))
 ```
 
 ### Model checking: residuals
 
-```{webr-r}
+```{r}
 def.par <- par(no.readonly = TRUE)
 layout(matrix(1:4, nrow = 2))
 plot(m3)
@@ -756,7 +756,7 @@ par(def.par)
 
 ### Model checking: residuals
 
-```{webr-r}
+```{r}
 check_model(m3)
 ```
 
@@ -769,7 +769,7 @@ check_model(m3)
 
 ### Predicting tree height based on dbh and site
 
-```{webr-r}
+```{r}
 lm(height ~ site + dbh, data = trees)
 ```
 
@@ -785,7 +785,7 @@ $$
 
 ### Predicting tree height based on dbh and site
 
-```{webr-r}
+```{r}
 m4 <- lm(height ~ site + dbh, data = trees)
 summary(m4)
 ```
@@ -793,7 +793,7 @@ summary(m4)
 
 ### Presenting model results
 
-```{webr-r}
+```{r}
 parameters(m4)
 ```
 
@@ -801,14 +801,14 @@ parameters(m4)
 
 ### Estimated tree heights for each site
 
-```{webr-r}
+```{r}
 estimate_means(m4)
 ```
 
 
 ### Fit model without intercept
 
-```{webr-r}
+```{r}
 m4 <- lm(height ~ -1 + site + dbh, data = trees)
 summary(m4)
 ```
@@ -816,11 +816,11 @@ summary(m4)
 
 ### Plot (visreg)
 
-```{webr-r}
+```{r}
 visreg(m4)
 ```
 
-```{webr-r}
+```{r}
 visreg(m4, xvar = "dbh", by = "site", overlay = TRUE, band = FALSE)
 ```
 
@@ -828,55 +828,55 @@ visreg(m4, xvar = "dbh", by = "site", overlay = TRUE, band = FALSE)
 
 ### Plot model (easystats)
 
-```{webr-r}
+```{r}
 plot(parameters(m4))
 ```
 
 Keeping sites only, dropping "dbh"
 
-```{webr-r}
+```{r}
 plot(parameters(m4, drop = "dbh"))
 ```
 
 
 ### Plot model (modelsummary)
 
-```{webr-r}
+```{r}
 modelplot(m4)
 ```
 
 Keeping sites only, dropping "dbh"
 
-```{webr-r}
+```{r}
 modelplot(m4, coef_omit = "dbh")
 ```
 
 
 ### What happened to site 8?
 
-```{webr-r}
+```{r}
 visreg(m3)
 ```
 
-```{webr-r}
+```{r}
 visreg(m4, xvar = "site")
 ```
 
 site 8 has the largest diameters:
 
-```{webr-r}
+```{r}
 boxplot(dbh ~ site, data = trees)
 ```
 
 **DBH**
 
-```{webr-r}
+```{r}
 aggregate(trees$dbh ~ trees$site, FUN = mean)
 ```
 
 **HEIGHT**
 
-```{webr-r}
+```{r}
 aggregate(trees$height ~ trees$site, FUN = mean)
 ```
 
@@ -885,7 +885,7 @@ aggregate(trees$height ~ trees$site, FUN = mean)
 
 ### We have fitted model w/ many intercepts and single slope
 
-```{webr-r}
+```{r}
 visreg(m4, xvar = "dbh", by = "site", overlay = TRUE, band = FALSE)
 ```
 
@@ -894,7 +894,7 @@ visreg(m4, xvar = "dbh", by = "site", overlay = TRUE, band = FALSE)
 
 ### Slope is the same for all sites
 
-```{webr-r}
+```{r}
 parameters(m4, keep = "dbh")
 ```
 
@@ -902,7 +902,7 @@ parameters(m4, keep = "dbh")
 
 ### Model checking: residuals
 
-```{webr-r}
+```{r}
 def.par <- par(no.readonly = TRUE)
 layout(matrix(1:4, nrow=2))
 plot(m4)
@@ -912,7 +912,7 @@ par(def.par)
 
 ### Model checking with easystats
 
-```{webr-r}
+```{r}
 check_model(m4)
 ```
 
@@ -920,7 +920,7 @@ check_model(m4)
 
 ### How good is this model? Calibration plot
 
-```{webr-r}
+```{r}
 trees$height.pred <- fitted(m4)
 plot(trees$height.pred, trees$height, 
      xlab = "Tree height (predicted)", 
@@ -932,7 +932,7 @@ abline(a = 0, b = 1)
 
 ### How good is this model? Calibration plot (easystats)
 
-```{webr-r}
+```{r}
 pred <- estimate_expectation(m4)
 pred$obs <- trees$height
 plot(obs ~ Predicted, data = pred, xlim = c(15, 60), ylim = c(15, 60))
@@ -946,7 +946,7 @@ Simulating response data from fitted model (`yrep`)
 
 and comparing with observed response (`y`)
 
-```{webr-r}
+```{r}
 check_predictions(m4)
 ```
 
@@ -959,7 +959,7 @@ check_predictions(m4)
 
 Expected height of 10-cm diameter tree in each site?
 
-```{webr-r}
+```{r}
 trees.10cm <- data.frame(site = as.factor(1:10),
                         dbh = 10)
 trees.10cm
@@ -970,7 +970,7 @@ trees.10cm
 
 Expected height of 10-cm DBH trees at each site
 
-```{webr-r}
+```{r}
 pred <- estimate_expectation(m4, data = trees.10cm)
 pred
 ```
@@ -979,7 +979,7 @@ pred
 
 Prediction intervals (accounting for residual variance)
 
-```{webr-r}
+```{r}
 pred <- estimate_prediction(m4, data = trees.10cm)
 pred
 ```
@@ -988,7 +988,7 @@ pred
 
 # Q: Does allometric relationship between Height and Diameter vary among sites?
 
-```{webr-r}
+```{r}
 df <- data.frame(dbh = seq(10, 50, by = 1), 
                  height = seq(20, 60, by = 1))
 
@@ -1002,7 +1002,7 @@ abline(a = 50, b = -0.3, col = "orangered")
 
 ### Model with interactions
 
-```{webr-r}
+```{r}
 m5 <- lm(height ~ site*dbh, data = trees)
 summary(m5)
 ```
@@ -1011,11 +1011,11 @@ summary(m5)
 
 ### Does slope vary among sites?
 
-```{webr-r}
+```{r}
 visreg(m5, xvar = "dbh", by = "site")
 ```
 
-```{webr-r}
+```{r}
 visreg(m5, xvar = "dbh", by = "site", overlay = TRUE, band = FALSE)
 ```
 
