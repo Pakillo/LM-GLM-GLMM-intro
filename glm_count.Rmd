@@ -1,5 +1,5 @@
 ---
-title: "GLM for count data: Poisson regression"
+title: "GLM for count data"
 author: "Francisco Rodríguez-Sánchez"
 institute: "https://frodriguezsanchez.net"
 aspectratio: 43  # use 169 for wide format
@@ -149,31 +149,6 @@ seedl.glm <- glm(count ~ light, data = seedl, family = poisson)
 summary(seedl.glm)
 ```
 
-\normalsize
-
-
-## Parameter estimates are in log scale! 
-
-Parameter estimates (log scale):
-```{r poisson_params, echo=T}
-coef(seedl.glm)[1]
-```
-
-\vspace{5mm}
-
-**We need to back-transform**: apply the inverse of the logarithm
-
-```{r echo=T}
-exp(coef(seedl.glm)[1])
-```
-
-
-## Using effects package
-
-```{r echo=2}
-library(effects)
-allEffects(seedl.glm)
-```
 
 
 ## Estimated distribution of the **slope** parameter
@@ -203,15 +178,41 @@ plot(simulate_parameters(seedl.glm)) +
 
 
 
-## So what's the relationship between Nseedlings and light?
 
-```{r poisson_effects, echo=2}
-#allEffects(seedl.glm)
-plot(allEffects(seedl.glm))
+## Parameter estimates are in log scale! 
+
+Parameter estimates (log scale):
+```{r poisson_params, echo=T}
+coef(seedl.glm)[1]
+```
+
+\vspace{5mm}
+
+**We need to back-transform**: apply the inverse of the logarithm
+
+```{r echo=T}
+exp(coef(seedl.glm)[1])
 ```
 
 
-## Using visreg
+## Using easystats
+
+\footnotesize
+
+```{r message = FALSE, echo=TRUE}
+library("easystats")
+parameters(seedl.glm)
+parameters(seedl.glm, exponentiate = TRUE)
+```
+
+## How Nseedlings decrease with light
+
+```{r}
+estimate_relation(seedl.glm)
+```
+
+
+## Visualising how Nseedlings decrease with light
 
 ```{r poisson_visreg, echo = 2:3}
 library(visreg)
@@ -220,14 +221,16 @@ points(count ~ light, data = seedl, pch = 20)
 ```
 
 ::: hide :::
+
 ## Using sjPlot
 
-```{r echo=4}
+```{r echo=4, eval=FALSE}
 library(sjPlot)
 library(ggplot2)
 theme_set(theme_minimal(base_size = 16))
 sjPlot::plot_model(seedl.glm, type = "eff", show.data = TRUE)
 ```
+
 :::
 
 
@@ -374,9 +377,9 @@ summary(seedl.overdisp)
 
 \footnotesize
 
-```{r poisson_overdisp2, echo=TRUE}
-allEffects(seedl.overdisp)
-allEffects(seedl.glm)
+```{r poisson_overdisp2, echo=TRUE, message = FALSE}
+parameters(seedl.overdisp)
+parameters(seedl.glm)
 ```
 
 
@@ -386,13 +389,13 @@ allEffects(seedl.glm)
 :::::::::::::: {.columns align=center}
 ::: {.column width="50%"}
 ```{r pois_overdisp_eff1, echo=FALSE}
-plot(allEffects(seedl.overdisp))
+visreg(seedl.overdisp, scale = "response")
 ```
 :::
 
 ::: {.column width="50%" }
 ```{r pois_overdisp_eff2, echo=FALSE}
-plot(allEffects(seedl.glm))
+visreg(seedl.glm, scale = "response")
 ```
 :::
 ::::::::::::::
@@ -474,6 +477,19 @@ new.lights <- data.frame(light = c(10, 90))
 predict(seedl.glm, newdata = new.lights, type = "response", se.fit = TRUE)
 ```
 
+
+## Prediction (easystats)
+
+\footnotesize
+
+```{r echo=TRUE}
+new.lights <- data.frame(light = c(10, 90))
+estimate_expectation(seedl.glm, data = new.lights)
+```
+
+```{r echo=TRUE}
+estimate_prediction(seedl.glm, data = new.lights)
+```
 
 
 

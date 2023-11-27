@@ -227,8 +227,8 @@ plot(factor(survived) ~ factor(class), data = titanic)
 
 \footnotesize
 
-```{r echo=2:3}
-library(ggmosaic)
+```{r echo=TRUE, out.width="80%"}
+library("ggmosaic")
 ggplot(titanic) +
   geom_mosaic(aes(x = product(survived, class))) +
   labs(x = "", y = "Survived")
@@ -566,16 +566,15 @@ simulateResiduals(tit.sex, plot = TRUE)
 
 ## Did women have higher survival because they travelled more in first class?
 
-```{r echo=FALSE}
+Sex is a confounder
+
+```{r echo=FALSE, out.width="70%"}
 library("dagitty")
 g1 <- dagitty("dag {
               Class -> Survival
               Sex -> Survival
+              Sex -> Class
               }")
-coordinates(g1) <- list(
-  x = c(Class = 1, Sex = 1, Survival = 2),
-  y = c(Class = 0, Sex = 2, Survival = 1)
-)
 plot(g1)
 ```
 
@@ -629,14 +628,16 @@ summary(tit.sex.class.int)
 
 ## Women had higher survival than men, even within the same class
 
-```{r tit_sex_class_effects, echo=FALSE}
+```{r tit_sex_class_effects, echo=TRUE}
 estimate_means(tit.sex.class.int)
 ```
 
 
 ## Women had higher survival than men, even within the same class
 
-```{r tit_sex_class_effects2, echo=FALSE}
+\footnotesize
+
+```{r tit_sex_class_effects2, echo=TRUE}
 visreg(tit.sex.class.int, by = "sex", xvar = "class", scale = "response", rug = FALSE)
 ```
 
