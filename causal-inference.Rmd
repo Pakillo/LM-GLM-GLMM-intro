@@ -1,0 +1,581 @@
+---
+title: "From causal salads to causal inference"
+# subtitle: "Nice subtitle here"
+author: "Francisco Rodríguez-Sánchez"
+institute: "https://frodriguezsanchez.net"
+# date: "today"
+aspectratio: 43  # use 169 for wide format
+fontsize: 12pt
+output: 
+  binb::metropolis:
+    keep_tex: no
+    incremental: yes
+    fig_caption: no
+    pandoc_args: ["--lua-filter=hideslide.lua"]
+urlcolor: blue
+linkcolor: blue
+header-includes:
+  - \definecolor{shadecolor}{RGB}{230,230,230}
+  # - \setbeamercolor{frametitle}{bg=black}
+  # - \logo{\includegraphics[height=2cm, width = 5cm]{logo.png}}  # add logo to all slides
+  # - \titlegraphic{\vspace{6cm}\hfill\includegraphics[width=6cm]{logo.png}}  # add logo to title slide
+---
+
+
+```{r knitr_setup, include=FALSE, cache=FALSE}
+
+library("knitr")
+
+### Chunk options ###
+
+## Text results
+opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, size = 'tiny')
+
+## Code decoration
+opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
+
+# ## Cache
+# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
+
+# ## Plots
+# opts_chunk$set(fig.path = "knitr_output/figures/")
+opts_chunk$set(fig.align = 'center', out.width = '90%')
+
+### Hooks ###
+## Crop plot margins
+# knit_hooks$set(crop = hook_pdfcrop)
+
+## Reduce font size
+## use tinycode = TRUE as chunk option to reduce code font size
+# see http://stackoverflow.com/a/39961605
+knit_hooks$set(tinycode = function(before, options, envir) {
+  if (before) return(paste0("\n \\", options$size, "\n\n"))
+  else return("\n\n \\normalsize \n")
+  })
+
+```
+
+```{r}
+library(ggplot2)
+theme_set(theme_light(base_size = 18))
+# library(arm)
+library(easystats)
+
+table_model <- function(model) {
+  require(gtsummary)
+  tbl_regression(model, intercept = TRUE, conf.int = FALSE) |> 
+  modify_column_unhide(column = std.error) |> 
+  modify_footnote(everything() ~ NA, abbreviation = TRUE) |> 
+  modify_table_styling(columns = everything(), rows = variable == "flower.size", text_format = "bold") |> 
+  modify_header(label = "*Variable*", estimate = "*Beta*", std.error = "*SE*", p.value = "*p.value*")
+}
+```
+
+
+```{r out.width="30%"}
+include_graphics("images/warning.png")
+```
+
+\Large \center Self-learned stuff ahead
+
+---
+
+\includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{images/sunflower.jpg}
+
+---
+
+
+```{r include=FALSE}
+set.seed(123)
+n <- 100
+plant.size <- rnorm(n, mean = 100, sd = 20)  # confounder
+flower.size <- rnorm(n, 0.1*plant.size, sd = 2)  # exposure
+
+bees <- round(rnorm(n, 0.5*flower.size, sd = 1)) ## mediator
+seeds <- round(rnorm(n, 1*flower.size + 10*bees + 1*plant.size, sd = 20))  # outcome
+
+beetles <- round(rnorm(n, 1*flower.size + 0.1*seeds, sd = 2))  ## collider
+
+sunflower <- data.frame(plant.size, flower.size, bees, beetles, seeds)
+
+summary(sunflower)
+pairs(sunflower)
+```
+
+
+
+## Larger flowers produce more seeds
+
+```{r}
+ggplot(sunflower) + 
+  geom_point(aes(flower.size, seeds))
+```
+
+
+## Larger flowers produce more seeds
+
+`lm(seeds ~ flower.size)`
+
+\vspace{6mm}
+
+```{r }
+m.flower <- lm(seeds ~ flower.size, data = sunflower)
+table_model(m.flower)
+```
+
+
+
+
+
+
+
+
+----
+
+\Huge
+
+Does flower size
+
+*really* **cause** 
+
+increased seed production?
+
+
+---
+
+\Large 
+
+Shall we select plants with large flowers 
+
+to increase seed production?
+
+
+---
+
+Shall we select plants with large flowers 
+
+to increase seed production?
+
+\Large 
+
+**We tried but didn't get the expected benefits**
+
+---
+
+Maybe large plants (e.g. growing on better soil)
+
+have large flowers AND produce more seeds?
+
+\includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{images/sunflower_large.jpg}
+
+
+---
+
+\LARGE
+
+Maybe plant size is a **CONFOUNDER**?
+
+```{r}
+library(ggdag)
+dagify(
+  seeds ~ plant.size,
+  seeds ~ flower.size,
+  flower.size ~ plant.size,
+  coords = data.frame(name = c("plant.size", "flower.size", "seeds"),
+                      x = c(1, 0, 2),
+                      y = c(1, 0, 0)
+  )
+) |> 
+  ggplot(aes_dag()) +
+  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  theme_dag_blank()
+```
+
+
+
+## Adjusting for plant size (confounding)
+
+`lm(seeds ~ flower.size + plant.size)`
+\vspace{6mm}
+
+```{r}
+m.flower.plant <- lm(seeds ~ flower.size + plant.size, data = sunflower)
+table_model(m.flower.plant)
+
+```
+
+
+## Including pollinators (bees)
+
+\includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{images/sunflower_bees.jpg}
+
+## Including pollinators (bees)
+
+`lm(seeds ~ flower.size + plant.size + bees)`
+\vspace{6mm}
+
+```{r}
+m.flower.plant.bees <- lm(seeds ~ flower.size + plant.size + bees, data = sunflower)
+table_model(m.flower.plant.bees)
+```
+
+---
+
+\LARGE
+
+Pollinators are a **MEDIATOR**
+
+```{r}
+dagify(
+  seeds ~ plant.size + flower.size + bees,
+  flower.size ~ plant.size,
+  bees ~ flower.size,
+  coords = data.frame(name = c("plant.size", "flower.size", "seeds", "bees"),
+                      x = c(1, 0, 2, 1),
+                      y = c(1, 0, 0, -1)
+  )
+) |> 
+  ggplot(aes_dag()) +
+  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  theme_dag_blank()
+```
+
+
+## Including beetles (pollen & seed predators)
+
+`lm(seeds ~ flower.size + plant.size + bees + beetles)`
+
+```{r}
+m.flower.plant.bees.beetles <- lm(seeds ~ flower.size + plant.size + bees + beetles, data = sunflower)
+table_model(m.flower.plant.bees.beetles)
+```
+
+\Large
+**Now flower.size has negative coefficient!!**
+
+---
+
+\LARGE 
+Beetles are a **COLLIDER**
+
+```{r}
+dagify(
+  seeds ~ plant.size + flower.size + bees,
+  flower.size ~ plant.size,
+  bees ~ flower.size,
+  beetles ~ flower.size + seeds,
+  coords = data.frame(name = c("plant.size", "flower.size", "seeds", "bees", "beetles"),
+                      x = c(1, 0, 2, 1, 1),
+                      y = c(1, 0, 0, -0.5, -1)
+  )
+) |> 
+  ggplot(aes_dag()) +
+  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  theme_dag_blank()
+```
+
+
+
+## What is the real causal effect of flower size?
+
+```{r}
+plot(
+  compare_parameters(m.flower, m.flower.plant, m.flower.plant.bees, 
+                     m.flower.plant.bees.beetles,
+                     keep = "flower.size", select = "se")
+  ) 
+```
+
+
+## What is the real causal effect of flower size?
+
+:::::::::::::: {.columns }
+
+::: {.column width="20%" align=top}
+\scriptsize
+```{r}
+table_model(m.flower.plant.bees.beetles)
+```
+:::
+
+::: {.column width="80%" align=bottom}
+```{r}
+dagg <- dagify(
+  seeds ~ plant.size + flower.size + bees,
+  flower.size ~ plant.size,
+  bees ~ flower.size,
+  beetles ~ flower.size + seeds,
+  coords = data.frame(name = c("plant.size", "flower.size", "seeds", "bees", "beetles"),
+                      x = c(1, 0, 2, 1, 1),
+                      y = c(1, 0, 0, -1, -2)
+  ),
+  exposure = "flower.size", 
+  outcome = "seeds"
+) 
+
+fulldag <- ggplot(dagg, aes_dag()) +
+  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  theme_dag_blank() +
+  annotate("text", x = 1, y = 0.2, label = "1", size = 8) +
+  annotate("text", x = 1.55, y = 0.6, label = "1", size = 8) +
+  annotate("text", x = 1.45, y = -0.4, label = "10", size = 8) +
+  annotate("text", x = 1.5, y = -1.3, label = "0.1", size = 8) +
+  annotate("text", x = 0.5, y = -1.3, label = "1", size = 8) +
+  annotate("text", x = 0.55, y = -0.4, label = "0.5", size = 8) +
+  annotate("text", x = 0.45, y = 0.6, label = "0.1", size = 8) 
+fulldag
+```
+:::
+
+::::::::::::::
+
+
+## What is the real causal effect of flower size?
+
+:::::::::::::: {.columns }
+
+::: {.column width="20%" align=top}
+\scriptsize
+```{r}
+table_model(m.flower.plant.bees)
+```
+:::
+
+::: {.column width="80%" align=bottom}
+```{r}
+fulldag
+```
+:::
+
+::::::::::::::
+
+
+## Tools to identify correct causal structure
+
+\scriptsize
+
+```{r echo=c(9:20), out.width="60%"}
+# ggdag_adjustment_set(dagg)
+# ggdag_paths(dagg)
+# ggdag_adjust(dagg, "beetles")
+# ggdag_dseparated(dagg, controlling_for = "beetles")
+# ggdag_collider(dagg)
+
+coords = data.frame(name = c("plant.size", "flower.size", "seeds", "bees", "beetles"),
+                      x = c(1, 0, 2, 1, 1),
+                      y = c(1, 0, 0, -1, -2))
+
+dagify(
+  seeds ~ plant.size + flower.size + bees,
+  flower.size ~ plant.size,
+  bees ~ flower.size,
+  beetles ~ flower.size + seeds,
+  coords = coords
+) |> 
+  ggdag_collider(size = 2) + theme_dag_blank()
+```
+
+
+## Causal salads
+
+*You put everything into a regression equation, toss with some creative story-telling, and hope the reviewers eat it*
+
+\scriptsize
+
+[R. McElreath](https://elevanth.org/blog/2021/06/15/regression-fire-and-dangerous-things-1-3/)
+
+
+```{r out.width="60%"}
+include_graphics("images/salad.jpg")
+```
+\tiny \hfill{Jerry Pank}
+
+
+## Causal salads
+
+*Throwing predictor variables into a statistical model*
+
+*hoping this will improve the analysis is a dreadful idea*
+
+\scriptsize
+[Jan Vanhove](https://janhove.github.io/posts/2021-06-29-posttreatment/)
+
+
+## Predictive criteria don't help to choose correct causal model
+
+Making good predictions doesn't require accurate causal model
+
+```{r}
+compare_performance(m.flower, m.flower.plant, m.flower.plant.bees, m.flower.plant.bees.beetles,
+                    metrics = c("AIC", "R2"), verbose = FALSE) |> 
+  select(-Model, -AIC_wt) |> 
+  kable(digits = 1, col.names = c("Model", "AIC", "R2"))
+```
+
+**"Best model" (based on AIC or R2) not good for causal inference**
+
+
+## Simpler (best) model provides biased causal estimates
+
+Simulate response depending on two correlated variables \tiny ([Hartig 2022](https://theoreticalecology.github.io/AdvancedRegressionModels/3C-ModelSelection.html#problems-with-model-selection-for-inference))
+
+\scriptsize
+
+```{r echo=-1}
+set.seed(123)
+x1 = runif(100)
+x2 = 0.8*x1 + 0.2*runif(100)
+y = x1 + x2 + rnorm(100)
+```
+
+```{r}
+fullmodel = lm(y ~ x1 + x2)
+summary(fullmodel)
+```
+
+## Simpler (best) model provides biased causal estimates
+
+\scriptsize
+
+```{r echo=1}
+simplemodel = MASS::stepAIC(fullmodel, trace = 0)
+summary(simplemodel)
+```
+
+
+## Automated model selection
+
+Running `MuMIn::dredge` with 10 random predictors
+
+\scriptsize
+```{r echo=-c(1,2,3)}
+library("MuMIn")
+set.seed(8)
+options(na.action = "na.fail")
+dat <- data.frame(x = matrix(runif(1000), ncol = 10), y = rnorm(100))
+full.model <- lm(y ~ ., data = dat)
+dd <- MuMIn::dredge(full.model)
+```
+
+\normalsize Best model:
+
+\scriptsize
+```{r}
+parameters(get.models(dd, 1)[[1]], verbose = FALSE, ci = NULL) |> 
+  select(-t, -df_error) |> 
+  kable(digits = 2)
+```
+
+
+## Extract from `dredge` help
+
+*“Let the computer find out” is a poor strategy and usually reflects the fact that the researcher did not bother to think clearly about the problem of interest and its scientific setting*
+
+\scriptsize \hfill Burnham and Anderson 2002
+
+
+## Variable importance in machine learning
+
+Random forest on 100 random predictors
+
+\scriptsize
+
+```{r echo=-c(1,2), out.width="80%"}
+library(randomForest)
+set.seed(2)
+
+dat <- data.frame(x = matrix(runif(50000), ncol = 100), y = runif(500))
+rfm <- randomForest::randomForest(y ~ ., data = dat)
+varImpPlot(rfm)
+```
+
+[Ben Bond-Lamberty](https://gist.github.com/bpbond/8bbb7aa0d0dc845e54b243ae42f1d0f3)
+
+
+## Simpson paradox 
+
+```{r out.width="60%"}
+library(dplyr)
+n = 50
+dat <- data.frame(site = rep(1:3, n)) |> 
+  group_by(site) |> 
+  mutate(flower.size = site * rnorm(n, 10, 2)) |> 
+  mutate(seeds = 300/site + 6*flower.size + rnorm(n, sd = 30)) |> 
+  mutate(site = as.factor(site))
+ggplot(dat) + 
+  aes(flower.size, seeds) +
+  geom_point() +
+  geom_smooth(method = "lm")
+table_model(lm(seeds ~ flower.size, data = dat))
+```
+
+
+## Simpson paradox 
+
+```{r out.width="60%"}
+ggplot(dat) + 
+  aes(flower.size, seeds, colour = site) +
+  geom_point() +
+  geom_smooth(method = "lm")
+
+
+mod <- lm(seeds ~ flower.size + site, data = dat)
+tbl_regression(mod, intercept = TRUE, conf.int = FALSE) |> 
+  modify_column_unhide(column = std.error) |> 
+  modify_footnote(everything() ~ NA, abbreviation = TRUE) |> 
+  modify_table_styling(columns = everything(), rows = variable == "flower.size", text_format = "bold") |> 
+  modify_header(label = "*Variable*", estimate = "*Beta*", std.error = "*SE*", p.value = "*p.value*")
+```
+
+
+## Simpson paradox 
+
+```{r}
+dagify(
+  seeds ~ site + flower.size,
+  flower.size ~ site,
+  coords = data.frame(name = c("site", "flower.size", "seeds"),
+                      x = c(1, 0, 2),
+                      y = c(1, 0, 0)
+  )
+) |> 
+  ggplot(aes_dag()) +
+  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  theme_dag_blank()
+```
+
+
+# Key messages
+
+## Causal interpretation requires external knowledge
+
+*No amount of data reliably turns salad into sense* 
+
+\scriptsize [R. McElreath](https://elevanth.org/blog/2021/06/15/regression-fire-and-dangerous-things-1-3/)
+
+. . . 
+
+\normalsize
+
+*To estimate causal effects accurately we require more information than can be gleaned from statistical tools alone*
+
+\scriptsize [D'Agostino et al](https://doi.org/10.1080/26939169.2023.2276446)
+
+
+## From causal salad to causal inference
+
+- Draw generative model (causal graph) beforehand
+
+- Avoid conditioning on post-treatment variables
+
+
+## To learn more
+
+[Suchinta Arif's papers](https://doi.org/10.1002/ece3.9947)
+
+[McElreath's workshop on causal inference](https://youtu.be/KNPYUVmY3NM?feature=shared)
+
+https://www.r-causal.org
+
+https://theeffectbook.net
+

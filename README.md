@@ -23,6 +23,7 @@ Introductory statistics are typically taught as a sequence of disconnected tests
 - [Mixed effects / Multilevel models](mixed_models.pdf)
 - [Generalised Additive Models (GAMs)](GAMs.pdf)
 - [An introduction to Bayesian modelling](Bayes_intro.pdf)
+- [Causal inference](causal-inference.pdf)
 
 
 ### Interactive tutorials, R scripts, etc
