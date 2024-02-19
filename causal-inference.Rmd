@@ -401,6 +401,8 @@ include_graphics("images/salad.jpg")
 [Jan Vanhove](https://janhove.github.io/posts/2021-06-29-posttreatment/)
 
 
+# Predictive criteria don't help for causal inference
+
 ## Predictive criteria don't help to choose correct causal model
 
 Making good predictions doesn't require accurate causal model
@@ -491,6 +493,8 @@ varImpPlot(rfm)
 
 [Ben Bond-Lamberty](https://gist.github.com/bpbond/8bbb7aa0d0dc845e54b243ae42f1d0f3)
 
+
+# Simpson's paradox as a causal problem
 
 ## Simpson paradox 
 
