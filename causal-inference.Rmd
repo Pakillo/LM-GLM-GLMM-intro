@@ -72,11 +72,11 @@ table_model <- function(model) {
 ```
 
 
-```{r out.width="30%"}
+```{r out.width="20%"}
 include_graphics("images/warning.png")
 ```
 
-\Large \center Self-learned stuff ahead
+\Large \center Self-learnt stuff ahead
 
 ---
 
@@ -275,6 +275,16 @@ dagify(
 ```
 
 
+## Colliders induce negative relation between treatment (flower.size) and outcome (seeds)
+
+```{r}
+ggplot(sunflower) +
+  aes(flower.size, seeds, colour = beetles, size = beetles) + 
+  geom_point() +
+  scale_color_distiller(palette = 4, direction = 1)
+  # viridis::scale_colour_viridis() 
+```
+
 
 ## What is the real causal effect of flower size?
 
@@ -348,6 +358,27 @@ fulldag
 :::
 
 ::::::::::::::
+
+
+## What is the real causal effect of flower size?
+
+:::::::::::::: {.columns }
+
+::: {.column width="20%" align=top}
+\scriptsize
+```{r}
+table_model(m.flower.plant)
+```
+:::
+
+::: {.column width="80%" align=bottom}
+```{r}
+fulldag
+```
+:::
+
+::::::::::::::
+
 
 
 ## Tools to identify correct causal structure
@@ -570,7 +601,13 @@ dagify(
 
 - Draw generative model (causal graph) beforehand
 
+- Control for confounders
+
 - Avoid conditioning on post-treatment variables
+
+- Beware of collider bias
+
+- Predictive criteria not fit for causal inference
 
 
 ## To learn more
@@ -582,4 +619,5 @@ dagify(
 https://www.r-causal.org
 
 https://theeffectbook.net
+
 
