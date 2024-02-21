@@ -1,0 +1,160 @@
+---
+title: "Regression to the mean"
+# subtitle: "Nice subtitle here"
+author: "Francisco Rodríguez-Sánchez"
+institute: "https://frodriguezsanchez.net"
+# date: "today"
+aspectratio: 43  # use 169 for wide format
+fontsize: 12pt
+output: 
+  binb::metropolis:
+    keep_tex: no
+    incremental: yes
+    fig_caption: no
+    pandoc_args: ["--lua-filter=hideslide.lua"]
+urlcolor: blue
+linkcolor: blue
+header-includes:
+  - \definecolor{shadecolor}{RGB}{230,230,230}
+  # - \setbeamercolor{frametitle}{bg=black}
+  # - \logo{\includegraphics[height=2cm, width = 5cm]{logo.png}}  # add logo to all slides
+  # - \titlegraphic{\vspace{6cm}\hfill\includegraphics[width=6cm]{logo.png}}  # add logo to title slide
+---
+
+
+```{r knitr_setup, include=FALSE, cache=FALSE}
+
+library("knitr")
+
+### Chunk options ###
+
+## Text results
+opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, size = 'tiny')
+
+## Code decoration
+opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
+
+# ## Cache
+# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
+
+# ## Plots
+# opts_chunk$set(fig.path = "knitr_output/figures/")
+opts_chunk$set(fig.align = 'center', out.width = '90%')
+
+### Hooks ###
+## Crop plot margins
+knit_hooks$set(crop = hook_pdfcrop)
+
+## Reduce font size
+## use tinycode = TRUE as chunk option to reduce code font size
+# see http://stackoverflow.com/a/39961605
+knit_hooks$set(tinycode = function(before, options, envir) {
+  if (before) return(paste0("\n \\", options$size, "\n\n"))
+  else return("\n\n \\normalsize \n")
+  })
+
+```
+
+
+## Most biodiverse sites are losing more species
+
+WHY??
+
+```{r}
+include_graphics("images/RTM-1.png")
+```
+
+\scriptsize
+\hfill Mazalla & Diekmann 2022
+
+
+## Most biodiverse sites are losing more species. Why?
+
+- Stronger competition
+
+- Humans destroying most species-rich sites
+
+- Establishment of new species favoured in poor sites
+
+. . . 
+
+- No ecological cause, but stochastic variation (**regression to the mean**)
+
+
+## A simulation for 100 sites
+
+:::::::::::::: {.columns align=center}
+
+::: {.column width="70%"}
+- Simulate initial number of species:
+  
+  - \scriptsize `rnorm(n = 100, mean = 15, sd = 1)`
+
+- Simulate number of species at resurvey:
+  
+  - \scriptsize `rnorm(n = 100, mean = 15, sd = 1)`
+  
+- **No change at all!**
+:::
+
+::: {.column width="30%" }
+```{r out.width="100%"}
+include_graphics("images/hist_spp.png")
+```
+
+:::
+::::::::::::::
+
+## Regression to the mean
+
+Species-rich sites lose more species
+
+Species-poor sites gain more species
+
+Negative trend against baseline
+
+```{r out.width="100%"}
+include_graphics("images/RTM-2.png")
+```
+
+\scriptsize
+\hfill Mazalla & Diekmann 2022
+
+
+---
+
+Whenever two sets of measurements are not perfectly correlated 
+
+there will be regression towards the mean
+
+```{r}
+set.seed(8)
+dat <- data.frame(site = 1:100, 
+                  sp1 = rnorm(100, 5, 1)) |> 
+  dplyr::mutate(sp2 = 2 + 0.5*sp1 + rnorm(100, 0, 0.3))
+
+library(ggplot2)
+ggplot(dat) +
+  aes(sp1, sp2) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1) +
+  geom_smooth(method = "lm") +
+  coord_cartesian(xlim = c(2, 8), ylim = c(2, 8)) +
+  theme_minimal(base_size = 18) +
+  labs(x = "Initial", y = "Resurvey", title = "Number of species")
+```
+
+
+## What to do?
+
+- Model outcome ~ baseline
+
+- Include baseline as predictor
+
+
+## To learn more
+
+- [Mazalla & Diekmann 2022](https://doi.org/10.1111/jvs.13117)
+
+- [Kelly & Price 2005](https://doi.org/10.1086/497402)
+
