@@ -340,6 +340,18 @@ fulldag
 ::::::::::::::
 
 
+
+## What is the real causal effect of flower size?
+
+```{r}
+fulldag
+```
+
+\Large AVOID **COLLIDERS!**
+
+
+
+
 ## What is the real causal effect of flower size?
 
 :::::::::::::: {.columns }
@@ -362,6 +374,15 @@ fulldag
 
 ## What is the real causal effect of flower size?
 
+```{r}
+fulldag
+```
+
+MEDIATORS split **total effect** into **direct** and **indirect** effects
+
+
+## What is the real causal effect of flower size?
+
 :::::::::::::: {.columns }
 
 ::: {.column width="20%" align=top}
@@ -379,6 +400,15 @@ fulldag
 
 ::::::::::::::
 
+
+
+## What is the real causal effect of flower size?
+
+```{r}
+fulldag
+```
+
+Include **CONFOUNDERS** to avoid bias (backdoor criterion)
 
 
 ## Tools to identify correct causal structure
@@ -407,6 +437,8 @@ dagify(
 ```
 
 
+# Causal salads
+
 ## Causal salads
 
 *You put everything into a regression equation, toss with some creative story-telling, and hope the reviewers eat it*
@@ -416,7 +448,7 @@ dagify(
 [R. McElreath](https://elevanth.org/blog/2021/06/15/regression-fire-and-dangerous-things-1-3/)
 
 
-```{r out.width="60%"}
+```{r out.width="40%"}
 include_graphics("images/salad.jpg")
 ```
 \tiny \hfill{Jerry Pank}
@@ -452,16 +484,22 @@ compare_performance(m.flower, m.flower.plant, m.flower.plant.bees, m.flower.plan
 
 Simulate response depending on two correlated variables \tiny ([Hartig 2022](https://theoreticalecology.github.io/AdvancedRegressionModels/3C-ModelSelection.html#problems-with-model-selection-for-inference))
 
-\scriptsize
-
-```{r echo=-1}
+\normalsize
+```{r echo=-c(1, 5)}
 set.seed(123)
 x1 = runif(100)
 x2 = 0.8*x1 + 0.2*runif(100)
 y = x1 + x2 + rnorm(100)
+kable(head(data.frame(y, x1, x2)), digits = 1)
 ```
 
-```{r}
+
+## Simpler (best) model provides biased causal estimates
+
+Simulate response depending on two correlated variables \tiny ([Hartig 2022](https://theoreticalecology.github.io/AdvancedRegressionModels/3C-ModelSelection.html#problems-with-model-selection-for-inference))
+
+\scriptsize
+```{r echo=1}
 fullmodel = lm(y ~ x1 + x2)
 summary(fullmodel)
 ```
@@ -476,23 +514,32 @@ summary(simplemodel)
 ```
 
 
+## Automated model selection (dredge)
+
+Simulating data with 10 random predictors
+
+\scriptsize
+```{r echo=3}
+library("MuMIn")
+set.seed(8)
+dat <- data.frame(y = rnorm(100), 
+                  x = matrix(runif(1000), ncol = 10))
+kable(head(dat), digits = 1)
+```
+
+
 ## Automated model selection
 
 Running `MuMIn::dredge` with 10 random predictors
 
-\scriptsize
-```{r echo=-c(1,2,3)}
-library("MuMIn")
-set.seed(8)
+```{r echo=c(2:3)}
 options(na.action = "na.fail")
-dat <- data.frame(x = matrix(runif(1000), ncol = 10), y = rnorm(100))
 full.model <- lm(y ~ ., data = dat)
 dd <- MuMIn::dredge(full.model)
 ```
 
-\normalsize Best model:
+**Best model:**
 
-\scriptsize
 ```{r}
 parameters(get.models(dd, 1)[[1]], verbose = FALSE, ci = NULL) |> 
   select(-t, -df_error) |> 
@@ -509,7 +556,7 @@ parameters(get.models(dd, 1)[[1]], verbose = FALSE, ci = NULL) |>
 
 ## Variable importance in machine learning
 
-Random forest on 100 random predictors
+Random forest on **100 random predictors**
 
 \scriptsize
 
@@ -527,7 +574,7 @@ varImpPlot(rfm)
 
 # Simpson's paradox as a causal problem
 
-## Simpson paradox 
+## Simpson's paradox 
 
 ```{r out.width="60%"}
 library(dplyr)
@@ -545,7 +592,7 @@ table_model(lm(seeds ~ flower.size, data = dat))
 ```
 
 
-## Simpson paradox 
+## Simpson's paradox 
 
 ```{r out.width="60%"}
 ggplot(dat) + 
@@ -563,7 +610,9 @@ tbl_regression(mod, intercept = TRUE, conf.int = FALSE) |>
 ```
 
 
-## Simpson paradox 
+## Simpson's paradox 
+
+Site is a confounder!
 
 ```{r}
 dagify(
@@ -580,34 +629,47 @@ dagify(
 ```
 
 
-# Key messages
+# From causal salads to causal inference
 
-## Causal interpretation requires external knowledge
+---
 
-*No amount of data reliably turns salad into sense* 
+\Large 
 
-\scriptsize [R. McElreath](https://elevanth.org/blog/2021/06/15/regression-fire-and-dangerous-things-1-3/)
+Causal interpretation requires
 
-. . . 
+**external knowledge**
+
+\vspace{1cm}
 
 \normalsize
-
 *To estimate causal effects accurately we require more information than can be gleaned from statistical tools alone*
 
 \scriptsize [D'Agostino et al](https://doi.org/10.1080/26939169.2023.2276446)
 
+. . . 
+
+\normalsize
+*No amount of data reliably turns salad into sense* 
+
+\scriptsize [R. McElreath](https://elevanth.org/blog/2021/06/15/regression-fire-and-dangerous-things-1-3/)
+
+
+
+
 
 ## From causal salad to causal inference
 
-- Draw generative model (causal graph) beforehand
+- Draw generative model (**causal graph**) beforehand
 
-- Control for confounders
+- Control for **confounders**
 
-- Avoid conditioning on post-treatment variables
+- Avoid conditioning on **post-treatment variables**
 
-- Beware of collider bias
+  - Treatment -> Covariate -> Outcome
 
-- Predictive criteria not fit for causal inference
+- Beware of **collider bias**
+
+- **Predictive criteria** not fit for causal inference
 
 
 ## To learn more
