@@ -659,7 +659,7 @@ Causal interpretation requires
 
 ## From causal salad to causal inference
 
-- Draw generative model (**causal graph**) beforehand
+- Draw the **causal graph** (DAG) beforehand
 
 - Control for **confounders**
 

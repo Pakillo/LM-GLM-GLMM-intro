@@ -56,7 +56,7 @@ knit_hooks$set(tinycode = function(before, options, envir) {
 ```
 
 
-## Most biodiverse sites are losing more species
+## The most biodiverse sites are losing more species
 
 WHY??
 
@@ -94,7 +94,9 @@ include_graphics("images/RTM-1.png")
   
   - \scriptsize `rnorm(n = 100, mean = 15, sd = 1)`
   
-- **No change at all!**
+- **No real change at all!**
+
+- (only stochastic variation)
 :::
 
 ::: {.column width="30%" }
@@ -149,7 +151,7 @@ ggplot(dat) +
 
 - Model outcome ~ baseline
 
-- Include baseline as predictor
+- If modelling Change, include baseline as predictor
 
 
 ## To learn more
