@@ -156,17 +156,39 @@ Shall we select plants with large flowers
 
 to increase seed production?
 
+\vspace{5mm}
+
 \Large 
 
 **We tried but didn't get the expected benefits**
 
 ---
 
-Maybe large plants (e.g. growing on better soil)
+Maybe **large plants** (e.g. growing on better soil)
 
-have large flowers AND produce more seeds?
+have **large flowers** AND produce **more seeds**?
 
 \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{images/sunflower_large.jpg}
+
+
+---
+
+Maybe **large plants** (e.g. growing on better soil)
+
+have **large flowers** AND produce **more seeds**?
+
+```{r out.width="70%"}
+g1 <- ggplot(sunflower) +
+  geom_point(aes(plant.size, flower.size))
+
+g2 <- ggplot(sunflower) +
+  geom_point(aes(plant.size, seeds))
+
+library(patchwork)
+
+g1 + g2
+```
+
 
 
 ---
@@ -190,7 +212,6 @@ dagify(
   geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
   theme_dag_blank()
 ```
-
 
 
 ## Adjusting for plant size (confounding)
@@ -241,6 +262,15 @@ dagify(
 ```
 
 
+---
+
+\LARGE
+
+Including beetles
+
+(pollen & seed predators)
+
+
 ## Including beetles (pollen & seed predators)
 
 `lm(seeds ~ flower.size + plant.size + bees + beetles)`
@@ -275,15 +305,33 @@ dagify(
 ```
 
 
-## Colliders induce negative relation between treatment (flower.size) and outcome (seeds)
+## Colliders induce non-causal negative relation between treatment (*flower.size*) and outcome (*seeds*)
 
 ```{r}
 ggplot(sunflower) +
   aes(flower.size, seeds, colour = beetles, size = beetles) + 
   geom_point() +
   scale_color_distiller(palette = 4, direction = 1)
+  
   # viridis::scale_colour_viridis() 
 ```
+
+
+## Colliders induce non-causal negative relation between treatment and outcome 
+
+```{r}
+include_graphics("images/colliderbias.png")
+```
+
+\scriptsize \hfill Griffith et al 2020
+
+
+---
+
+Recapitulating...
+
+\LARGE
+What is the real causal effect of flower size?
 
 
 ## What is the real causal effect of flower size?
@@ -343,11 +391,11 @@ fulldag
 
 ## What is the real causal effect of flower size?
 
-```{r}
+```{r out.width="80%"}
 fulldag
 ```
 
-\Large AVOID **COLLIDERS!**
+\Large Avoid **COLLIDERS** -> collider/selection bias
 
 
 
@@ -374,11 +422,13 @@ fulldag
 
 ## What is the real causal effect of flower size?
 
-```{r}
+```{r out.width="80%"}
 fulldag
 ```
 
-MEDIATORS split **total effect** into **direct** and **indirect** effects
+**MEDIATORS** split **total effect** into **direct** and **indirect** effects
+
+(overcontrol bias)
 
 
 ## What is the real causal effect of flower size?
@@ -404,11 +454,22 @@ fulldag
 
 ## What is the real causal effect of flower size?
 
-```{r}
+```{r out.width="80%"}
 fulldag
 ```
 
-Include **CONFOUNDERS** to avoid bias (backdoor criterion)
+Include **CONFOUNDERS** to avoid **'omitted variable bias'**
+
+(use **backdoor criterion**)
+
+
+## Tools to identify correct causal structure
+
+https://daggity.net
+
+```{r}
+include_graphics("images/daggity.png")
+```
 
 
 ## Tools to identify correct causal structure
@@ -485,12 +546,21 @@ compare_performance(m.flower, m.flower.plant, m.flower.plant.bees, m.flower.plan
 Simulate response depending on two correlated variables \tiny ([Hartig 2022](https://theoreticalecology.github.io/AdvancedRegressionModels/3C-ModelSelection.html#problems-with-model-selection-for-inference))
 
 \normalsize
-```{r echo=-c(1, 5)}
+```{r echo=2:4, out.width="70%"}
 set.seed(123)
 x1 = runif(100)
 x2 = 0.8*x1 + 0.2*runif(100)
 y = x1 + x2 + rnorm(100)
-kable(head(data.frame(y, x1, x2)), digits = 1)
+df <- data.frame(y, x1, x2)
+# kable(head(df), digits = 1)
+
+g1 <- ggplot(df) +
+  geom_point(aes(x1, y))
+
+g2 <- ggplot(df) +
+  geom_point(aes(x2, y))
+
+g1 + g2
 ```
 
 
@@ -678,8 +748,67 @@ Causal interpretation requires
 
 [McElreath's workshop on causal inference](https://youtu.be/KNPYUVmY3NM?feature=shared)
 
+[Byrnes & Dee 2024](https://doi.org/10.1101/2024.02.26.582072)
+
 https://www.r-causal.org
 
 https://theeffectbook.net
+
+
+# Extras
+
+# Collider bias
+
+## Number of children is significant negative predictor of marital satisfaction
+
+The more children, the more unhappy couples are
+
+\vspace{1cm}
+
+```{r}
+dagify(Happiness ~ Children,
+  coords = data.frame(name = c("Children", "Happiness"),
+                      x = c(1, 2),
+                      y = c(1, 1)
+  )
+) |>
+  ggplot(aes_dag()) +
+  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  theme_dag_blank()
+```
+
+
+
+
+
+## There is collider/selection bias
+
+Selection bias: data only include married couples (not divorced)
+
+And couples with children or happy are less likely to get divorced
+
+```{r out.width="70%"}
+dagify(
+  Happiness ~ Children,
+  Not.Divorced ~ Children,
+  Not.Divorced ~ Happiness,
+  coords = data.frame(name = c("Children", "Happiness", "Not.Divorced"),
+                      x = c(1, 2, 1.5),
+                      y = c(1, 1, 2)
+  )
+) |>
+  ggplot(aes_dag()) +
+  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  theme_dag_blank()
+```
+
+
+## Collider induces negative correlation between number of children and happiness
+
+```{r out.width="95%"}
+include_graphics("images/collider_divorce.png")
+```
+
+\scriptsize \hfill @ AnnaWysocki3
 
 
