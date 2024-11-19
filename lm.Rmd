@@ -270,11 +270,11 @@ ggplot(res) +
 
 \LARGE
 
-DF = n - p
+**DF = n - p**
 
-n = sample size
+**n** = sample size
 
-p = number of estimated parameters
+**p** = number of estimated parameters
 
 
 
@@ -285,7 +285,9 @@ p = number of estimated parameters
 
 Proportion of 'explained' variance
 
-$R^{2} = 1 - \frac{Residual Variation}{Total Variation}$
+\vspace{5mm}
+
+$R^{2} = 1 - \frac{Residual~Variation}{Total~Variation}$
 
 
 
@@ -398,6 +400,15 @@ report(m1)
 https://easystats.github.io/report/
 
 
+## Generating table with model results: `report_table`
+
+\scriptsize
+
+```{r echo=TRUE, comment=NA}
+report_table(m1, include_effectsize = FALSE)
+```
+
+
 
 ::: hide :::
 ## Generating table with model results: `xtable`
@@ -430,6 +441,8 @@ https://www.danieldsjoberg.com/gtsummary
 
 
 ## Generating table with model results: `modelsummary`
+
+\scriptsize
 
 ```{r results='asis'}
 library("modelsummary")
@@ -490,9 +503,9 @@ plot(estimate_expectation(m1))
 
 ## Plot model: `sjPlot`
 
-```{r out.width="70%", eval=FALSE}
+```{r out.width="70%"}
 library("sjPlot")
-plot_model(m1, type = "eff")
+plot_model(m1, type = "eff", terms = "dbh")
 ```
 
 https://strengejacke.github.io/sjPlot
@@ -789,6 +802,11 @@ estimate_prediction(m1, data = data.frame(dbh = 39))
 ```
 
 
+## Cross-validation
+
+```{r}
+performance_cv(m1, method = "k_fold", metrics = "common", k = 10)
+```
 
 
 ## Workflow
@@ -919,7 +937,19 @@ ggplot(coefs) +
 ```
 
 
+## S-values as alternative to p-values
 
+```{r}
+parameters(m2)[2,]
+```
+
+```{r}
+parameters(m2, s_value = TRUE)[2,]
+```
+
+p-value = 0.133 corresponds to *surprise* of obtaining c. 3 heads in a row when tossing a coin
+
+\scriptsize https://marginaleffects.com/bonus/svalues.html
 
 
 ## Analysing differences among factor levels
@@ -1648,7 +1678,7 @@ m5.explain <- DALEX::explain(
   m5, 
   data = trees, 
   y = trees$height)
-modelStudio(m5.explain)
+modelStudio(m5.explain, viewer = "browser")
 ```
 
 
