@@ -1,0 +1,56 @@
+---
+title: "Exercise: squirrels"
+author: "Francisco Rodríguez-Sánchez"
+engine: knitr
+format: html
+toc: true
+filters:
+  - webr
+webr: 
+  packages: ['COUNT', 'visreg', 'easystats', 'patchwork', 'emmeans']
+  autoload-packages: true
+  channel-type: "post-message"
+---
+
+## Load dataset
+
+```{webr-r}
+library(COUNT)
+data(nuts)
+head(nuts)
+```
+
+
+## Visualise data
+
+```{webr-r}
+plot()
+```
+
+
+## Fit model
+
+Analyse the influence of environmental factors on the number of cones consumed by squirrels
+
+```{webr-r}
+model <- glm()
+summary(model)
+```
+
+
+## Visualise model
+
+```{webr-r}
+library(visreg)
+visreg(model)
+```
+
+
+## Check model
+
+```{webr-r}
+library(easystats)
+check_model(model)
+```
+
+

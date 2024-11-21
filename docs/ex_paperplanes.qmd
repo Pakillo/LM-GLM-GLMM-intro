@@ -1,0 +1,57 @@
+---
+title: "Exercise: Paperplanes"
+author: "Francisco Rodríguez-Sánchez"
+engine: knitr
+format: html
+toc: true
+filters:
+  - webr
+webr: 
+  packages: ['paperplanes', 'visreg', 'easystats', 'patchwork', 'emmeans']
+  autoload-packages: true
+  channel-type: "post-message"
+---
+
+## Load dataset
+
+Data on distance recordings from a paper plane folding/flying experiment.
+
+```{webr-r}
+library(paperplanes)
+head(paperplanes)
+```
+
+
+## Visualise data
+
+```{webr-r}
+plot(distance ~ age, data = paperplanes)
+```
+
+
+## Fit model
+
+Fit a linear model to analyse how does flight distance differ with age, gender or paper type:
+
+```{webr-r}
+model <- lm()
+summary(model)
+```
+
+
+## Visualise model
+
+```{webr-r}
+library(visreg)
+visreg(model)
+```
+
+
+## Check model
+
+```{webr-r}
+library(easystats)
+check_model(model)
+```
+
+

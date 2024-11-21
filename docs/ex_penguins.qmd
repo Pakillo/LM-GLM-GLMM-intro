@@ -1,0 +1,55 @@
+---
+title: "Exercise: penguins"
+author: "Francisco Rodríguez-Sánchez"
+engine: knitr
+format: html
+toc: true
+filters:
+  - webr
+webr: 
+  packages: ['palmerpenguins', 'visreg', 'easystats', 'patchwork', 'emmeans']
+  autoload-packages: true
+  channel-type: "post-message"
+---
+
+## Load dataset
+
+```{webr-r}
+library(palmerpenguins)
+head(penguins)
+```
+
+
+## Visualise data
+
+```{webr-r}
+plot(body_mass_g ~ species, data = penguins)
+```
+
+
+## Fit model
+
+Fit a linear model to analyse e.g. body mass differences across sites, species, or sex. 
+
+```{webr-r}
+model <- lm()
+summary(model)
+```
+
+
+## Visualise model
+
+```{webr-r}
+library(visreg)
+visreg(model)
+```
+
+
+## Check model
+
+```{webr-r}
+library(easystats)
+check_model(model)
+```
+
+

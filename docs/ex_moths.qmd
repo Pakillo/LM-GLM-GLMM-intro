@@ -1,0 +1,57 @@
+---
+title: "Exercise: moths"
+author: "Francisco Rodríguez-Sánchez"
+engine: knitr
+format: html
+toc: true
+filters:
+  - webr
+webr: 
+  packages: ['visreg', 'easystats', 'patchwork', 'emmeans']
+  autoload-packages: true
+  channel-type: "post-message"
+---
+
+## Load dataset
+
+```{webr-r}
+download.file("https://raw.githubusercontent.com/Pakillo/LM-GLM-GLMM-intro/trees/data/moth.csv",
+              destfile = "moth.csv", mode = "wb")
+moths <- read.csv("moth.csv")
+head(moths)
+```
+
+
+## Visualise data
+
+```{webr-r}
+plot()
+```
+
+
+## Fit model
+
+How does moth survival depend on light/dark morph and distance to city centre (pollution gradient)?
+
+```{webr-r}
+model <- glm()
+summary(model)
+```
+
+
+## Visualise model
+
+```{webr-r}
+library(visreg)
+visreg(model)
+```
+
+
+## Check model
+
+```{webr-r}
+library(easystats)
+check_model(model)
+```
+
+

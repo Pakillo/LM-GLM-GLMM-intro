@@ -13,3 +13,19 @@ Links to interactive tutorials (made with Quarto and webR):
 - [Rendered document](lm.html)
 
 - [R code](lm.R)
+
+- [Exercise: paperplanes](ex_paperplanes.html)
+
+- [Exercise: penguins](ex_penguins.html)
+
+
+**GLM binomial**
+
+- [Exercise: bird nests](ex_nests.html)
+
+- [Exercise: moths](ex_moths.html)
+
+**GLM for counts**
+
+- [Exercise: squirrels](ex_squirrels.html)
+

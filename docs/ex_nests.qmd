@@ -1,0 +1,57 @@
+---
+title: "Exercise: bird nests"
+author: "Francisco Rodríguez-Sánchez"
+engine: knitr
+format: html
+toc: true
+filters:
+  - webr
+webr: 
+  packages: ['Stat2Data', 'visreg', 'easystats', 'patchwork', 'emmeans']
+  autoload-packages: true
+  channel-type: "post-message"
+---
+
+## Load dataset
+
+```{webr-r}
+library(Stat2Data)
+data(BirdNest)
+head(BirdNest)
+```
+
+
+## Visualise data
+
+```{webr-r}
+plot()
+```
+
+
+## Fit model
+
+Is egg colour (0=plain/solid, 1=speckled/spotted) related to nest type? 
+1=closed nest (pendant, spherical, cavity, crevice, burrow), 0=open nest (saucer, cup)
+
+```{webr-r}
+model <- glm()
+summary(model)
+```
+
+
+## Visualise model
+
+```{webr-r}
+library(visreg)
+visreg(model)
+```
+
+
+## Check model
+
+```{webr-r}
+library(easystats)
+check_model(model)
+```
+
+
