@@ -368,7 +368,7 @@ visreg(tit.glm, scale = "response", rug = FALSE)
 library(ggplot2)
 library(sjPlot)
 theme_set(theme_minimal(base_size = 16))
-sjPlot::plot_model(tit.glm, type = "eff")
+sjPlot::plot_model(tit.glm, type = "eff", terms = "class")
 ```
 
 
@@ -418,7 +418,7 @@ arm::binnedplot(predvals, titanic$survived - predvals)
 
 ## check_model (easystats)
 
-```{r echo=TRUE, eval=FALSE}
+```{r echo=TRUE}
 check_model(tit.glm)
 ```
 

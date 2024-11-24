@@ -996,9 +996,9 @@ plot(estimate_means(m2))
 
 ## Plot model (sjPlot)
 
-```{r out.width="60%", eval=FALSE}
+```{r out.width="60%"}
 library("sjPlot")
-plot_model(m2, type = "eff")
+plot_model(m2, type = "eff", terms = "sex")
 ```
 
 
@@ -1166,6 +1166,16 @@ parameters(m3)
 
 ## Presenting model results
 
+\footnotesize
+
+```{r}
+estimate_means(m3)
+```
+
+
+
+## Presenting model results
+
 \scriptsize
 
 ```{r }
@@ -1206,8 +1216,8 @@ plot(estimate_means(m3))
 
 ## Plot model (sjPlot)
 
-```{r out.width="70%", eval=FALSE}
-plot_model(m3, type = "eff")
+```{r out.width="70%"}
+plot_model(m3, type = "eff", terms = "site")
 ```
 
 
@@ -1342,15 +1352,11 @@ visreg(m4, xvar = "dbh", by = "site", overlay = TRUE, band = FALSE)
 ## Plot model (sjPlot)
 
 ```{r echo=TRUE, out.width='30%', eval=FALSE}
-plot_model(m4, type = "eff")
+plot_model(m4, type = "eff", terms = "site")
 
 ```
 
-## Plot model (sjPlot)
 
-```{r echo=TRUE, eval=FALSE}
-plot_model(m4, type = "est")
-```
 
 
 ## Plot model (easystats)
