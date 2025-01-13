@@ -1,7 +1,7 @@
 ---
-title: "GLM as a unified framework for data analysis"
-author: "Francisco Rodríguez-Sánchez"
-institute: "https://frodriguezsanchez.net"
+title: 'GLM as a unified framework for data analysis'
+author: 'Francisco Rodríguez-Sánchez'
+institute: 'https://frodriguezsanchez.net'
 aspectratio: 43  # use 169 for wide format
 fontsize: 12pt
 output: 
@@ -9,18 +9,18 @@ output:
     keep_tex: no
     incremental: yes
     fig_caption: no
-    pandoc_args: ["--lua-filter=hideslide.lua"]
+    pandoc_args: ['--lua-filter=hideslide.lua']
 urlcolor: blue
 linkcolor: blue
 header-includes:
   - \definecolor{shadecolor}{RGB}{230,230,230}
-  # - \setbeamercolor{frametitle}{bg=black}
+  - \setbeamercolor{frametitle}{bg=gray}
 ---
 
 
 ```{r knitr_setup, include=FALSE, cache=FALSE}
 
-library("knitr")
+library('knitr')
 
 ### Chunk options ###
 
@@ -31,10 +31,10 @@ opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, size = 'tiny')
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
 
 # ## Cache
-# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
+# opts_chunk$set(cache = TRUE, cache.path = 'knitr_output/cache/')
 
 # ## Plots
-# opts_chunk$set(fig.path = "knitr_output/figures/")
+# opts_chunk$set(fig.path = 'knitr_output/figures/')
 opts_chunk$set(fig.align = 'center', out.width = '90%')
 
 ### Hooks ###
@@ -45,8 +45,8 @@ knit_hooks$set(crop = hook_pdfcrop)
 ## use tinycode = TRUE as chunk option to reduce code font size
 # see http://stackoverflow.com/a/39961605
 knit_hooks$set(tinycode = function(before, options, envir) {
-  if (before) return(paste0("\n \\", options$size, "\n\n"))
-  else return("\n\n \\normalsize \n")
+  if (before) return(paste0('\n \\', options$size, '\n\n'))
+  else return('\n\n \\normalsize \n')
   })
 
 ```
@@ -55,8 +55,8 @@ knit_hooks$set(tinycode = function(before, options, envir) {
 
 ## How I was taught statistics
 
-```{r out.width="100%"}
-include_graphics("images/tests_diagram.png")
+```{r out.width='100%'}
+include_graphics('images/tests_diagram.png')
 ```
 
 
@@ -82,8 +82,8 @@ include_graphics("images/tests_diagram.png")
 
 ## A unified framework
 
-```{r out.width="100%"}
-include_graphics("images/flowchart.png")
+```{r out.width='100%'}
+include_graphics('images/flowchart.png')
 ```
 
 
@@ -95,8 +95,8 @@ include_graphics("images/flowchart.png")
 
 \Large $$y = a + bx$$
 
-```{r out.width="60%"}
-include_graphics("images/framework_xquant.png")
+```{r out.width='60%'}
+include_graphics('images/framework_xquant.png')
 ```
 
 
@@ -104,8 +104,8 @@ include_graphics("images/framework_xquant.png")
 
 \Large $$y = a + bx_2$$
 
-```{r out.width="30%"}
-include_graphics("images/framework_xqual.png")
+```{r out.width='30%'}
+include_graphics('images/framework_xqual.png')
 ```
 
 
@@ -113,8 +113,8 @@ include_graphics("images/framework_xqual.png")
 
 \Large $$y = a + bx_2 + cx_3$$
 
-```{r out.width="30%"}
-include_graphics("images/framework_xqual2.png")
+```{r out.width='30%'}
+include_graphics('images/framework_xqual2.png')
 ```
 
 
@@ -122,8 +122,8 @@ include_graphics("images/framework_xqual2.png")
 
 \Large $$y = f(a + bx)$$
 
-```{r out.width="30%"}
-include_graphics("images/framework_logit.png")
+```{r out.width='30%'}
+include_graphics('images/framework_logit.png')
 ```
 
 
@@ -136,8 +136,8 @@ include_graphics("images/framework_logit.png")
 
 \Large $$y = a + f(x)$$
 
-```{r out.width="30%"}
-include_graphics("images/framework_gam.png")
+```{r out.width='30%'}
+include_graphics('images/framework_gam.png')
 ```
 
 

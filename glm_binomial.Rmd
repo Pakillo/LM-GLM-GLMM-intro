@@ -1,8 +1,8 @@
 ---
-title: "Generalised Linear Models"
-subtitle: "Logistic regression"
-author: "Francisco Rodríguez-Sánchez"
-institute: "https://frodriguezsanchez.net"
+title: 'Generalised Linear Models'
+subtitle: 'Logistic regression'
+author: 'Francisco Rodríguez-Sánchez'
+institute: 'https://frodriguezsanchez.net'
 aspectratio: 43  # use 169 for wide format
 fontsize: 10pt
 output: 
@@ -10,19 +10,19 @@ output:
     keep_tex: no
     incremental: yes
     fig_caption: no
-    pandoc_args: ["--lua-filter=hideslide.lua"]
+    pandoc_args: ['--lua-filter=hideslide.lua']
 urlcolor: blue
 linkcolor: blue
 header-includes:
   - \definecolor{shadecolor}{RGB}{230,230,230}
-  # - \setbeamercolor{frametitle}{bg=black}
+  - \setbeamercolor{frametitle}{bg=gray}
 ---
 
 
 
 ```{r knitr_setup, include=FALSE, cache=FALSE}
 
-library("knitr")
+library('knitr')
 
 ### Chunk options ###
 
@@ -33,10 +33,10 @@ opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, size = 'tiny')
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
 
 # ## Cache
-# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
+# opts_chunk$set(cache = TRUE, cache.path = 'knitr_output/cache/')
 
 # ## Plots
-# opts_chunk$set(fig.path = "knitr_output/figures/")
+# opts_chunk$set(fig.path = 'knitr_output/figures/')
 opts_chunk$set(fig.align = 'center', out.width = '90%')
 
 ### Hooks ###
@@ -47,8 +47,8 @@ knit_hooks$set(crop = hook_pdfcrop)
 ## use tinycode = TRUE as chunk option to reduce code font size
 # see http://stackoverflow.com/a/39961605
 knit_hooks$set(tinycode = function(before, options, envir) {
-  if (before) return(paste0("\n \\", options$size, "\n\n"))
-  else return("\n\n \\normalsize \n")
+  if (before) return(paste0('\n \\', options$size, '\n\n'))
+  else return('\n\n \\normalsize \n')
   })
 
 ```
@@ -61,16 +61,16 @@ Read `titanic_long.csv` dataset and fit linear model (survival ~ class).
 \vspace{5mm}
 
 ```{r prepare_titanic_data, echo=FALSE, eval=FALSE}
-titanic <- read.table("http://www.amstat.org/publications/jse/datasets/titanic.dat.txt")
-names(titanic) <- c("class", "age", "sex", "survived")
-titanic$class <- factor(titanic$class, labels = c("crew", "first", "second", "third"))
-titanic$age <- factor(titanic$age, labels = c("child", "adult"))
-titanic$sex <- factor(titanic$sex, labels = c("female", "male"))
-write.csv(titanic, file = "data/titanic_long.csv", row.names=FALSE, quote=FALSE)
+titanic <- read.table('http://www.amstat.org/publications/jse/datasets/titanic.dat.txt')
+names(titanic) <- c('class', 'age', 'sex', 'survived')
+titanic$class <- factor(titanic$class, labels = c('crew', 'first', 'second', 'third'))
+titanic$age <- factor(titanic$age, labels = c('child', 'adult'))
+titanic$sex <- factor(titanic$sex, labels = c('female', 'male'))
+write.csv(titanic, file = 'data/titanic_long.csv', row.names=FALSE, quote=FALSE)
 ```
 
 ```{r read_titanic, echo=FALSE}
-titanic <- read.csv("data/titanic_long.csv")
+titanic <- read.csv('data/titanic_long.csv')
 head(titanic)
 ```
 
@@ -86,7 +86,7 @@ https://pollev.com/franciscorod726
 
 ```{r titanic_lm, echo=TRUE}
 m5 <- lm(survived ~ class, data = titanic)
-library("easystats")
+library('easystats')
 check_model(m5)
 ```
 
@@ -107,7 +107,7 @@ hist(resid(m5))
 
 - Counts (0, 1, 2, 3, ...)
 
-- Categories ("small", "medium", "large"...)
+- Categories ('small', 'medium', 'large'...)
 
 \vspace{5mm}
 
@@ -138,8 +138,8 @@ hist(resid(m5))
 
 ## The modelling process
 
-```{r out.width="40%"}
-include_graphics("images/modeling_process.png")
+```{r out.width='40%'}
+include_graphics('images/modeling_process.png')
 ```
 
 Bolker 2008
@@ -208,9 +208,9 @@ table(titanic$class, titanic$survived)
 \vspace{3mm}
 
 ```{r titanic_dplyr, echo=c(-1)}
-library("dplyr")
-titanic %>%
-  group_by(class, survived) %>%
+library('dplyr')
+titanic |>
+  group_by(class, survived) |>
   summarise(count = n())
 ```
 
@@ -219,7 +219,7 @@ titanic %>%
 
 ## Data visualisation (mosaic plot)
 
-```{r titanic_eda, echo=TRUE, out.width = "100%"}
+```{r titanic_eda, echo=TRUE, out.width = '100%'}
 plot(factor(survived) ~ factor(class), data = titanic)
 ```
 
@@ -227,11 +227,11 @@ plot(factor(survived) ~ factor(class), data = titanic)
 
 \footnotesize
 
-```{r echo=TRUE, out.width="80%"}
-library("ggmosaic")
+```{r echo=TRUE, out.width='80%'}
+library('ggmosaic')
 ggplot(titanic) +
   geom_mosaic(aes(x = product(survived, class))) +
-  labs(x = "", y = "Survived")
+  labs(x = '', y = 'Survived')
 ```
 
 
@@ -280,7 +280,7 @@ We need to **back-transform** (apply *inverse logit*):
 ## Interpreting logistic regression output (`effects` pkg)
 
 ```{r tit_glm_effects, echo=TRUE}
-library("effects")
+library('effects')
 allEffects(tit.glm)
 ```
 
@@ -300,7 +300,7 @@ summary(allEffects(tit.glm))
 ## Interpreting logistic regression output (`easystats`)
 
 ```{r echo=TRUE}
-library("easystats")   # 'modelbased' pkg
+library('easystats')   # 'modelbased' pkg
 estimate_means(tit.glm)
 ```
 
@@ -317,7 +317,7 @@ estimate_contrasts(tit.glm)
 ## Pseudo R-squared for GLMs
 
 ```{r echo=TRUE}
-library("easystats")   # 'performance' pkg
+library('easystats')   # 'performance' pkg
 r2(tit.glm)
 ```
 
@@ -341,8 +341,8 @@ kable(xtable::xtable(tit.glm), digits = 2)
 \footnotesize
 
 ```{r echo=TRUE}
-library("modelsummary")
-modelsummary(tit.glm, output = "markdown")
+library('modelsummary')
+modelsummary(tit.glm, output = 'markdown')
 ```
 
 
@@ -356,33 +356,33 @@ plot(allEffects(tit.glm))
 ## Visualising model: `visreg` package
 
 ```{r echo=2}
-library("visreg")
-visreg(tit.glm, scale = "response", rug = FALSE)
+library('visreg')
+visreg(tit.glm, scale = 'response', rug = FALSE)
 ```
 
 
 
 ## Visualising model: `sjPlot` package
 
-```{r echo=4, out.width="70%", eval=FALSE}
+```{r echo=4, out.width='70%', eval=FALSE}
 library(ggplot2)
 library(sjPlot)
 theme_set(theme_minimal(base_size = 16))
-sjPlot::plot_model(tit.glm, type = "eff", terms = "class")
+sjPlot::plot_model(tit.glm, type = 'eff', terms = 'class')
 ```
 
 
 ## Visualising model: `easystats` (`see` package)
 
 ```{r echo=2}
-library("easystats")
+library('easystats')
 plot(parameters(tit.glm), show_intercept = TRUE)
 ```
 
 
 ## Model without intercept
 
-```{r echo=TRUE, out.width="70%"}
+```{r echo=TRUE, out.width='70%'}
 no.intercept <- glm(survived ~ class - 1, family = binomial, data = titanic)
 plot(parameters(no.intercept))
 ```
@@ -392,7 +392,8 @@ plot(parameters(no.intercept))
 
 ## `plot(model)` not very useful with binomial GLM
 
-```{r tit_glm_check, echo=2, tinycode = TRUE}
+\scriptsize
+```{r tit_glm_check, echo=2}
 layout(matrix(1:4, nrow = 2))
 plot(tit.glm)
 dev.off()
@@ -403,14 +404,14 @@ dev.off()
 
 ## Binned residual plots for logistic regression
 
-```{r echo=TRUE, out.width="80%", eval=FALSE}
+```{r echo=TRUE, out.width='80%', eval=FALSE}
 plot(binned_residuals(tit.glm))
 ```
 
 
 
 ```{r binnedplot, eval=FALSE}
-predvals <- predict(tit.glm, type="response")
+predvals <- predict(tit.glm, type='response')
 arm::binnedplot(predvals, titanic$survived - predvals)
 ```
 
@@ -428,8 +429,8 @@ check_model(tit.glm)
 
 Simulate data from fitted model (**yrep**) and compare with observed data (**y**)
 
-```{r out.width="70%", echo = 2, tinycode = TRUE}
-library("easystats")
+```{r out.width='70%', echo = 2, tinycode = TRUE}
+library('easystats')
 check_predictions(tit.glm)
 ```
 
@@ -448,7 +449,7 @@ ppc_bars(titanic$survived, yrep = t(as.matrix(sims)))
 \footnotesize
 
 ```{r echo=TRUE}
-library("DHARMa")
+library('DHARMa')
 simulateResiduals(tit.glm, plot = TRUE)
 ```
 
@@ -461,10 +462,10 @@ Compares predicted vs observed probabilities (grouped by quantiles)
 
 \footnotesize
 
-```{r echo=TRUE, out.width="60%"}
-library("predtools")
-titanic$surv.pred <- predict(tit.glm, type = "response")
-calibration_plot(data = titanic, obs = "survived", pred = "surv.pred", 
+```{r echo=TRUE, out.width='60%'}
+library('predtools')
+titanic$surv.pred <- predict(tit.glm, type = 'response')
+calibration_plot(data = titanic, obs = 'survived', pred = 'surv.pred', 
                  x_lim = c(0,1), y_lim = c(0,1)) 
 ```
 
@@ -473,15 +474,17 @@ calibration_plot(data = titanic, obs = "survived", pred = "surv.pred",
 Passenger class was important, but lots of unexplained variation
 
 ```{r echo=FALSE}
-visreg(tit.glm, scale = "response")
+visreg(tit.glm, scale = 'response')
 ```
 
 
 ---
 
-The goal is not to test whether the model's assumptions are "true", because all models are false.
+The goal is not to test whether the model's assumptions are 'true', because all models are false.
 
 Rather, the goal is to assess exactly **how the model fails to describe the data**, as a path towards **model comprehension, revision, and improvement**.
+
+\vspace{1cm}
 
 Richard McElreath. _Statistical Rethinking_
 
@@ -525,7 +528,7 @@ https://pollev.com/franciscorod726
 
 ## First, visualise data
 
-```{r tit_sex_eda, out.width="100%"}
+```{r tit_sex_eda, out.width='100%'}
 plot(factor(survived) ~ as.factor(sex), data = titanic)
 ```
 
@@ -547,8 +550,8 @@ summary(tit.sex)
 estimate_means(tit.sex)
 ```
 
-```{r echo=FALSE, out.width="50%"}
-visreg(tit.sex, scale = "response", rug = FALSE)
+```{r echo=FALSE, out.width='50%'}
+visreg(tit.sex, scale = 'response', rug = FALSE)
 ```
 
 
@@ -568,13 +571,13 @@ simulateResiduals(tit.sex, plot = TRUE)
 
 Sex is a confounder
 
-```{r echo=FALSE, out.width="70%"}
-library("dagitty")
-g1 <- dagitty("dag {
+```{r echo=FALSE, out.width='70%'}
+library('dagitty')
+g1 <- dagitty('dag {
               Class -> Survival
               Sex -> Survival
               Sex -> Class
-              }")
+              }')
 plot(g1)
 ```
 
@@ -610,7 +613,7 @@ summary(tit.sex.class.add)
 
 ```{r echo=2}
 par(mfcol = c(1, 2))
-visreg(tit.sex.class.add, scale = "response", rug = FALSE)
+visreg(tit.sex.class.add, scale = 'response', rug = FALSE)
 dev.off()
 ```
 
@@ -638,7 +641,7 @@ estimate_means(tit.sex.class.int)
 \footnotesize
 
 ```{r tit_sex_class_effects2, echo=TRUE}
-visreg(tit.sex.class.int, by = "sex", xvar = "class", scale = "response", rug = FALSE)
+visreg(tit.sex.class.int, by = 'sex', xvar = 'class', scale = 'response', rug = FALSE)
 ```
 
 
@@ -646,9 +649,9 @@ visreg(tit.sex.class.int, by = "sex", xvar = "class", scale = "response", rug = 
 
 ## Visualising model (`sjPlot`)
 
-```{r echo=TRUE, out.width="80%"}
-library("sjPlot")
-plot_model(tit.sex.class.int, type = "int")
+```{r echo=TRUE, out.width='80%'}
+library('sjPlot')
+plot_model(tit.sex.class.int, type = 'int')
 ```
 
 
@@ -657,7 +660,7 @@ plot_model(tit.sex.class.int, type = "int")
 \scriptsize
 
 ```{r echo=T}
-library("easystats")   # 'performance' pkg
+library('easystats')   # 'performance' pkg
 compare_performance(tit.sex.class.add, tit.sex.class.int)
 ```
 
@@ -675,8 +678,8 @@ compare_parameters(tit.sex.class.add, tit.sex.class.int)
 
 ```{r echo=FALSE, eval = FALSE}
 ## Calibration plot
-titanic$surv.pred <- predict(tit.sex.class.int, type = "response")
-calibration_plot(data = titanic, obs = "survived", pred = "surv.pred", 
+titanic$surv.pred <- predict(tit.sex.class.int, type = 'response')
+calibration_plot(data = titanic, obs = 'survived', pred = 'surv.pred', 
                  x_lim = c(0,1), y_lim = c(0,1), nTiles = 10)
 ```
 
@@ -705,7 +708,7 @@ Read `titanic_prop.csv` data.
 \vspace{3mm}
 
 ```{r read_tit_short, echo = FALSE}
-tit.prop <- read.csv("data/titanic_prop.csv")
+tit.prop <- read.csv('data/titanic_prop.csv')
 head(tit.prop)
 ```
 
@@ -772,9 +775,9 @@ Read `UN_GDP_infantmortality.csv`.
 \vspace{3mm}
 
 ```{r read_gdp, echo = FALSE}
-#gdp <- read.csv("http://vincentarelbundock.github.io/Rdatasets/csv/car/UN.csv")
-gdp <- read.csv("data/UN_GDP_infantmortality.csv")
-names(gdp) <- c("country", "mortality", "gdp")
+#gdp <- read.csv('http://vincentarelbundock.github.io/Rdatasets/csv/car/UN.csv')
+gdp <- read.csv('data/UN_GDP_infantmortality.csv')
+names(gdp) <- c('country', 'mortality', 'gdp')
 summary(gdp)
 ```
 
@@ -787,7 +790,7 @@ https://pollev.com/franciscorod726
 ## Visualising data
 
 ```{r gdp_eda}
-plot(mortality ~ gdp, data = gdp, main = "Infant mortality (per 1000 births)")
+plot(mortality ~ gdp, data = gdp, main = 'Infant mortality (per 1000 births)')
 ```
 
 
@@ -824,7 +827,7 @@ plot(allEffects(gdp.glm))
 
 ```{r gdp_visreg, echo=c(2,3)}
 library(visreg)
-visreg(gdp.glm, scale = "response")
+visreg(gdp.glm, scale = 'response')
 points(mortality/1000 ~ gdp, data = gdp)
 ```
 
@@ -856,6 +859,13 @@ $$
 ```{r echo = TRUE}
 simres <- simulateResiduals(gdp.glm, refit = TRUE)
 testDispersion(simres, plot = FALSE)
+```
+
+
+## Testing for overdispersion (easystats)
+
+```{r echo = TRUE, message=FALSE}
+check_overdispersion(gdp.glm)
 ```
 
 
@@ -897,16 +907,16 @@ parameters(gdp.glm)
 
 :::::::::::::: {.columns align=center}
 
-::: {.column width="50%"}
-```{r overdisp_plot1, echo=FALSE, out.width="100%"}
-visreg(gdp.glm, scale = "response", main = "Binomial")
+::: {.column width='50%'}
+```{r overdisp_plot1, echo=FALSE, out.width='100%'}
+visreg(gdp.glm, scale = 'response', main = 'Binomial')
 points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
 :::
 
-::: {.column width="50%" }
-```{r overdisp_plot2, echo=FALSE, out.width="100%"}
-visreg(gdp.overdisp, scale = "response", main = "Quasibinomial")
+::: {.column width='50%' }
+```{r overdisp_plot2, echo=FALSE, out.width='100%'}
+visreg(gdp.overdisp, scale = 'response', main = 'Quasibinomial')
 points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
 :::
@@ -922,7 +932,7 @@ points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 Not everything has to be linear...
 
 ```{r}
-visreg(gdp.glm, ylab = "Mortality (logit scale)")
+visreg(gdp.glm, ylab = 'Mortality (logit scale)')
 ```
 
 
@@ -940,17 +950,17 @@ resid_panel(gdp.glm)
 gdp.na <- na.omit(gdp)
 gdp.na$fit <- fitted(gdp.glm)
 plot(gdp.na$fit, gdp.na$mortality, 
-     xlab = "Probability of mortality (predicted)",
-     ylab = "Mortality (observed)")
+     xlab = 'Probability of mortality (predicted)',
+     ylab = 'Mortality (observed)')
 ```
 
 
 ## Calibration plot shows non-linear pattern
 
 ```{r}
-gdp.na$mort.pred <- predict(gdp.glm, type = "response")
+gdp.na$mort.pred <- predict(gdp.glm, type = 'response')
 gdp.na$mort.prob <- gdp.na$mortality/1000
-calibration_plot(data = gdp.na, obs = "mort.prob", pred = "mort.pred", 
+calibration_plot(data = gdp.na, obs = 'mort.prob', pred = 'mort.pred', 
                  x_lim = c(0,0.1), y_lim = c(0,0.1), nTiles = 10)
 ```
 
@@ -959,17 +969,17 @@ calibration_plot(data = gdp.na, obs = "mort.prob", pred = "mort.pred",
 
 :::::::::::::: {.columns align=center}
 
-::: {.column width="50%"}
-```{r echo=FALSE, out.width="100%"}
-visreg(gdp.overdisp, main = "Mortality ~ GDP", ylab = "Mortality (logit scale)")
+::: {.column width='50%'}
+```{r echo=FALSE, out.width='100%'}
+visreg(gdp.overdisp, main = 'Mortality ~ GDP', ylab = 'Mortality (logit scale)')
 ```
 :::
 
-::: {.column width="50%" }
-```{r echo=FALSE, out.width="100%"}
+::: {.column width='50%' }
+```{r echo=FALSE, out.width='100%'}
 gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ gdp + I(gdp*gdp), 
                data = gdp, family = quasibinomial)
-visreg(gdp.overdisp2, main = "Mortality ~ GDP + GDP^2", ylab = "Mortality (logit scale)")
+visreg(gdp.overdisp2, main = 'Mortality ~ GDP + GDP^2', ylab = 'Mortality (logit scale)')
 ```
 :::
 ::::::::::::::
@@ -983,18 +993,18 @@ visreg(gdp.overdisp2, main = "Mortality ~ GDP + GDP^2", ylab = "Mortality (logit
 
 :::::::::::::: {.columns align=center}
 
-::: {.column width="50%"}
-```{r echo=FALSE, out.width="100%"}
-visreg(gdp.overdisp, main = "Mortality ~ GDP", scale = "response", ylab = "Mortality")
+::: {.column width='50%'}
+```{r echo=FALSE, out.width='100%'}
+visreg(gdp.overdisp, main = 'Mortality ~ GDP', scale = 'response', ylab = 'Mortality')
 points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
 :::
 
-::: {.column width="50%" }
-```{r echo=FALSE, out.width="100%"}
+::: {.column width='50%' }
+```{r echo=FALSE, out.width='100%'}
 gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ gdp + I(gdp*gdp), 
                data = gdp, family = quasibinomial)
-visreg(gdp.overdisp2, main = "Mortality ~ GDP + GDP^2", scale = "response", ylab = "Mortality")
+visreg(gdp.overdisp2, main = 'Mortality ~ GDP + GDP^2', scale = 'response', ylab = 'Mortality')
 points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
 :::
@@ -1008,17 +1018,17 @@ points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 
 :::::::::::::: {.columns align=center}
 
-::: {.column width="50%"}
-```{r echo=FALSE, out.width="100%"}
-visreg(gdp.overdisp, main = "Mortality ~ GDP", ylab = "Mortality (logit scale)")
+::: {.column width='50%'}
+```{r echo=FALSE, out.width='100%'}
+visreg(gdp.overdisp, main = 'Mortality ~ GDP', ylab = 'Mortality (logit scale)')
 ```
 :::
 
-::: {.column width="50%" }
-```{r echo=FALSE, out.width="100%"}
+::: {.column width='50%' }
+```{r echo=FALSE, out.width='100%'}
 gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ log(gdp), 
                data = gdp, family = quasibinomial)
-visreg(gdp.overdisp2, main = "Mortality ~ log(GDP)", ylab = "Mortality (logit scale)")
+visreg(gdp.overdisp2, main = 'Mortality ~ log(GDP)', ylab = 'Mortality (logit scale)')
 ```
 :::
 ::::::::::::::
@@ -1028,18 +1038,18 @@ visreg(gdp.overdisp2, main = "Mortality ~ log(GDP)", ylab = "Mortality (logit sc
 
 :::::::::::::: {.columns align=center}
 
-::: {.column width="50%"}
-```{r echo=FALSE, out.width="100%"}
-visreg(gdp.overdisp, main = "Mortality ~ GDP", scale = "response", ylab = "Mortality")
+::: {.column width='50%'}
+```{r echo=FALSE, out.width='100%'}
+visreg(gdp.overdisp, main = 'Mortality ~ GDP', scale = 'response', ylab = 'Mortality')
 points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
 :::
 
-::: {.column width="50%" }
-```{r echo=FALSE, out.width="100%"}
+::: {.column width='50%' }
+```{r echo=FALSE, out.width='100%'}
 gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ log(gdp), 
                data = gdp, family = quasibinomial)
-visreg(gdp.overdisp2, main = "Mortality ~ log(GDP)", scale = "response", ylab = "Mortality")
+visreg(gdp.overdisp2, main = 'Mortality ~ log(GDP)', scale = 'response', ylab = 'Mortality')
 points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ```
 :::
@@ -1053,14 +1063,14 @@ points(mortality/1000 ~ gdp, data = gdp, pch = 20)
 ## Trying Poisson
 m <- glm(mortality ~ log(gdp), data = gdp, family = quasipoisson)
 summary(m)
-visreg(m, scale = "response")
+visreg(m, scale = 'response')
 points(mortality ~ gdp, data = gdp)
 
 gdp.na <- na.omit(gdp)
 gdp.na$fit <- fitted(m)
 plot(gdp.na$fit, gdp.na$mortality, 
-     xlab = "Probability of mortality (predicted)",
-     ylab = "Mortality (observed)")
+     xlab = 'Probability of mortality (predicted)',
+     ylab = 'Mortality (observed)')
 ```
 
 
@@ -1079,14 +1089,14 @@ plot(gdp.na$fit, gdp.na$mortality,
 
 ## The industrial revolution and evolution of dark morphs 
 
-```{r out.width="90%"}
-include_graphics("images/moths.jpg")
+```{r out.width='90%'}
+include_graphics('images/moths.jpg')
 ```
 
 ## The data
 
 ```{r echo = 1}
-moth <- read.csv("data/moth.csv")
+moth <- read.csv('data/moth.csv')
 head(moth)
 ```
 
@@ -1156,14 +1166,14 @@ simulateResiduals(pred.int, plot = TRUE)
 ## Seed set among plants
 
 ```{r echo=FALSE}
-include_graphics("images/tomato.jpg")
+include_graphics('images/tomato.jpg')
 ```
 
 
 ## Seed set among plants
 
 ```{r}
-seed <- readr::read_csv("data/seedset.csv")
+seed <- readr::read_csv('data/seedset.csv')
 head(seed)
 seed$plant <- as.factor(seed$plant)
 ```
@@ -1219,7 +1229,7 @@ plot(allEffects(seedm))
 ## Data on penalty shots
 
 ```{r echo = TRUE}
-soccer <- read.csv("data/soccer.csv")
+soccer <- read.csv('data/soccer.csv')
 soccer
 ```
 
@@ -1232,6 +1242,6 @@ https://pollev.com/franciscorod726
 
 ```{r echo=FALSE}
 soccer.mod <- glm(cbind(Scored, Nshots - Scored) ~ GoalkeeperTeam, data = soccer, family = binomial)
-visreg(soccer.mod, scale = "response", 
-       ylab = "Probability of scoring")
+visreg(soccer.mod, scale = 'response', 
+       ylab = 'Probability of scoring')
 ```

@@ -1,9 +1,9 @@
 ---
-title: "From causal salads to causal inference"
-# subtitle: "Nice subtitle here"
-author: "Francisco Rodríguez-Sánchez"
-institute: "https://frodriguezsanchez.net"
-# date: "today"
+title: 'From causal salads to causal inference'
+# subtitle: 'Nice subtitle here'
+author: 'Francisco Rodríguez-Sánchez'
+institute: 'https://frodriguezsanchez.net'
+# date: 'today'
 aspectratio: 43  # use 169 for wide format
 fontsize: 12pt
 output: 
@@ -11,12 +11,12 @@ output:
     keep_tex: no
     incremental: yes
     fig_caption: no
-    pandoc_args: ["--lua-filter=hideslide.lua"]
+    pandoc_args: ['--lua-filter=hideslide.lua']
 urlcolor: blue
 linkcolor: blue
 header-includes:
   - \definecolor{shadecolor}{RGB}{230,230,230}
-  # - \setbeamercolor{frametitle}{bg=black}
+  - \setbeamercolor{frametitle}{bg=gray}
   # - \logo{\includegraphics[height=2cm, width = 5cm]{logo.png}}  # add logo to all slides
   # - \titlegraphic{\vspace{6cm}\hfill\includegraphics[width=6cm]{logo.png}}  # add logo to title slide
 ---
@@ -24,7 +24,7 @@ header-includes:
 
 ```{r knitr_setup, include=FALSE, cache=FALSE}
 
-library("knitr")
+library('knitr')
 
 ### Chunk options ###
 
@@ -35,10 +35,10 @@ opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, size = 'tiny')
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
 
 # ## Cache
-# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
+# opts_chunk$set(cache = TRUE, cache.path = 'knitr_output/cache/')
 
 # ## Plots
-# opts_chunk$set(fig.path = "knitr_output/figures/")
+# opts_chunk$set(fig.path = 'knitr_output/figures/')
 opts_chunk$set(fig.align = 'center', out.width = '90%')
 
 ### Hooks ###
@@ -49,8 +49,8 @@ opts_chunk$set(fig.align = 'center', out.width = '90%')
 ## use tinycode = TRUE as chunk option to reduce code font size
 # see http://stackoverflow.com/a/39961605
 knit_hooks$set(tinycode = function(before, options, envir) {
-  if (before) return(paste0("\n \\", options$size, "\n\n"))
-  else return("\n\n \\normalsize \n")
+  if (before) return(paste0('\n \\', options$size, '\n\n'))
+  else return('\n\n \\normalsize \n')
   })
 
 ```
@@ -66,14 +66,14 @@ table_model <- function(model) {
   tbl_regression(model, intercept = TRUE, conf.int = FALSE) |> 
   modify_column_unhide(column = std.error) |> 
   modify_footnote(everything() ~ NA, abbreviation = TRUE) |> 
-  modify_table_styling(columns = everything(), rows = variable == "flower.size", text_format = "bold") |> 
-  modify_header(label = "*Variable*", estimate = "*Beta*", std.error = "*SE*", p.value = "*p.value*")
+  modify_table_styling(columns = everything(), rows = variable == 'flower.size', text_format = 'bold') |> 
+  modify_header(label = '*Variable*', estimate = '*Beta*', std.error = '*SE*', p.value = '*p.value*')
 }
 ```
 
 
-```{r out.width="20%"}
-include_graphics("images/warning.png")
+```{r out.width='20%'}
+include_graphics('images/warning.png')
 ```
 
 \Large \center Self-learnt stuff ahead
@@ -108,7 +108,7 @@ pairs(sunflower)
 
 ```{r}
 ggplot(sunflower) + 
-  geom_point(aes(flower.size, seeds))
+  geom_point(aes(flower.size, seeds), size = 3)
 ```
 
 
@@ -177,7 +177,7 @@ Maybe **large plants** (e.g. growing on better soil)
 
 have **large flowers** AND produce **more seeds**?
 
-```{r out.width="70%"}
+```{r out.width='70%'}
 g1 <- ggplot(sunflower) +
   geom_point(aes(plant.size, flower.size))
 
@@ -203,13 +203,13 @@ dagify(
   seeds ~ plant.size,
   seeds ~ flower.size,
   flower.size ~ plant.size,
-  coords = data.frame(name = c("plant.size", "flower.size", "seeds"),
+  coords = data.frame(name = c('plant.size', 'flower.size', 'seeds'),
                       x = c(1, 0, 2),
                       y = c(1, 0, 0)
   )
 ) |> 
-  ggplot(aes_dag()) +
-  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  ggplot(ggdag::aes_dag()) +
+  geom_dag(use_nodes = FALSE, size = 2, text_col = 'black', text_size = 6) + 
   theme_dag_blank()
 ```
 
@@ -251,13 +251,13 @@ dagify(
   seeds ~ plant.size + flower.size + bees,
   flower.size ~ plant.size,
   bees ~ flower.size,
-  coords = data.frame(name = c("plant.size", "flower.size", "seeds", "bees"),
+  coords = data.frame(name = c('plant.size', 'flower.size', 'seeds', 'bees'),
                       x = c(1, 0, 2, 1),
                       y = c(1, 0, 0, -1)
   )
 ) |> 
   ggplot(aes_dag()) +
-  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  geom_dag(use_nodes = FALSE, size = 2, text_col = 'black', text_size = 6) + 
   theme_dag_blank()
 ```
 
@@ -294,13 +294,13 @@ dagify(
   flower.size ~ plant.size,
   bees ~ flower.size,
   beetles ~ flower.size + seeds,
-  coords = data.frame(name = c("plant.size", "flower.size", "seeds", "bees", "beetles"),
+  coords = data.frame(name = c('plant.size', 'flower.size', 'seeds', 'bees', 'beetles'),
                       x = c(1, 0, 2, 1, 1),
                       y = c(1, 0, 0, -0.5, -1)
   )
 ) |> 
   ggplot(aes_dag()) +
-  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  geom_dag(use_nodes = FALSE, size = 2, text_col = 'black', text_size = 6) + 
   theme_dag_blank()
 ```
 
@@ -320,7 +320,7 @@ ggplot(sunflower) +
 ## Colliders induce non-causal negative relation between treatment and outcome 
 
 ```{r}
-include_graphics("images/colliderbias.png")
+include_graphics('images/colliderbias.png')
 ```
 
 \scriptsize \hfill Griffith et al 2020
@@ -340,7 +340,7 @@ What is the real causal effect of flower size?
 plot(
   compare_parameters(m.flower, m.flower.plant, m.flower.plant.bees, 
                      m.flower.plant.bees.beetles,
-                     keep = "flower.size", select = "se")
+                     keep = 'flower.size', select = 'se')
   ) 
 ```
 
@@ -349,38 +349,39 @@ plot(
 
 :::::::::::::: {.columns }
 
-::: {.column width="20%" align=top}
-\scriptsize
-```{r}
+::: {.column width='20%' align=top}
+
+```{r }
+theme_gtsummary_compact(font_size = 12)
 table_model(m.flower.plant.bees.beetles)
 ```
 :::
 
-::: {.column width="80%" align=bottom}
+::: {.column width='80%' align=bottom}
 ```{r}
 dagg <- dagify(
   seeds ~ plant.size + flower.size + bees,
   flower.size ~ plant.size,
   bees ~ flower.size,
   beetles ~ flower.size + seeds,
-  coords = data.frame(name = c("plant.size", "flower.size", "seeds", "bees", "beetles"),
+  coords = data.frame(name = c('plant.size', 'flower.size', 'seeds', 'bees', 'beetles'),
                       x = c(1, 0, 2, 1, 1),
                       y = c(1, 0, 0, -1, -2)
   ),
-  exposure = "flower.size", 
-  outcome = "seeds"
+  exposure = 'flower.size', 
+  outcome = 'seeds'
 ) 
 
 fulldag <- ggplot(dagg, aes_dag()) +
-  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  geom_dag(use_nodes = FALSE, size = 2, text_col = 'black', text_size = 6) + 
   theme_dag_blank() +
-  annotate("text", x = 1, y = 0.2, label = "1", size = 8) +
-  annotate("text", x = 1.55, y = 0.6, label = "1", size = 8) +
-  annotate("text", x = 1.45, y = -0.4, label = "10", size = 8) +
-  annotate("text", x = 1.5, y = -1.3, label = "0.1", size = 8) +
-  annotate("text", x = 0.5, y = -1.3, label = "1", size = 8) +
-  annotate("text", x = 0.55, y = -0.4, label = "0.5", size = 8) +
-  annotate("text", x = 0.45, y = 0.6, label = "0.1", size = 8) 
+  annotate('text', x = 1, y = 0.2, label = '1', size = 8) +
+  annotate('text', x = 1.55, y = 0.6, label = '1', size = 8) +
+  annotate('text', x = 1.45, y = -0.4, label = '10', size = 8) +
+  annotate('text', x = 1.5, y = -1.3, label = '0.1', size = 8) +
+  annotate('text', x = 0.5, y = -1.3, label = '1', size = 8) +
+  annotate('text', x = 0.55, y = -0.4, label = '0.5', size = 8) +
+  annotate('text', x = 0.45, y = 0.6, label = '0.1', size = 8) 
 fulldag
 ```
 :::
@@ -391,7 +392,7 @@ fulldag
 
 ## What is the real causal effect of flower size?
 
-```{r out.width="80%"}
+```{r out.width='80%'}
 fulldag
 ```
 
@@ -404,14 +405,14 @@ fulldag
 
 :::::::::::::: {.columns }
 
-::: {.column width="20%" align=top}
-\scriptsize
-```{r}
+::: {.column width='20%' align=top}
+
+```{r tinycode=TRUE}
 table_model(m.flower.plant.bees)
 ```
 :::
 
-::: {.column width="80%" align=bottom}
+::: {.column width='80%' align=bottom}
 ```{r}
 fulldag
 ```
@@ -422,7 +423,7 @@ fulldag
 
 ## What is the real causal effect of flower size?
 
-```{r out.width="80%"}
+```{r out.width='80%'}
 fulldag
 ```
 
@@ -435,14 +436,14 @@ fulldag
 
 :::::::::::::: {.columns }
 
-::: {.column width="20%" align=top}
+::: {.column width='20%' align=top}
 \scriptsize
 ```{r}
 table_model(m.flower.plant)
 ```
 :::
 
-::: {.column width="80%" align=bottom}
+::: {.column width='80%' align=bottom}
 ```{r}
 fulldag
 ```
@@ -454,7 +455,7 @@ fulldag
 
 ## What is the real causal effect of flower size?
 
-```{r out.width="80%"}
+```{r out.width='80%'}
 fulldag
 ```
 
@@ -468,7 +469,7 @@ Include **CONFOUNDERS** to avoid **'omitted variable bias'**
 https://daggity.net
 
 ```{r}
-include_graphics("images/daggity.png")
+include_graphics('images/daggity.png')
 ```
 
 
@@ -476,14 +477,14 @@ include_graphics("images/daggity.png")
 
 \scriptsize
 
-```{r echo=c(9:20), out.width="60%"}
+```{r echo=c(9:20), out.width='60%'}
 # ggdag_adjustment_set(dagg)
 # ggdag_paths(dagg)
-# ggdag_adjust(dagg, "beetles")
-# ggdag_dseparated(dagg, controlling_for = "beetles")
+# ggdag_adjust(dagg, 'beetles')
+# ggdag_dseparated(dagg, controlling_for = 'beetles')
 # ggdag_collider(dagg)
 
-coords = data.frame(name = c("plant.size", "flower.size", "seeds", "bees", "beetles"),
+coords = data.frame(name = c('plant.size', 'flower.size', 'seeds', 'bees', 'beetles'),
                       x = c(1, 0, 2, 1, 1),
                       y = c(1, 0, 0, -1, -2))
 
@@ -498,6 +499,23 @@ dagify(
 ```
 
 
+## Tools to identify correct causal structure
+
+```{r tinycode=TRUE, echo=TRUE}
+library(easystats)
+dag <- check_dag(
+  seeds ~ flower.size + plant.size + bees,
+  flower.size ~ plant.size,
+  bees ~ flower.size,
+  beetles ~ flower.size + seeds,
+  outcome = "seeds",
+  exposure = "flower.size",
+  adjusted = c("plant.size", "bees", "beetles")
+  )
+dag
+```
+
+
 # Causal salads
 
 ## Causal salads
@@ -509,8 +527,8 @@ dagify(
 [R. McElreath](https://elevanth.org/blog/2021/06/15/regression-fire-and-dangerous-things-1-3/)
 
 
-```{r out.width="40%"}
-include_graphics("images/salad.jpg")
+```{r out.width='40%'}
+include_graphics('images/salad.jpg')
 ```
 \tiny \hfill{Jerry Pank}
 
@@ -533,12 +551,12 @@ Making good predictions doesn't require accurate causal model
 
 ```{r}
 compare_performance(m.flower, m.flower.plant, m.flower.plant.bees, m.flower.plant.bees.beetles,
-                    metrics = c("AIC", "R2"), verbose = FALSE) |> 
+                    metrics = c('AIC', 'R2'), verbose = FALSE) |> 
   select(-Model, -AIC_wt) |> 
-  kable(digits = 1, col.names = c("Model", "AIC", "R2"))
+  kable(digits = 1, col.names = c('Model', 'AIC', 'R2'))
 ```
 
-**"Best model" (based on AIC or R2) not good for causal inference**
+**'Best model' (based on AIC or R2) not good for causal inference**
 
 
 ## Simpler (best) model provides biased causal estimates
@@ -546,7 +564,7 @@ compare_performance(m.flower, m.flower.plant, m.flower.plant.bees, m.flower.plan
 Simulate response depending on two correlated variables \tiny ([Hartig 2022](https://theoreticalecology.github.io/AdvancedRegressionModels/3C-ModelSelection.html#problems-with-model-selection-for-inference))
 
 \normalsize
-```{r echo=2:4, out.width="70%"}
+```{r echo=2:4, out.width='70%'}
 set.seed(123)
 x1 = runif(100)
 x2 = 0.8*x1 + 0.2*runif(100)
@@ -590,7 +608,7 @@ Simulating data with 10 random predictors
 
 \scriptsize
 ```{r echo=3}
-library("MuMIn")
+library('MuMIn')
 set.seed(8)
 dat <- data.frame(y = rnorm(100), 
                   x = matrix(runif(1000), ncol = 10))
@@ -603,7 +621,7 @@ kable(head(dat), digits = 1)
 Running `MuMIn::dredge` with 10 random predictors
 
 ```{r echo=c(2:3)}
-options(na.action = "na.fail")
+options(na.action = 'na.fail')
 full.model <- lm(y ~ ., data = dat)
 dd <- MuMIn::dredge(full.model)
 ```
@@ -630,7 +648,7 @@ Random forest on **100 random predictors**
 
 \scriptsize
 
-```{r echo=-c(1,2), out.width="80%"}
+```{r echo=-c(1,2), out.width='80%'}
 library(randomForest)
 set.seed(2)
 
@@ -646,7 +664,7 @@ varImpPlot(rfm)
 
 ## Simpson's paradox 
 
-```{r out.width="60%"}
+```{r out.width='60%'}
 library(dplyr)
 n = 50
 dat <- data.frame(site = rep(1:3, n)) |> 
@@ -657,26 +675,26 @@ dat <- data.frame(site = rep(1:3, n)) |>
 ggplot(dat) + 
   aes(flower.size, seeds) +
   geom_point() +
-  geom_smooth(method = "lm")
+  geom_smooth(method = 'lm')
 table_model(lm(seeds ~ flower.size, data = dat))
 ```
 
 
 ## Simpson's paradox 
 
-```{r out.width="60%"}
+```{r out.width='60%'}
 ggplot(dat) + 
   aes(flower.size, seeds, colour = site) +
   geom_point() +
-  geom_smooth(method = "lm")
+  geom_smooth(method = 'lm')
 
 
 mod <- lm(seeds ~ flower.size + site, data = dat)
 tbl_regression(mod, intercept = TRUE, conf.int = FALSE) |> 
   modify_column_unhide(column = std.error) |> 
   modify_footnote(everything() ~ NA, abbreviation = TRUE) |> 
-  modify_table_styling(columns = everything(), rows = variable == "flower.size", text_format = "bold") |> 
-  modify_header(label = "*Variable*", estimate = "*Beta*", std.error = "*SE*", p.value = "*p.value*")
+  modify_table_styling(columns = everything(), rows = variable == 'flower.size', text_format = 'bold') |> 
+  modify_header(label = '*Variable*', estimate = '*Beta*', std.error = '*SE*', p.value = '*p.value*')
 ```
 
 
@@ -688,13 +706,13 @@ Site is a confounder!
 dagify(
   seeds ~ site + flower.size,
   flower.size ~ site,
-  coords = data.frame(name = c("site", "flower.size", "seeds"),
+  coords = data.frame(name = c('site', 'flower.size', 'seeds'),
                       x = c(1, 0, 2),
                       y = c(1, 0, 0)
   )
 ) |> 
   ggplot(aes_dag()) +
-  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  geom_dag(use_nodes = FALSE, size = 2, text_col = 'black', text_size = 6) + 
   theme_dag_blank()
 ```
 
@@ -767,13 +785,13 @@ The more children, the more unhappy couples are
 
 ```{r}
 dagify(Happiness ~ Children,
-  coords = data.frame(name = c("Children", "Happiness"),
+  coords = data.frame(name = c('Children', 'Happiness'),
                       x = c(1, 2),
                       y = c(1, 1)
   )
 ) |>
   ggplot(aes_dag()) +
-  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  geom_dag(use_nodes = FALSE, size = 2, text_col = 'black', text_size = 6) + 
   theme_dag_blank()
 ```
 
@@ -787,26 +805,26 @@ Selection bias: data only include married couples (not divorced)
 
 And couples with children or happy are less likely to get divorced
 
-```{r out.width="70%"}
+```{r out.width='70%'}
 dagify(
   Happiness ~ Children,
   Not.Divorced ~ Children,
   Not.Divorced ~ Happiness,
-  coords = data.frame(name = c("Children", "Happiness", "Not.Divorced"),
+  coords = data.frame(name = c('Children', 'Happiness', 'Not.Divorced'),
                       x = c(1, 2, 1.5),
                       y = c(1, 1, 2)
   )
 ) |>
   ggplot(aes_dag()) +
-  geom_dag(use_nodes = FALSE, size = 2, text_col = "black", text_size = 6) + 
+  geom_dag(use_nodes = FALSE, size = 2, text_col = 'black', text_size = 6) + 
   theme_dag_blank()
 ```
 
 
 ## Collider induces negative correlation between number of children and happiness
 
-```{r out.width="95%"}
-include_graphics("images/collider_divorce.png")
+```{r out.width='95%'}
+include_graphics('images/collider_divorce.png')
 ```
 
 \scriptsize \hfill @ AnnaWysocki3

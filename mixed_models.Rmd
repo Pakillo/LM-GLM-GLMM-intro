@@ -1,7 +1,7 @@
 ---
-title: "Mixed / Multilevel Models"
-author: "Francisco Rodríguez-Sánchez"
-institute: "https://frodriguezsanchez.net"
+title: 'Mixed / Multilevel Models'
+author: 'Francisco Rodríguez-Sánchez'
+institute: 'https://frodriguezsanchez.net'
 aspectratio: 43  # use 169 for wide format
 fontsize: 10pt
 output: 
@@ -9,18 +9,18 @@ output:
     keep_tex: no
     incremental: yes
     fig_caption: no
-    pandoc_args: ["--lua-filter=hideslide.lua"]
+    pandoc_args: ['--lua-filter=hideslide.lua']
 urlcolor: blue
 linkcolor: blue
 header-includes:
   - \definecolor{shadecolor}{RGB}{230,230,230}
-  # - \setbeamercolor{frametitle}{bg=black}
+  - \setbeamercolor{frametitle}{bg=gray}
 ---
 
 
 ```{r knitr_setup, include=FALSE, cache=FALSE}
 
-library("knitr")
+library('knitr')
 
 ### Chunk options ###
 
@@ -31,10 +31,10 @@ opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, size = 'tiny')
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
 
 # ## Cache
-# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
+# opts_chunk$set(cache = TRUE, cache.path = 'knitr_output/cache/')
 
 # ## Plots
-# opts_chunk$set(fig.path = "knitr_output/figures/")
+# opts_chunk$set(fig.path = 'knitr_output/figures/')
 opts_chunk$set(fig.align = 'center', out.width = '90%')
 
 ### Hooks ###
@@ -45,8 +45,8 @@ knit_hooks$set(crop = hook_pdfcrop)
 ## use tinycode = TRUE as chunk option to reduce code font size
 # see http://stackoverflow.com/a/39961605
 knit_hooks$set(tinycode = function(before, options, envir) {
-  if (before) return(paste0("\n \\", options$size, "\n\n"))
-  else return("\n\n \\normalsize \n")
+  if (before) return(paste0('\n \\', options$size, '\n\n'))
+  else return('\n\n \\normalsize \n')
   })
 
 ```
@@ -61,7 +61,7 @@ knit_hooks$set(tinycode = function(before, options, envir) {
 - Trees per site: 4 - 392.
 
 ```{r echo = 2}
-trees <- read.csv("data/trees.csv")
+trees <- read.csv('data/trees.csv')
 head(trees)
 trees$site <- as.factor(trees$site)
 ```
@@ -109,8 +109,8 @@ library(ggplot2)
 ggplot(trees) +
   aes(dbh, height) +
   geom_point() +
-  geom_smooth(method = "lm", linewidth = 3) +
-  labs(x = "DBH (cm)", y = "Height (m)", title = "Single intercept") +
+  geom_smooth(method = 'lm', linewidth = 3) +
+  labs(x = 'DBH (cm)', y = 'Height (m)', title = 'Single intercept') +
   theme_minimal(base_size = 16)
 ```
 
@@ -121,11 +121,11 @@ ggplot(trees) +
 ggplot(subset(trees, site == 1 | site == 2)) +
   aes(dbh, height, colour = site) +
   geom_point() +
-  geom_smooth(method = "lm", linewidth = 3) +
-  labs(x = "DBH (cm)", y = "Height (m)", 
-       title = "Different intercept for each site") +
+  geom_smooth(method = 'lm', linewidth = 3) +
+  labs(x = 'DBH (cm)', y = 'Height (m)', 
+       title = 'Different intercept for each site') +
   theme_minimal(base_size = 16) +
-  theme(legend.position = "none")
+  theme(legend.position = 'none')
 ```
 
 
@@ -147,7 +147,7 @@ summary(lm.interc)
 
 :::::::::::::: {.columns align=center}
 
-::: {.column width="50%"}
+::: {.column width='50%'}
 
 Single intercept
 
@@ -158,12 +158,12 @@ visreg(lm.simple)
 
 :::
 
-::: {.column width="50%" }
+::: {.column width='50%' }
 
 Different intercept for each site
 
 ```{r varying_interc, echo=FALSE}
-visreg(lm.interc, xvar = "dbh", by = "site", overlay = TRUE, band = FALSE)
+visreg(lm.interc, xvar = 'dbh', by = 'site', overlay = TRUE, band = FALSE)
 ```
 
 :::
@@ -268,7 +268,7 @@ Especially for groups with low sample size
 \tiny
 
 ```{r mixed, echo=1:2}
-library("glmmTMB")
+library('glmmTMB')
 mixed <- glmmTMB(height ~ dbh + (1|site), data = trees)
 summary(mixed)
 ```
@@ -280,7 +280,7 @@ summary(mixed)
 \tiny
 
 ```{r mixed_lmer, echo=1:2}
-library("lme4")
+library('lme4')
 mixed <- lmer(height ~ dbh + (1|site), data = trees)
 summary(mixed)
 ```
@@ -335,7 +335,7 @@ See also [broom.mixed](https://github.com/bbolker/broom.mixed)
 
 ```{r mixed_vis3, echo=2}
 library(visreg)
-visreg(mixed, xvar = "dbh", by = "site") 
+visreg(mixed, xvar = 'dbh', by = 'site') 
 ```
 
 
@@ -343,14 +343,14 @@ visreg(mixed, xvar = "dbh", by = "site")
 
 ```{r echo=2}
 mixed <- glmmTMB(height ~ dbh + (1|site), data = trees)
-visreg(mixed, xvar = "dbh", by = "site", overlay = TRUE)
+visreg(mixed, xvar = 'dbh', by = 'site', overlay = TRUE)
 ```
 
 
 ## Visualising model
 
 ```{r echo=1}
-visreg(mixed, xvar = "dbh", by = "site", overlay = TRUE, band = FALSE)
+visreg(mixed, xvar = 'dbh', by = 'site', overlay = TRUE, band = FALSE)
 mixed <- lmer(height ~ dbh + (1|site), data = trees)
 ```
 
@@ -360,12 +360,12 @@ mixed <- lmer(height ~ dbh + (1|site), data = trees)
 ```{r echo=FALSE}
 library(sjPlot)
 theme_set(theme_minimal(base_size = 16))
-#sjp.lmer(mixed, type = "ri.slope")
-#plot_model(mixed, type = "eff")
+#sjp.lmer(mixed, type = 'ri.slope')
+#plot_model(mixed, type = 'eff')
 ```
 
 ```{r}
-sjPlot::plot_model(mixed, type = "re")
+sjPlot::plot_model(mixed, type = 're')
 ```
 
 
@@ -374,7 +374,7 @@ sjPlot::plot_model(mixed, type = "re")
 ## Using merTools to understand fitted model
 
 ```{r eval=FALSE}
-library("merTools")
+library('merTools')
 shinyMer(mixed)
 ```
 
@@ -393,7 +393,7 @@ plot(mixed)
 \footnotesize
 
 ```{r echo=TRUE}
-library("performance")
+library('performance')
 check_model(mixed)
 ```
 
@@ -483,7 +483,7 @@ $$
 ## Are height differences among sites related to temperature?
 
 ```{r read_sitedata, echo=TRUE, message=FALSE}
-sitedata <- read.csv("data/sitedata.csv")
+sitedata <- read.csv('data/sitedata.csv')
 sitedata
 ```
 
@@ -491,7 +491,7 @@ sitedata
 ## Merging trees and site data
 
 ```{r echo=TRUE, message=FALSE}
-trees.full <- merge(trees, sitedata, by = "site")
+trees.full <- merge(trees, sitedata, by = 'site')
 head(trees.full)
 ```
 
@@ -544,8 +544,8 @@ shinyMer(group.pred)
 ```{r echo=FALSE}
 plot(coef(mixed)$site[,1], coef(group.pred)$site[,1],
      xlim = c(10, 25), ylim = c(10, 25), 
-     xlab = "Without group predictor", ylab = "With group predictor",
-     main = "Estimated site effects", las = 1)
+     xlab = 'Without group predictor', ylab = 'With group predictor',
+     main = 'Estimated site effects', las = 1)
 abline(a = 0, b = 1)
 ```
 
@@ -554,7 +554,7 @@ abline(a = 0, b = 1)
 
 ```{r echo=FALSE}
 plot(sitedata$temp, coef(group.pred)$site[,1],
-     xlab = "Temperature", ylab = "site effect")
+     xlab = 'Temperature', ylab = 'site effect')
 ```
 
 
@@ -575,8 +575,8 @@ ggplot(df) +
   aes(dbh, height) +
   geom_blank() +
   geom_abline(intercept = 25, slope = 0.6) +
-  geom_abline(intercept = 40, slope = 0.1, colour = "steelblue") +
-  geom_abline(intercept = 50, slope = -0.3, colour = "orangered")
+  geom_abline(intercept = 40, slope = 0.1, colour = 'steelblue') +
+  geom_abline(intercept = 50, slope = -0.3, colour = 'orangered')
   
 ```
 
@@ -607,7 +607,7 @@ coef(mixed.slopes)
 ## Visualising model: `sjPlot`
 
 ```{r}
-plot_model(mixed.slopes, type = "re")
+plot_model(mixed.slopes, type = 're')
 ```
 
 
@@ -616,7 +616,7 @@ plot_model(mixed.slopes, type = "re")
 ## sleepstudy (repeated measures)
 
 ```{r echo=FALSE}
-data("sleepstudy")
+data('sleepstudy')
 library(ggplot2)
 ggplot(sleepstudy) +
   aes(x = Days, y = Reaction) +
@@ -637,7 +637,7 @@ summary(sleep)
 ## Varying intercepts and slopes (lme4)
 
 ```{r eval=TRUE}
-visreg(sleep, xvar = "Days", by = "Subject")
+visreg(sleep, xvar = 'Days', by = 'Subject')
 ```
 
 
@@ -647,8 +647,8 @@ visreg(sleep, xvar = "Days", by = "Subject")
 
 ```{r echo = 2}
 library(mgcv)
-sgamm <- mgcv::gam(Reaction ~ s(Days, Subject, k = 3, bs = "fs"), 
-                   data = sleepstudy, method = "REML")
+sgamm <- mgcv::gam(Reaction ~ s(Days, Subject, k = 3, bs = 'fs'), 
+                   data = sleepstudy, method = 'REML')
 summary(sgamm)
 #gam.check(sleep.gamm)
 #coef(p)
@@ -659,14 +659,14 @@ summary(sgamm)
 ## Fitting multilevel models (GAMM) with `mgcv`
 
 ```{r}
-visreg(sgamm, xvar = "Days", by = "Subject")
+visreg(sgamm, xvar = 'Days', by = 'Subject')
 ```
 
 
 ## Fitting multilevel models (GAMM) with `mgcv`
 
 ```{r echo=FALSE}
-include_graphics("images/gamm_paper.PNG")
+include_graphics('images/gamm_paper.PNG')
 ```
 
 https://doi.org/10.7287/peerj.preprints.27320v1
@@ -731,14 +731,14 @@ coef(mixed.logis)
 ## Visualising model: `visreg`
 
 ```{r echo = TRUE}
-visreg(mixed.logis, xvar = "dbh", by = "site", scale = "response")
+visreg(mixed.logis, xvar = 'dbh', by = 'site', scale = 'response')
 ```
 
 
 ## Visualising model: `sjPlot`
 
-```{r out.width="70%"}
-# plot_model(mixed.logis, type = "eff", show.ci = TRUE)
+```{r out.width='70%'}
+# plot_model(mixed.logis, type = 'eff', show.ci = TRUE)
 ```
 
 
@@ -783,11 +783,26 @@ visreg(mixed.logis, xvar = "dbh", by = "site", scale = "response")
     - `y ~ x + (1 + x | group1) + (1 + x | group2)`
 
 
-## GLMM FAQ
+## To read more about GLMM
 
 https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
 
 http://mfviz.com/hierarchical-models/
+
+https://www.jstor.org/stable/23736938
+
+https://m-clark.github.io/mixed-models-with-R/
+
+https://www.middleprofessor.com/files/applied-biostatistics_bookdown/_book/lmm
+
+https://bookdown.org/roback/bookdown-BeyondMLR/
+
+https://www.learn-mlms.com/
+
+https://doi.org/10.7717/peerj.4794
+
+https://doi.org/10.7717/peerj.9522
+
 
 
 ## Exercises
@@ -801,8 +816,8 @@ counts <- DHARMa::createData(sampleSize = 1000,
                        family = poisson(), 
                        overdispersion = 0.5)
 counts <- counts[,1:4]
-names(counts) <- c("ID", "count", "environment", "species")
-readr::write_csv(counts, "data/mixed_count.csv")
+names(counts) <- c('ID', 'count', 'environment', 'species')
+readr::write_csv(counts, 'data/mixed_count.csv')
 
 mod <- glmmTMB(count ~ environment + (1|species), data = counts, family = poisson)
 DHARMa::simulateResiduals(mod, plot = TRUE)
@@ -817,8 +832,8 @@ binom <- DHARMa::createData(sampleSize = 1000,
                        numGroups = 20, 
                        family = binomial())
 binom <- binom[,1:4]
-names(binom) <- c("ID", "presabs", "environment", "species")
-readr::write_csv(binom, "data/mixed_binom.csv")
+names(binom) <- c('ID', 'presabs', 'environment', 'species')
+readr::write_csv(binom, 'data/mixed_binom.csv')
 
 mod <- glmmTMB(presabs ~ environment + (1|species), data = binom, family = binomial)
 DHARMa::simulateResiduals(mod, plot = TRUE)

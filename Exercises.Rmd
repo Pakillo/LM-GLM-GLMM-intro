@@ -1,0 +1,92 @@
+---
+aspectratio: 43  # use 169 for wide format
+fontsize: 10pt
+output: 
+  binb::metropolis:
+    keep_tex: no
+    incremental: yes
+    fig_caption: no
+    pandoc_args: ["--lua-filter=hideslide.lua"]
+urlcolor: blue
+linkcolor: blue
+header-includes:
+  - \definecolor{shadecolor}{RGB}{230,230,230}
+  # - \setbeamercolor{frametitle}{bg=black}
+---
+
+
+
+```{r knitr_setup, include=FALSE, cache=FALSE}
+
+library("knitr")
+
+### Chunk options ###
+
+## Text results
+opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, size = 'tiny')
+
+## Code decoration
+opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
+
+# ## Cache
+# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
+
+# ## Plots
+# opts_chunk$set(fig.path = "knitr_output/figures/")
+opts_chunk$set(fig.align = 'center', out.width = '90%')
+
+### Hooks ###
+## Crop plot margins
+knit_hooks$set(crop = hook_pdfcrop)
+
+## Reduce font size
+## use tinycode = TRUE as chunk option to reduce code font size
+# see http://stackoverflow.com/a/39961605
+knit_hooks$set(tinycode = function(before, options, envir) {
+  if (before) return(paste0("\n \\", options$size, "\n\n"))
+  else return("\n\n \\normalsize \n")
+  })
+
+```
+
+
+## Exercises
+
+Data coming from `rstanarm` package:
+
+- Prob. switching well ~ arsenic level + distance to safe well using [wells dataset](https://mc-stan.org/rstanarm/reference/rstanarm-datasets.html)
+
+- Children IQ score ~ mother characteristics [data](https://mc-stan.org/rstanarm/reference/rstanarm-datasets.html)
+
+- Number of roaches in apartments [data](https://mc-stan.org/rstanarm/reference/rstanarm-datasets.html)
+
+
+## Exercises
+
+Data from Zuur book: https://highstat.com/Books/Book2/ZuurDataMixedModelling.zip
+Some in `AED` package: `remotes::install_github("romunov/AED")`
+
+- Analysing species richness (RIKZ dataset)
+
+- Presence/absence of koalas (koalas dataset)
+
+- Presence absence of flatfish [Solea dataset](https://highstat.com/Books/Book1/RChapter6.zip)
+
+- Presence of tuberculosis in wild boar (WildBoarTb dataset)
+
+- Bird densities (Loyn dataset)
+
+
+## Exercises
+
+- [Foraging ecology of bald eagles](https://vincentarelbundock.github.io/Rdatasets/doc/MASS/eagles.html)
+
+- [Days absent from school](https://vincentarelbundock.github.io/Rdatasets/doc/HSAUR/schooldays.html)
+
+- [Do bigger birds lay more eggs?](https://vincentarelbundock.github.io/Rdatasets/doc/Stat2Data/BirdNest.html)
+
+- [Does bird egg colour relate to closed/open nest?](https://vincentarelbundock.github.io/Rdatasets/doc/Stat2Data/BirdNest.html)
+
+- [Are woody plants taller? Do they have larger seeds too?](https://vincentarelbundock.github.io/Rdatasets/doc/cluster/plantTraits.html)
+
+

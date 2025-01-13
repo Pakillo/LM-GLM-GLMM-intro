@@ -1,7 +1,7 @@
 ---
-title: "Introduction to linear models"
-author: "Francisco Rodríguez-Sánchez"
-institute: "https://frodriguezsanchez.net"
+title: 'Introduction to linear models'
+author: 'Francisco Rodríguez-Sánchez'
+institute: 'https://frodriguezsanchez.net'
 aspectratio: 43  # use 169 for wide format
 fontsize: 12pt
 output: 
@@ -9,18 +9,18 @@ output:
     keep_tex: no
     incremental: yes
     fig_caption: no
-    pandoc_args: ["--lua-filter=hideslide.lua"]
+    pandoc_args: ['--lua-filter=hideslide.lua']
 urlcolor: blue
 linkcolor: blue
 header-includes:
   - \definecolor{shadecolor}{RGB}{230,230,230}
-  # - \setbeamercolor{frametitle}{bg=black}
+  - \setbeamercolor{frametitle}{bg=gray}
 ---
 
 
 ```{r knitr_setup, include=FALSE, cache=FALSE}
 
-library("knitr")
+library('knitr')
 
 ### Chunk options ###
 
@@ -31,10 +31,10 @@ opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, size = 'tiny')
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
 
 # ## Cache
-# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
+# opts_chunk$set(cache = TRUE, cache.path = 'knitr_output/cache/')
 
 # ## Plots
-# opts_chunk$set(fig.path = "knitr_output/figures/")
+# opts_chunk$set(fig.path = 'knitr_output/figures/')
 opts_chunk$set(fig.align = 'center', out.width = '90%')
 
 ### Hooks ###
@@ -45,8 +45,8 @@ knit_hooks$set(crop = hook_pdfcrop)
 ## use tinycode = TRUE as chunk option to reduce code font size
 # see http://stackoverflow.com/a/39961605
 knit_hooks$set(tinycode = function(before, options, envir) {
-  if (before) return(paste0("\n \\", options$size, "\n\n"))
-  else return("\n\n \\normalsize \n")
+  if (before) return(paste0('\n \\', options$size, '\n\n'))
+  else return('\n\n \\normalsize \n')
   })
 
 ```
@@ -63,11 +63,11 @@ $$
 
 
 :::::::::::::: {.columns align=center}
-::: {.column width="80%"}
+::: {.column width='80%'}
 ```{r}
 library(ggplot2)
 data(iris)
-setosa <- iris[iris$Species == "setosa", ]
+setosa <- iris[iris$Species == 'setosa', ]
 
 m <- lm(Petal.Width ~ Petal.Length, data = setosa)
 
@@ -75,26 +75,26 @@ gglm <- ggplot(setosa) +
   aes(x = Petal.Length, y = Petal.Width) +
   geom_point(size = 3) +
   theme_minimal(base_size = 20) +
-  labs(x = "\nx", y = "y\n") +
+  labs(x = '\nx', y = 'y\n') +
   xlim(0, 2.25) +
   ylim(-0.1, NA) +
   geom_abline(intercept = m$coefficients[1], slope = m$coefficients[2], 
-              size = 1.5, colour = "blue") +
+              size = 1.5, colour = 'blue') +
   geom_segment(aes(x = 0, y = -0.05, xend = 0.2, yend = 0.2), arrow = arrow(),
-               colour = "grey60") +
-  annotate("text", x = 0.2, y = 0.23, label = "intercept", size = 6) +
+               colour = 'grey60') +
+  annotate('text', x = 0.2, y = 0.23, label = 'intercept', size = 6) +
   geom_curve(aes(x = 0.5, y = 0.05, xend = 0.5, yend = -0.05), curvature = -0.5,
-             colour = "grey60") +
-  annotate("text", x = 0.66, y = 0, label = "slope", size = 6) +
-  geom_segment(aes(x = 1.9, y = 0.205, xend = 1.9, yend = 0.33), colour = "grey60",
-               arrow = arrow(ends = "both")) +
-  annotate("text", x = 2.05, y = 0.27, label = "residual", size = 6)
+             colour = 'grey60') +
+  annotate('text', x = 0.66, y = 0, label = 'slope', size = 6) +
+  geom_segment(aes(x = 1.9, y = 0.205, xend = 1.9, yend = 0.33), colour = 'grey60',
+               arrow = arrow(ends = 'both')) +
+  annotate('text', x = 2.05, y = 0.27, label = 'residual', size = 6)
 
 gglm
 ```
 
 :::
-::: {.column width="20%" align=center}
+::: {.column width='20%' align=center}
 
 \tiny
 
@@ -162,7 +162,7 @@ If `x` increases 1 unit, `y` decreases 2 units
 
 ## What are residuals?
 
-```{r out.width="50%"}
+```{r out.width='50%'}
 gglm
 ```
 
@@ -194,19 +194,19 @@ If sigma is larger:
 
 
 :::::::::::::: {.columns align=center}
-::: {.column width="50%"}
+::: {.column width='50%'}
 ```{r small_residuals}
 set.seed(123)
 x <- runif(50, 10, 30)
 y <- rnorm(50, 4 + 0.3*x, 0.5)
-plot(x, y, las = 1, main = "small sigma", ylim = c(4, 18), cex.main = 3)
+plot(x, y, las = 1, main = 'small sigma', ylim = c(4, 18), cex.main = 3)
 abline(lm(y ~ x), lwd = 3)
 ```
 :::
-::: {.column width="50%" align=center}
+::: {.column width='50%' align=center}
 ```{r large_residuals}
 y2 <- rnorm(50, 4 + 0.3*x, 3)
-plot(x, y2, las = 1, main = "large sigma", ylim = c(4, 18), cex.main = 3)
+plot(x, y2, las = 1, main = 'large sigma', ylim = c(4, 18), cex.main = 3)
 abline(lm(y2 ~ x), lwd = 3)
 ```
 :::
@@ -225,11 +225,11 @@ $$
 s1 <- density(rnorm(1000, 0, 2))
 s2 <- density(rnorm(1000, 0, 5))
 s3 <- density(rnorm(1000, 0, 10))
-plot(s3, ylim=c(0,0.2), ylab="", xlab="", main="Distribution of residuals", lwd=2, col="red", yaxt="n")
-lines(s2, lwd=2, col="blue")
+plot(s3, ylim=c(0,0.2), ylab='', xlab='', main='Distribution of residuals', lwd=2, col='red', yaxt='n')
+lines(s2, lwd=2, col='blue')
 lines(s1, lwd=2)
-Hmisc::labcurve(list(s1, s2, s3), labels=paste("sigma = ", c(2,5,10), sep=""), 
-                type="l", col=c("black", "blue", "red"))
+Hmisc::labcurve(list(s1, s2, s3), labels=paste('sigma = ', c(2,5,10), sep=''), 
+                type='l', col=c('black', 'blue', 'red'))
 ```
 
 
@@ -255,8 +255,8 @@ $$
 
 :::
 
-```{r out.width="50%"}
-include_graphics("images/lm_resid_assump.png")
+```{r out.width='50%'}
+include_graphics('images/lm_resid_assump.png')
 ```
 
 \raggedright

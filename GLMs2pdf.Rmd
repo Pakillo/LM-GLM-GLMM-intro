@@ -14,12 +14,14 @@ urlcolor: blue
 linkcolor: blue
 header-includes:
   - \definecolor{shadecolor}{RGB}{230,230,230}
-  # - \setbeamercolor{frametitle}{bg=black}
+  - \setbeamercolor{frametitle}{bg=gray}
 ---
 
 
 
 ```{r knitr_setup, include=FALSE, cache=FALSE}
+
+options(knitr.duplicate.label = "allow")
 
 library("knitr")
 
@@ -69,6 +71,7 @@ knit_hooks$set(tinycode = function(before, options, envir) {
 ```{r child = 'lm.Rmd'}
 ```
 
+
 # Variable and model selection
 
 ```{r child = 'model_selection.Rmd'}
@@ -77,6 +80,17 @@ knit_hooks$set(tinycode = function(before, options, envir) {
 # Model comparison
 
 ```{r child = 'model_comparison_trees.Rmd'}
+```
+
+
+# Regression to the mean
+
+```{r child = 'regression-to-the-mean.Rmd'}
+```
+
+# Causal inference
+
+```{r child = 'causal-inference.Rmd'}
 ```
 
 

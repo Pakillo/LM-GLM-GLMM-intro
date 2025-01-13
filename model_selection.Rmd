@@ -1,7 +1,7 @@
 ---
-title: "Variable and model selection"
-author: "Francisco Rodríguez-Sánchez"
-institute: "https://frodriguezsanchez.net"
+title: 'Variable and model selection'
+author: 'Francisco Rodríguez-Sánchez'
+institute: 'https://frodriguezsanchez.net'
 aspectratio: 43  # use 169 for wide format
 fontsize: 10pt
 output: 
@@ -9,18 +9,18 @@ output:
     keep_tex: no
     incremental: yes
     fig_caption: no
-    pandoc_args: ["--lua-filter=hideslide.lua"]
+    pandoc_args: ['--lua-filter=hideslide.lua']
 urlcolor: blue
 linkcolor: blue
 header-includes:
   - \definecolor{shadecolor}{RGB}{230,230,230}
-  # - \setbeamercolor{frametitle}{bg=black}
+  - \setbeamercolor{frametitle}{bg=gray}
 ---
 
 
 ```{r knitr_setup, include=FALSE, cache=FALSE}
 
-library("knitr")
+library('knitr')
 
 ### Chunk options ###
 
@@ -31,10 +31,10 @@ opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, size = 'tiny')
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
 
 # ## Cache
-# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
+# opts_chunk$set(cache = TRUE, cache.path = 'knitr_output/cache/')
 
 # ## Plots
-# opts_chunk$set(fig.path = "knitr_output/figures/")
+# opts_chunk$set(fig.path = 'knitr_output/figures/')
 opts_chunk$set(fig.align = 'center', out.width = '90%')
 
 ### Hooks ###
@@ -45,8 +45,8 @@ knit_hooks$set(crop = hook_pdfcrop)
 ## use tinycode = TRUE as chunk option to reduce code font size
 # see http://stackoverflow.com/a/39961605
 knit_hooks$set(tinycode = function(before, options, envir) {
-  if (before) return(paste0("\n \\", options$size, "\n\n"))
-  else return("\n\n \\normalsize \n")
+  if (before) return(paste0('\n \\', options$size, '\n\n'))
+  else return('\n\n \\normalsize \n')
   })
 
 ```
@@ -70,28 +70,28 @@ y <- rnorm(10, 2 + 0.2*x, 0.3)
 
 ```{r linreg, echo=FALSE, fig.height=4, fig.width=4, eval = FALSE}
 m1 <- lm(y~x)
-plot(x,y, las=1, pch=19, main="Simple linear regression")
-abline(m1, lwd=2, col="red")
+plot(x,y, las=1, pch=19, main='Simple linear regression')
+abline(m1, lwd=2, col='red')
 ```
 
 
 :::::::::::::: {.columns align=center}
-::: {.column width="50%"}
-```{r overfitted, echo=FALSE, out.width="100%"}
+::: {.column width='50%'}
+```{r overfitted, echo=FALSE, out.width='100%'}
 require(gam)
 require(visreg)
 m2 <- gam(y~s(x, df = 10))
-visreg(m2, line.par=list(col="red", lwd=2))
+visreg(m2, line.par=list(col='red', lwd=2))
 points(x,y, pch=19)
-title("Overfit model")
+title('Overfit model')
 ```
 :::
-::: {.column width="50%" }
-```{r wrongmodel, echo=FALSE, out.width="100%"}
+::: {.column width='50%' }
+```{r wrongmodel, echo=FALSE, out.width='100%'}
 y2 <- rnorm(10, 2 + 0.8*x - 0.08*x^2, 0.3)
 m3 <- lm(y2~x)
-plot(x, y2, las=1, pch=19, main="Underfit/wrong model")
-abline(m3, col="red", lwd=2)
+plot(x, y2, las=1, pch=19, main='Underfit/wrong model')
+abline(m3, col='red', lwd=2)
 ```
 :::
 ::::::::::::::
@@ -103,19 +103,19 @@ abline(m3, col="red", lwd=2)
 
 
 :::::::::::::: {.columns align=center}
-::: {.column width="50%"}
+::: {.column width='50%'}
 GLMM 
 
 ```{r}
-include_graphics("images/olden1.PNG")
+include_graphics('images/olden1.PNG')
 ```
 :::
 
-::: {.column width="50%" }
+::: {.column width='50%' }
 Random forests 
 
 ```{r}
-include_graphics("images/olden2.PNG")
+include_graphics('images/olden2.PNG')
 ```
 :::
 ::::::::::::::
@@ -126,7 +126,7 @@ include_graphics("images/olden2.PNG")
 ## Overfitted models will work badly on new data
 
 ```{r}
-include_graphics("images/overfit_bed.jpeg")
+include_graphics('images/overfit_bed.jpeg')
 ```
 
 
@@ -207,15 +207,15 @@ Really? Not everything has to be linear! Actually, it often is not.
 
 :::::::::::::: {.columns align=center}
 
-::: {.column width="40%"}
+::: {.column width='40%'}
 ```{r echo=FALSE}
-curve(0.7 + 0.3*x, ylab="y", las=1)
+curve(0.7 + 0.3*x, ylab='y', las=1)
 ```
 :::
 
-::: {.column width="60%" }
+::: {.column width='60%' }
 ```{r echo=FALSE}
-curve(0.7*x^0.3, ylab="y", las=1)
+curve(0.7*x^0.3, ylab='y', las=1)
 ```
 :::
 ::::::::::::::

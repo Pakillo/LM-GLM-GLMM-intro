@@ -1,7 +1,7 @@
 ---
-title: "Generalised Additive Models"
-author: "Francisco Rodríguez-Sánchez"
-institute: "https://frodriguezsanchez.net"
+title: 'Generalised Additive Models'
+author: 'Francisco Rodríguez-Sánchez'
+institute: 'https://frodriguezsanchez.net'
 aspectratio: 43  # use 169 for wide format
 fontsize: 10pt
 output: 
@@ -9,19 +9,19 @@ output:
     keep_tex: no
     incremental: yes
     fig_caption: no
-    pandoc_args: ["--lua-filter=hideslide.lua"]
+    pandoc_args: ['--lua-filter=hideslide.lua']
 urlcolor: blue
 linkcolor: blue
 header-includes:
   - \definecolor{shadecolor}{RGB}{230,230,230}
-  # - \setbeamercolor{frametitle}{bg=black}
+  - \setbeamercolor{frametitle}{bg=gray}
 ---
 
 
 
 ```{r knitr_setup, include=FALSE, cache=FALSE}
 
-library("knitr")
+library('knitr')
 
 ### Chunk options ###
 
@@ -32,10 +32,10 @@ opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, size = 'tiny')
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
 
 # ## Cache
-# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
+# opts_chunk$set(cache = TRUE, cache.path = 'knitr_output/cache/')
 
 # ## Plots
-# opts_chunk$set(fig.path = "knitr_output/figures/")
+# opts_chunk$set(fig.path = 'knitr_output/figures/')
 opts_chunk$set(fig.align = 'center', out.width = '90%')
 
 ### Hooks ###
@@ -46,8 +46,8 @@ knit_hooks$set(crop = hook_pdfcrop)
 ## use tinycode = TRUE as chunk option to reduce code font size
 # see http://stackoverflow.com/a/39961605
 knit_hooks$set(tinycode = function(before, options, envir) {
-  if (before) return(paste0("\n \\", options$size, "\n\n"))
-  else return("\n\n \\normalsize \n")
+  if (before) return(paste0('\n \\', options$size, '\n\n'))
+  else return('\n\n \\normalsize \n')
   })
 
 ```
@@ -56,7 +56,7 @@ knit_hooks$set(tinycode = function(before, options, envir) {
 ## How do we model these time series?
 
 ```{r}
-include_graphics("images/gam_simpson_fig2.jpg")
+include_graphics('images/gam_simpson_fig2.jpg')
 ```
 
 \scriptsize 
@@ -66,7 +66,7 @@ include_graphics("images/gam_simpson_fig2.jpg")
 ## How do we model these time series?
 
 ```{r}
-include_graphics("images/gam_simpson_fig3.jpg")
+include_graphics('images/gam_simpson_fig3.jpg')
 ```
 
 \scriptsize 
@@ -93,7 +93,7 @@ $$
 ## Modelling non-linear time series with GAM
 
 ```{r echo = 1}
-isotopes <- readRDS("data/isotope.rds")
+isotopes <- readRDS('data/isotope.rds')
 head(isotopes)
 ```
 
@@ -102,8 +102,8 @@ head(isotopes)
 \scriptsize
 
 ```{r echo = 1:2}
-library("mgcv")
-m <- gam(d15N ~ s(Year, k = 15), data = isotopes, method = "REML")
+library('mgcv')
+m <- gam(d15N ~ s(Year, k = 15), data = isotopes, method = 'REML')
 summary(m)
 ```
 
@@ -111,7 +111,7 @@ summary(m)
 ## Visualising fitted GAM
 
 ```{r echo = 2}
-library("visreg")
+library('visreg')
 visreg(m)
 ```
 
@@ -119,7 +119,7 @@ visreg(m)
 ## Checking fitted GAM
 
 ```{r echo = TRUE}
-library("DHARMa")
+library('DHARMa')
 simulateResiduals(m, plot = TRUE)
 ```
 
@@ -149,7 +149,7 @@ testTemporalAutocorrelation(simulateResiduals(m),
 
 ```{r echo = 1}
 mod <- gamm(d15N ~ s(Year, k = 15), data = isotopes,
-            correlation = corCAR1(form = ~ Year), method = "REML")
+            correlation = corCAR1(form = ~ Year), method = 'REML')
 summary(mod$gam)
 ```
 
@@ -161,7 +161,7 @@ summary(mod$gam)
 
 
 ```{r echo=1}
-mort <- read.csv("data/UN_GDP_infantmortality.csv")
+mort <- read.csv('data/UN_GDP_infantmortality.csv')
 head(mort)
 ```
 
@@ -170,7 +170,7 @@ head(mort)
 \footnotesize
 
 ```{r echo = 1:2}
-library("MASS")
+library('MASS')
 mort.glm <- glm.nb(infant.mortality ~ gdp, data = mort)
 summary(mort.glm)
 ```
@@ -206,7 +206,7 @@ visreg(mort.glm.log)
 \footnotesize
 
 ```{r echo = 1:2}
-library("mgcv")
+library('mgcv')
 mort.gam <- gam(infant.mortality ~ s(log.gdp), family = nb, data = mort)
 summary(mort.gam)
 ```
@@ -228,8 +228,9 @@ gam.check(mort.gam)
 
 ## Comparing models
 
+\scriptsize
 ```{r echo =T}
-library("performance")
+library('easystats')
 compare_performance(mort.glm, mort.glm.log, mort.gam)
 ```
 
@@ -240,9 +241,9 @@ compare_performance(mort.glm, mort.glm.log, mort.gam)
 ## Reaction time with sleep deprivation
 
 ```{r echo=1:2}
-library("lme4")
-data("sleepstudy")
-library("ggplot2")
+library('lme4')
+data('sleepstudy')
+library('ggplot2')
 ggplot(sleepstudy) +
   aes(x = Days, y = Reaction) +
   geom_point() +
@@ -255,8 +256,8 @@ ggplot(sleepstudy) +
 \scriptsize
 
 ```{r echo = 1}
-sgamm <- gam(Reaction ~ s(Days, Subject, k = 3, bs = "fs"), 
-                   data = sleepstudy, method = "REML")
+sgamm <- gam(Reaction ~ s(Days, Subject, k = 3, bs = 'fs'), 
+                   data = sleepstudy, method = 'REML')
 summary(sgamm)
 #gam.check(sleep.gamm)
 #coef(p)
@@ -267,7 +268,7 @@ summary(sgamm)
 ## Modelling reaction time with sleep deprivation (GAMM)
 
 ```{r echo = T}
-visreg(sgamm, xvar = "Days", by = "Subject")
+visreg(sgamm, xvar = 'Days', by = 'Subject')
 ```
 
 

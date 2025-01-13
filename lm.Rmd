@@ -1,7 +1,7 @@
 ---
-title: "Linear models"
-author: "Francisco Rodríguez-Sánchez"
-institute: "https://frodriguezsanchez.net"
+title: 'Linear models'
+author: 'Francisco Rodríguez-Sánchez'
+institute: 'https://frodriguezsanchez.net'
 aspectratio: 43  # use 169 for wide format
 fontsize: 10pt
 output: 
@@ -9,18 +9,18 @@ output:
     keep_tex: no
     incremental: yes
     fig_caption: no
-    pandoc_args: ["--lua-filter=hideslide.lua"]
+    pandoc_args: ['--lua-filter=hideslide.lua']
 urlcolor: blue
 linkcolor: blue
 header-includes:
   - \definecolor{shadecolor}{RGB}{230,230,230}
-  # - \setbeamercolor{frametitle}{bg=black}
+  - \setbeamercolor{frametitle}{bg=gray}
 ---
 
 
 ```{r knitr_setup, include=FALSE, cache=FALSE}
 
-library("knitr")
+library('knitr')
 
 ### Chunk options ###
 
@@ -31,10 +31,10 @@ opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, size = 'tiny')
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
 
 # ## Cache
-# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
+opts_chunk$set(cache = TRUE)
 
 # ## Plots
-# opts_chunk$set(fig.path = "knitr_output/figures/")
+# opts_chunk$set(fig.path = 'knitr_output/figures/')
 opts_chunk$set(fig.align = 'center', out.width = '90%')
 
 ### Hooks ###
@@ -45,8 +45,8 @@ knit_hooks$set(crop = hook_pdfcrop)
 ## use tinycode = TRUE as chunk option to reduce code font size
 # see http://stackoverflow.com/a/39961605
 knit_hooks$set(tinycode = function(before, options, envir) {
-  if (before) return(paste0("\n \\", options$size, "\n\n"))
-  else return("\n\n \\normalsize \n")
+  if (before) return(paste0('\n \\', options$size, '\n\n'))
+  else return('\n\n \\normalsize \n')
   })
 
 ```
@@ -61,7 +61,7 @@ knit_hooks$set(tinycode = function(before, options, envir) {
 - Import:
 
 ```{r}
-trees <- read.csv("data/trees.csv")
+trees <- read.csv('data/trees.csv')
 head(trees)
 ```
 
@@ -82,13 +82,13 @@ head(trees)
 
 
 
-# Always plot your data first!
+# Plot your data!
 
 
-## Always plot your data first!
+## Plot your data!
 
 ```{r echo=FALSE}
-include_graphics("images/anscombe.png")
+include_graphics('images/anscombe.png')
 ```
 
 
@@ -105,8 +105,8 @@ plot(trees$height)
 
 ## Outliers impact on regression
 
-```{r out.width="70%", echo=FALSE}
-include_graphics("images/reg_outliers.png")
+```{r out.width='70%', echo=FALSE}
+include_graphics('images/reg_outliers.png')
 ```
 
 See http://rpsychologist.com/d3/correlation/
@@ -175,7 +175,7 @@ $$
 ## Package `equatiomatic` returns model structure
 
 ```{r}
-library("equatiomatic")
+library('equatiomatic')
 m1 <- lm(height ~ dbh, data = trees)
 equatiomatic::extract_eq(m1)
 ```
@@ -208,7 +208,7 @@ summary(m1)
 ## Remember that in a Normal distribution
 
 ```{r echo=FALSE}
-include_graphics("images/gaussian.png")
+include_graphics('images/gaussian.png')
 ```
 
 
@@ -225,10 +225,10 @@ library(arm)
 library(ggplot2)
 
 coefs <- as.data.frame(coef(sim(m1)))
-names(coefs) <- c("intercept", "slope")
+names(coefs) <- c('intercept', 'slope')
 
 ggplot(coefs) +
-  geom_density(aes(intercept), fill = "grey80") +
+  geom_density(aes(intercept), fill = 'grey80') +
   xlim(-1, 21) +
   geom_vline(xintercept = 0)
 ```
@@ -244,7 +244,7 @@ parameters::parameters(m1)[2,]
 
 ```{r echo=FALSE}
 ggplot(coefs) +
-  geom_density(aes(slope), fill = "grey80") +
+  geom_density(aes(slope), fill = 'grey80') +
   xlim(-0.1, 0.7) +
   geom_vline(xintercept = 0)
 ```
@@ -252,7 +252,7 @@ ggplot(coefs) +
 ```{r echo=FALSE, eval=FALSE}
 library(easystats)
 plot(simulate_parameters(m1)) +
-  labs(title = "Density of the slope parameter")
+  labs(title = 'Density of the slope parameter')
 ```
 
 ## Distribution of residuals
@@ -260,9 +260,9 @@ plot(simulate_parameters(m1)) +
 ```{r echo=FALSE}
 res <- data.frame(residual = residuals(m1))
 ggplot(res) +
-  geom_histogram(aes(residual), fill = "grey80") +
+  geom_histogram(aes(residual), fill = 'grey80') +
   geom_vline(xintercept = 0) +
-  annotate("text", x = -10, y = 50, label = "SD = 4", size = 7)
+  annotate('text', x = -10, y = 50, label = 'SD = 4', size = 7)
 ```
 
 
@@ -310,6 +310,49 @@ https://pollev.com/franciscorod726
 
 
 
+
+# Centering continuous predictors
+
+## Centering continuous predictors
+
+::: nonincremental :::
+
+- Helps interpretation
+
+- Helps (complex) model convergence
+
+- Centering usually around the mean, but can be any suitable reference point
+
+:::
+
+## Centering continuous predictors
+
+```{r}
+mean(trees$dbh)
+```
+
+```{r}
+trees$dbh.c <- trees$dbh - 30
+```
+
+```{r }
+summary(trees$dbh)
+summary(trees$dbh.c)
+```
+
+
+## Centering continuous predictors
+
+\footnotesize
+
+```{r echo=c(1)}
+m1.c <- lm(height ~ dbh.c, data = trees)
+summary(m1.c)
+```
+
+
+# Extracting model info
+
 ## Retrieving model coefficients
 
 ```{r echo = TRUE}
@@ -328,7 +371,7 @@ confint(m1)
 \footnotesize
 
 ```{r}
-library("broom")
+library('broom')
 tidy(m1)
 ```
 
@@ -346,7 +389,7 @@ https://broom.tidymodels.org/
 \footnotesize
 
 ```{r}
-library("parameters")
+library('easystats')   # parameters package
 parameters(m1)
 ```
 
@@ -359,7 +402,7 @@ https://easystats.github.io/parameters/
 
 \footnotesize
 ```{r message=FALSE}
-library("effects")
+library('effects')
 summary(allEffects(m1))
 ```
 
@@ -371,10 +414,10 @@ summary(allEffects(m1))
 ## Avoid dichotomania of statistical significance
 
 ```{r echo=FALSE}
-include_graphics("images/nature_significance.PNG")
+include_graphics('images/nature_significance.PNG')
 ```
 
-- "Never conclude there is **‘no difference’** or ‘no association’ just because **p > 0.05 or CI includes zero**"
+- 'Never conclude there is **‘no difference’** or ‘no association’ just because **p > 0.05 or CI includes zero**'
 
 - Estimate and communicate **effect sizes and their uncertainty**
 
@@ -392,8 +435,8 @@ include_graphics("images/nature_significance.PNG")
 
 ## Models that describe themselves
 
-```{r results="asis"}
-library("report")
+```{r results='asis'}
+library('report')
 report(m1)
 ```
 
@@ -414,7 +457,7 @@ report_table(m1, include_effectsize = FALSE)
 ## Generating table with model results: `xtable`
 
 ```{r echo=TRUE, results='asis'}
-library("xtable")
+library('xtable')
 xtable(m1, digits = 2)
 ```
 
@@ -422,7 +465,7 @@ xtable(m1, digits = 2)
 ## Generating table with model results: `texreg`
 
 ```{r echo=TRUE, results='asis'}
-library("texreg")
+library('texreg')
 texreg(m1, single.row = TRUE)
 ```
 
@@ -431,7 +474,7 @@ texreg(m1, single.row = TRUE)
 ## Generating table with model results: `gtsummary`
 
 ```{r }
-library("gtsummary")
+library('gtsummary')
 tbl_regression(m1, intercept = TRUE) 
 ```
 
@@ -445,8 +488,8 @@ https://www.danieldsjoberg.com/gtsummary
 \scriptsize
 
 ```{r results='asis'}
-library("modelsummary")
-modelsummary(m1, output = "markdown")  # Word, PDF, PowerPoint, png...
+library('modelsummary')
+modelsummary(m1, output = 'markdown')  # Word, PDF, PowerPoint, png...
 ```
 
 https://modelsummary.com/
@@ -456,10 +499,10 @@ https://modelsummary.com/
 
 ```{r results='asis'}
 modelsummary(m1, fmt = 2, 
-             estimate = "{estimate} ({std.error})", 
+             estimate = '{estimate} ({std.error})', 
              statistic = NULL,
-             gof_map = c("nobs", "r.squared", "rmse"),
-             output = "markdown")  # Word, PDF, PowerPoint, png...
+             gof_map = c('nobs', 'r.squared', 'rmse'),
+             output = 'markdown')  # Word, PDF, PowerPoint, png...
 ```
 
 
@@ -471,7 +514,7 @@ modelsummary(m1, fmt = 2,
 ## Plot model: `effects` package
 
 ```{r echo = TRUE}
-library("effects")
+library('effects')
 plot(allEffects(m1))
 ```
 
@@ -479,14 +522,14 @@ plot(allEffects(m1))
 ## Plot model: `visreg`
 
 ```{r visreg}
-library("visreg")
+library('visreg')
 visreg(m1)
 ```
 
 
 ## `visreg` can use ggplot2 too
 
-```{r out.width="80%"}
+```{r out.width='80%'}
 visreg(m1, gg = TRUE) + theme_bw()
 ```
 
@@ -496,16 +539,16 @@ https://pbreheny.github.io/visreg
 ## easystats
 
 ```{r}
-library("easystats")
+library('easystats')
 plot(estimate_expectation(m1))
 ```
 
 
 ## Plot model: `sjPlot`
 
-```{r out.width="70%"}
-library("sjPlot")
-plot_model(m1, type = "eff", terms = "dbh")
+```{r out.width='70%'}
+library('sjPlot')
+plot_model(m1, type = 'eff', terms = 'dbh')
 ```
 
 https://strengejacke.github.io/sjPlot
@@ -516,20 +559,20 @@ https://strengejacke.github.io/sjPlot
 \scriptsize
 
 ```{r}
-library("ggeffects")
+library('ggeffects')
 ```
 
 :::::::::::::: {.columns align=center}
 
-::: {.column width="40%"}
+::: {.column width='40%'}
 ```{r}
-mydf <- ggpredict(m1, terms = "dbh")
+mydf <- ggpredict(m1, terms = 'dbh')
 dplyr::glimpse(mydf, width = 40)
 ```
 
 :::
 
-::: {.column width="60%" }
+::: {.column width='60%'}
 ```{r}
 ggplot(mydf, aes(x, predicted)) +
   geom_line() +
@@ -555,17 +598,17 @@ modelplot(m1)
 
 \footnotesize
 
-```{r out.width="80%"}
-library("easystats")
+```{r out.width='80%'}
+library('easystats')
 plot(parameters(m1), show_intercept = TRUE, show_labels = TRUE)
 ```
 
 
 ## Plot parameters' estimated distribution
 
-```{r out.width="70%"}
+```{r out.width='70%'}
 plot(simulate_parameters(m1)) +
-  labs(title = "Density of the slope parameter")
+  labs(title = 'Density of the slope parameter')
 ```
 
 
@@ -593,14 +636,14 @@ plot(simulate_parameters(m1)) +
 
 :::
 
-```{r out.width="50%", echo = FALSE}
-include_graphics("images/lm_resid_assump.png")
+```{r out.width='50%', echo = FALSE}
+include_graphics('images/lm_resid_assump.png')
 ```
 
 
 ## Are residuals normal? 
 
-```{r resid_hist, out.width="70%"}
+```{r resid_hist, out.width='70%'}
 hist(residuals(m1))
 ```
 
@@ -619,8 +662,8 @@ par(def.par)
 
 ## Model checking with `performance` (easystats)
 
-```{r out.width="80%"}
-library("easystats")
+```{r out.width='80%'}
+library('easystats')
 check_model(m1)
 ```
 
@@ -631,10 +674,27 @@ check_model(m1)
 ## A dashboard to explore the full model
 
 ```{r eval=FALSE}
-library("easystats")
+library('easystats')
 model_dashboard(m1)
 ```
 
+```{r echo=FALSE}
+include_graphics("images/model_dashboard.png")
+```
+
+
+## Can you distinguish model residuals from stochastic noise?
+
+\scriptsize 
+
+```{r out.width='60%'}
+library('cannonball')   # https://github.com/janhove/cannonball
+lin_plot(parade(m1))
+```
+
+```{r message=TRUE}
+reveal(parade(m1))
+```
 
 
 
@@ -660,7 +720,7 @@ head(trees)
 
 ```{r obs_pred, echo=FALSE}
 plot(height ~ height.pred, data = trees,
-     xlab = "Tree height (predicted)", ylab = "Tree height (observed)", 
+     xlab = 'Tree height (predicted)', ylab = 'Tree height (observed)', 
      las = 1, xlim = c(10,60), ylim = c(10,60))
 abline(a = 0, b = 1)
 ```
@@ -685,11 +745,11 @@ predict(m1, new.dbh, se.fit = TRUE)
 Q: Expected tree height if DBH = 39 cm?
 
 ```{r}
-predict(m1, new.dbh, interval = "confidence")
+predict(m1, new.dbh, interval = 'confidence')
 ```
 
 ```{r}
-predict(m1, new.dbh, interval = "prediction")
+predict(m1, new.dbh, interval = 'prediction')
 ```
 
 
@@ -697,25 +757,25 @@ predict(m1, new.dbh, interval = "prediction")
 
 :::::::::::::: {.columns align=center}
 
-::: {.column width="50%"}
+::: {.column width='50%'}
 
 ```{r echo=FALSE}
-library("modelbased")
+library('modelbased')
 conf <- estimate_expectation(m1, data = NULL)
 conf$obs <- trees$height
 
 ggplot(conf) +
   aes(x = dbh, y = obs) +
   geom_point(size = 0.5, alpha = 0.3) +
-  geom_ribbon(aes(ymin = CI_low, ymax = CI_high), fill = "blue", alpha = 0.2) +
-  geom_line(aes(x = dbh, y = Predicted), colour = "blue", size = 0.5) +
-  labs(x = "diameter", y = "height", title = "Confidence interval") +
+  geom_ribbon(aes(ymin = CI_low, ymax = CI_high), fill = 'blue', alpha = 0.2) +
+  geom_line(aes(x = dbh, y = Predicted), colour = 'blue', size = 0.5) +
+  labs(x = 'diameter', y = 'height', title = 'Confidence interval') +
   theme_minimal(base_size = 18)
 ```
 
 :::
 
-::: {.column width="50%"}
+::: {.column width='50%'}
 
 ```{r echo=FALSE}
 
@@ -725,9 +785,9 @@ pred$obs <- trees$height
 ggplot(pred) +
   aes(x = dbh, y = obs) +
   geom_point(size = 0.5, alpha = 0.5) +
-  geom_ribbon(aes(ymin = CI_low, ymax = CI_high), fill = "blue", alpha = 0.2) +
-  geom_line(aes(x = dbh, y = Predicted), colour = "blue", size = 2) +
-  labs(x = "diameter", y = "height", title = "Prediction interval") +
+  geom_ribbon(aes(ymin = CI_low, ymax = CI_high), fill = 'blue', alpha = 0.2) +
+  geom_line(aes(x = dbh, y = Predicted), colour = 'blue', size = 2) +
+  labs(x = 'diameter', y = 'height', title = 'Prediction interval') +
   theme_minimal(base_size = 18)
 ```
 
@@ -777,13 +837,13 @@ head(pred)
 
 :::::::::::::: {.columns align=center}
 
-::: {.column width="50%"}
+::: {.column width='50%'}
 ```{r}
 plot(estimate_expectation(m1))
 ```
 :::
 
-::: {.column width="50%" }
+::: {.column width='50%' }
 ```{r}
 plot(estimate_prediction(m1))
 ```
@@ -805,7 +865,7 @@ estimate_prediction(m1, data = data.frame(dbh = 39))
 ## Cross-validation
 
 ```{r}
-performance_cv(m1, method = "k_fold", metrics = "common", k = 10)
+performance_cv(m1, method = 'k_fold', metrics = 'common', k = 10)
 ```
 
 
@@ -813,22 +873,21 @@ performance_cv(m1, method = "k_fold", metrics = "common", k = 10)
 
 - **Visualise data**
 
-\vspace{5mm}
+\vspace{3mm}
 
 - **Understand fitted model** (`summary`)
 
-\vspace{5mm}
+\vspace{3mm}
 
 - **Visualise model** (`visreg`...)
 
-\vspace{5mm}
+\vspace{3mm}
 
 - **Check model** (`plot`, `check_model`, calibration plot...)
 
-\vspace{5mm}
+\vspace{3mm}
 
 - **Predict** (`predict`, `estimate_expectation`, `estimate_prediction`)
-
 
 
 
@@ -908,12 +967,12 @@ parameters(m2)[1,]
 ```
 
 
-```{r echo=FALSE, out.width="65%"}
+```{r echo=FALSE, out.width='65%'}
 coefs <- as.data.frame(coef(sim(m2)))
-names(coefs) <- c("intercept", "slope")
+names(coefs) <- c('intercept', 'slope')
 
 ggplot(coefs) +
-  geom_density(aes(intercept), fill = "grey80") +
+  geom_density(aes(intercept), fill = 'grey80') +
   xlim(-1, 40) +
   geom_vline(xintercept = 0)
 ```
@@ -929,12 +988,294 @@ ggplot(coefs) +
 parameters(m2)[2,]
 ```
 
-```{r echo=FALSE, out.width = "65%"}
+```{r echo=FALSE, out.width = '65%'}
 ggplot(coefs) +
-  geom_density(aes(slope), fill = "grey80") +
+  geom_density(aes(slope), fill = 'grey80') +
   xlim(-3, 2) +
   geom_vline(xintercept = 0)
 ```
+
+
+# Short digression on p-values
+
+
+
+---
+
+\Huge
+'Not significant'\newline does NOT mean\newline 'there is no effect'
+
+
+## 'Not significant' does NOT mean 'they are equal'
+
+```{r out.width="100%", echo=FALSE, cache = TRUE}
+
+set.seed(8)
+xdist <- rnorm(1000, 70, 15)
+ydist <- rnorm(1000, 50, 15)
+dist <- data.frame(group = rep(c("A", "B"), each = 1000), 
+                   value = c(xdist, ydist))
+p1 <- ggplot(dist) +
+  geom_density(aes(value, fill = group), alpha = 0.3) +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 100)) +
+  labs(title = "Two groups have different distribution") 
+
+xsamp <- sample(xdist, 10)
+ysamp <- sample(ydist, 10)
+samp <- data.frame(group = rep(c("A", "B"), each = 10),
+                   value = c(xsamp, ysamp))
+
+tt <- t.test(xsamp, ysamp)
+
+p2 <- ggplot(samp) +
+  geom_histogram(aes(value, fill = group)) +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 100)) +
+  labs(title = "Sampling 10 individuals from each group and making t-test",
+       y = "count") +
+  annotate("text", x = 75, y = 3, hjust = 0, size = 8,
+           label = paste0("p = ", round(tt$p.value, 3)))
+
+p1/p2
+
+```
+
+
+## 'Not significant' does NOT mean 'there is no effect'
+
+```{r echo=FALSE}
+p1 <- ggplot(dist) +
+  geom_violin(aes(group, value, fill = group), 
+              alpha = 0.3, show.legend = FALSE) +
+  theme_minimal(base_size = 15) +
+  labs(title = "True distributions",
+  subtitle = "Difference of means = 20", x = "", y = "") +
+  coord_cartesian(ylim = c(0, 120))
+
+p2 <- ggplot(samp) +
+  geom_violin(aes(group, value, fill = group), 
+              alpha = 0.3, show.legend = FALSE) +
+  theme_minimal(base_size = 15) +
+  labs(title = "Samples",
+  subtitle = paste0("p = ", round(tt$p.value, 3)),
+  y = "", x = "") +
+  coord_cartesian(ylim = c(0, 120))
+
+p1 + p2
+
+```
+
+---
+
+\Large
+Failure to reject H0 != H0 is true
+
+Absence of evidence != Evidence of absence
+
+
+
+
+## p-value > 0.05?
+
+- "We were **unable to find evidence** against the hypothesis that A = B **with the current sample size**" ([Harrell](https://discourse.datamethods.org/t/language-for-communicating-frequentist-results-about-treatment-effects/934))
+
+- "Differences between groups were **not statistically clear**" ([Dushoff et al](https://doi.org/10.1111/2041-210X.13159))
+
+
+---
+
+\Huge A significant p-value\newline does NOT mean\newline we found a true difference
+
+
+## A significant p-value does not mean we found a true difference
+
+Particularly with low sample sizes
+
+```{r out.width="95%", echo=FALSE, cache = TRUE}
+library(ggplot2)
+library(patchwork)
+
+set.seed(8)
+xdist <- rnorm(1000, 50, 15)
+ydist <- rnorm(1000, 50, 15)
+dist <- data.frame(group = rep(c("A", "B"), each = 1000), 
+                   value = c(xdist, ydist))
+p1 <- ggplot(dist) +
+  geom_density(aes(value, fill = group), alpha = 0.3) +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 100)) +
+  labs(title = "Two groups have same distribution") 
+
+xsamp <- sample(xdist, 10)
+ysamp <- sample(ydist, 10)
+samp <- data.frame(group = rep(c("A", "B"), each = 10),
+                   value = c(xsamp, ysamp))
+
+tt <- t.test(xsamp, ysamp)
+
+p2 <- ggplot(samp) +
+  geom_histogram(aes(value, fill = group)) +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 100)) +
+  labs(title = "Sampling 10 individuals from each group and making t-test",
+       y = "count") +
+  annotate("text", x = 70, y = 3, hjust = 0, size = 8,
+           label = paste0("p = ", round(tt$p.value, 3)))
+
+p1/p2
+
+# m <- lm(vals ~ samp, data = samp)
+# summary(m)
+# visreg::visreg(m)
+```
+
+
+## If sample size was larger...
+
+
+```{r out.width="100%", echo=FALSE, cache = TRUE}
+
+set.seed(8)
+xdist <- rnorm(1000, 50, 15)
+ydist <- rnorm(1000, 50, 15)
+dist <- data.frame(group = rep(c("A", "B"), each = 1000), 
+                   value = c(xdist, ydist))
+p1 <- ggplot(dist) +
+  geom_density(aes(value, fill = group), alpha = 0.3) +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 100)) +
+  labs(title = "Two groups have same distribution") 
+
+xsamp <- sample(xdist, 500)
+ysamp <- sample(ydist, 500)
+samp <- data.frame(group = rep(c("A", "B"), each = 500),
+                   value = c(xsamp, ysamp))
+
+tt <- t.test(xsamp, ysamp)
+
+p2 <- ggplot(samp) +
+  geom_histogram(aes(value, fill = group)) +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 100)) +
+  labs(title = "Sampling 500 individuals from each group and making t-test",
+       y = "count") +
+  annotate("text", x = 75, y = 80, hjust = 0, size = 8,
+           label = paste0("p = ", round(tt$p.value, 3)))
+
+p1/p2
+
+```
+
+
+---
+
+\Large
+With low sample size (power),\newline significant p-values\newline are most likely overestimates
+
+\vspace{1cm}
+
+\raggedright 
+\footnotesize [Loken & Gelman 2014](https://doi.org/10.1126/science.aal3618), [Vasisth et al. 2018](https://doi.org/10.1016/j.jml.2018.07.004)
+\raggedleft
+
+
+## P-value depends on sample size
+
+```{r echo=FALSE}
+include_graphics("images/pvalue_SS_Motulski.jpg")
+```
+
+\footnotesize https://doi.org/10.1002/prp2.93
+
+
+
+
+## P-value depends on sample size
+
+Same real difference is detected as **significant or not depending on sample size**
+
+![](images/smallSS.png)
+
+---
+
+\Huge
+Statistically significant\newline !=\newline biologically important
+
+## Statistically significant != biologically important
+
+With big sample size, we can find **highly significant but biologically unimportant** differences.
+
+```{r out.height='2.5in', out.width='3.5in', echo=FALSE}
+include_graphics("images/bigSS.png")
+```
+
+
+## Statistically significant != biologically important
+
+```{r out.width="40%", fig.align='left', echo=FALSE}
+include_graphics("images/pvalue-effsize.png")
+```
+
+
+:::::::::::::: {.columns align=center}
+
+::: {.column width="50%"}
+```{r out.width="100%", echo=FALSE}
+include_graphics("images/pvalue-effsize-A.jpeg")
+```
+:::
+
+::: {.column width="50%" }
+```{r out.width="100%", echo=FALSE}
+include_graphics("images/pvalue-effsize-B.jpeg")
+```
+:::
+::::::::::::::
+
+\tiny https://twitter.com/weinberz/status/1422405165236178947?s=20
+
+
+
+## Statistically significant != biologically important
+
+```{r echo=FALSE, cache = TRUE}
+set.seed(1)
+x <- rnorm(10000,0,1)
+y <- rnorm(10000,0,1) + x/44
+plot(x,y,col=rgb(.5,0,0,.25),pch=19,cex=.5, main = "p = 0.005", cex.main = 3)
+abline(lm(y~x),lwd=2)
+#https://twitter.com/CaAl/status/908322681958920192?s=20
+```
+
+
+## Statistically significant != biologically important
+
+- Statistically significant = unlikely to be zero
+
+- Good read: [*significantly misleading*](https://web.archive.org/web/20150911003128/https://www.statslife.org.uk/the-statistics-dictionary/1000-the-statistics-dictionary-significantly-misleading)
+
+- Beyond significant/not significant, look at **effect sizes and their uncertainty**.
+
+
+
+## ASA statement on p-values
+
+\footnotesize
+
+- P-values do not measure the **probability of hypothesis** being true, or the probability that the data were produced by **random chance** alone.
+
+- Scientific conclusions or policy decisions should NOT be based only on **whether a
+p-value passes a specific threshold**.
+
+- P-value, or statistical significance, does not measure the **size of an effect** or the **importance** of a result.
+
+- By itself, a p-value does NOT provide a good **measure of evidence** regarding a model or hypothesis.
+
+https://doi.org/10.1080/00031305.2016.1154108
+
+See also https://lakens.github.io/statistical_inferences/01-pvalue.html
+
 
 
 ## S-values as alternative to p-values
@@ -955,7 +1296,7 @@ p-value = 0.133 corresponds to *surprise* of obtaining c. 3 heads in a row when 
 ## Analysing differences among factor levels
 
 ```{r}
-library("easystats")  # modelbased package
+library('easystats')  # modelbased package
 estimate_means(m2)
 ```
 
@@ -996,9 +1337,9 @@ plot(estimate_means(m2))
 
 ## Plot model (sjPlot)
 
-```{r out.width="60%"}
-library("sjPlot")
-plot_model(m2, type = "eff", terms = "sex")
+```{r out.width='60%'}
+library('sjPlot')
+plot_model(m2, type = 'eff', terms = 'sex')
 ```
 
 
@@ -1024,7 +1365,7 @@ par(def.par)
 ## Model checking
 
 ```{r}
-library("easystats")
+library('easystats')
 check_model(m2)
 ```
 
@@ -1091,11 +1432,18 @@ extract_eq(m3)
 trees$site <- as.factor(trees$site)
 ```
 
+```{r eval=FALSE}
+trees <- trees |> 
+  dplyr::mutate(site = as.factor(site))
+```
 
 ## Let's check model structure with `equatiomatic`
 
+\footnotesize
+
 ```{r }
 m3 <- lm(height ~ site, data = trees)
+
 extract_eq(m3)
 ```
 
@@ -1149,8 +1497,8 @@ estimate_contrasts(m3)
 How different are site 2 and site 9?
 
 ```{r}
-library("marginaleffects")
-hypotheses(m3, "site2 = site9")
+library('marginaleffects')
+hypotheses(m3, 'site2 = site9')
 ```
 
 
@@ -1179,16 +1527,18 @@ estimate_means(m3)
 \scriptsize
 
 ```{r }
-modelsummary(m3, estimate  = "{estimate} ({std.error})", statistic = NULL, 
-             fmt = 1, gof_map = NA, coef_rename = paste0("site", 1:10), output = "markdown")
+modelsummary(m3, estimate  = '{estimate} ({std.error})', statistic = NULL, 
+             fmt = 1, gof_map = NA, coef_rename = paste0('site', 1:10), output = 'markdown')
 ```
 
 
 
 ## Presenting model results
 
+\footnotesize
+
 ```{r }
-library("gtsummary")
+library('gtsummary')
 tbl_regression(m3)
 ```
 
@@ -1216,21 +1566,21 @@ plot(estimate_means(m3))
 
 ## Plot model (sjPlot)
 
-```{r out.width="70%"}
-plot_model(m3, type = "eff", terms = "site")
+```{r out.width='70%'}
+plot_model(m3, type = 'eff', terms = 'site')
 ```
 
 
 ## Plot model (modelsummary)
 
-```{r out.width="70%"}
+```{r out.width='70%'}
 modelplot(m3)
 ```
 
 
 ## Plot model (easystats)
 
-```{r out.width="70%"}
+```{r out.width='70%'}
 plot(parameters(m3), show_intercept = TRUE)
 ```
 
@@ -1322,8 +1672,8 @@ estimate_means(m4)
 \scriptsize
 
 ```{r echo = 1}
-m4 <- lm(height ~ -1 + site + dbh, data = trees)
-summary(m4)
+m4.noint <- lm(height ~ -1 + site + dbh, data = trees)
+summary(m4.noint)
 ```
 
 ## Plot
@@ -1345,14 +1695,14 @@ dev.off()
 ## Plot (visreg)
 
 ```{r}
-visreg(m4, xvar = "dbh", by = "site", overlay = TRUE, band = FALSE)
+visreg(m4, xvar = 'dbh', by = 'site', overlay = TRUE, band = FALSE)
 ```
 
 
 ## Plot model (sjPlot)
 
 ```{r echo=TRUE, out.width='30%', eval=FALSE}
-plot_model(m4, type = "eff", terms = "site")
+plot_model(m4, type = 'eff', terms = 'site')
 
 ```
 
@@ -1368,10 +1718,10 @@ plot(parameters(m4))
 
 ## Plot model (easystats)
 
-Keeping sites only, dropping "dbh"
+Keeping sites only, dropping 'dbh'
 
 ```{r}
-plot(parameters(m4, drop = "dbh"))
+plot(parameters(m4, drop = 'dbh'))
 ```
 
 
@@ -1384,10 +1734,10 @@ modelplot(m4)
 
 ## Plot model (modelsummary)
 
-Keeping sites only, dropping "dbh"
+Keeping sites only, dropping 'dbh'
 
 ```{r}
-modelplot(m4, coef_omit = "dbh")
+modelplot(m4, coef_omit = 'dbh')
 ```
 
 
@@ -1395,15 +1745,15 @@ modelplot(m4, coef_omit = "dbh")
 
 :::::::::::::: {.columns align=center}
 
-::: {.column width="50%"}
+::: {.column width='50%'}
 ```{r}
 visreg(m3)
 ```
 :::
 
-::: {.column width="50%" }
+::: {.column width='50%' }
 ```{r}
-visreg(m4, xvar = "site")
+visreg(m4, xvar = 'site')
 ```
 :::
 ::::::::::::::
@@ -1428,7 +1778,7 @@ ggplot(trees) +
 
 :::::::::::::: {.columns align=center}
 
-::: {.column width="50%"}
+::: {.column width='50%'}
 
 **DBH**
 
@@ -1437,7 +1787,7 @@ aggregate(trees$dbh ~ trees$site, FUN = mean)
 ```
 :::
 
-::: {.column width="50%" }
+::: {.column width='50%' }
 **HEIGHT**
 
 ```{r}
@@ -1454,7 +1804,7 @@ aggregate(trees$height ~ trees$site, FUN = mean)
 ## We have fitted model w/ many intercepts and single slope
 
 ```{r echo=FALSE}
-visreg(m4, xvar = "dbh", by = "site", overlay = TRUE, band = FALSE)
+visreg(m4, xvar = 'dbh', by = 'site', overlay = TRUE, band = FALSE)
 ```
 
 
@@ -1483,7 +1833,7 @@ ggplot(trees) +
 \footnotesize
 
 ```{r}
-parameters(m4, keep = "dbh")
+parameters(m4, keep = 'dbh')
 ```
 
 
@@ -1510,14 +1860,14 @@ check_model(m4)
 
 ```{r}
 trees$height.pred <- fitted(m4)
-plot(trees$height.pred, trees$height, xlab = "Tree height (predicted)", ylab = "Tree height (observed)", las = 1, xlim = c(10,60), ylim = c(10,60))
+plot(trees$height.pred, trees$height, xlab = 'Tree height (predicted)', ylab = 'Tree height (observed)', las = 1, xlim = c(10,60), ylim = c(10,60))
 abline(a = 0, b = 1)
 ```
 
 
 ## How good is this model? Calibration plot (easystats)
 
-```{r out.width="80%"}
+```{r out.width='80%'}
 pred <- estimate_expectation(m4)
 pred$obs <- trees$height
 plot(obs ~ Predicted, data = pred, xlim = c(15, 60), ylim = c(15, 60))
@@ -1531,7 +1881,7 @@ Simulating response data from fitted model (`yrep`)
 
 and comparing with observed response (`y`)
 
-```{r out.width="70%"}
+```{r out.width='70%'}
 performance::check_predictions(m4)
 ```
 
@@ -1560,7 +1910,7 @@ trees.10cm
 Confidence interval
 
 ```{r}
-predict(m4, newdata = trees.10cm, interval = "confidence")
+predict(m4, newdata = trees.10cm, interval = 'confidence')
 ```
 
 
@@ -1569,7 +1919,7 @@ predict(m4, newdata = trees.10cm, interval = "confidence")
 Prediction interval (accounting for residual variance)
 
 ```{r}
-predict(m4, newdata = trees.10cm, interval = "prediction")
+predict(m4, newdata = trees.10cm, interval = 'prediction')
 ```
 
 
@@ -1578,7 +1928,7 @@ predict(m4, newdata = trees.10cm, interval = "prediction")
 Prediction interval (99%)
 
 ```{r}
-predict(m4, newdata = trees.10cm, interval = "prediction", 
+predict(m4, newdata = trees.10cm, interval = 'prediction', 
         level = 0.99)
 ```
 
@@ -1631,8 +1981,8 @@ ggplot(df) +
   aes(dbh, height) +
   geom_blank() +
   geom_abline(intercept = 25, slope = 0.6) +
-  geom_abline(intercept = 40, slope = 0.1, colour = "steelblue") +
-  geom_abline(intercept = 50, slope = -0.3, colour = "orangered")
+  geom_abline(intercept = 40, slope = 0.1, colour = 'steelblue') +
+  geom_abline(intercept = 50, slope = -0.3, colour = 'orangered')
   
 ```
 
@@ -1653,7 +2003,7 @@ summary(m5)
 ## Does slope vary among sites?
 
 ```{r}
-visreg(m5, xvar = "dbh", by = "site")
+visreg(m5, xvar = 'dbh', by = 'site')
 ```
 
 
@@ -1662,7 +2012,7 @@ visreg(m5, xvar = "dbh", by = "site")
 \footnotesize
 
 ```{r}
-visreg(m5, xvar = "dbh", by = "site", overlay = TRUE, band = FALSE)
+visreg(m5, xvar = 'dbh', by = 'site', overlay = TRUE, band = FALSE)
 ```
 
 
@@ -1671,20 +2021,20 @@ visreg(m5, xvar = "dbh", by = "site", overlay = TRUE, band = FALSE)
 \scriptsize
 
 ```{r}
-library("marginaleffects")
-hypotheses(m5, "`site9:dbh` = `site10:dbh`")
+library('marginaleffects')
+hypotheses(m5, '`site9:dbh` = `site10:dbh`')
 ```
 
 
 ## Examining fitted model with {modelStudio}
 
 ```{r eval=FALSE}
-library("modelStudio")
+library('modelStudio')
 m5.explain <- DALEX::explain(
   m5, 
   data = trees, 
   y = trees$height)
-modelStudio(m5.explain, viewer = "browser")
+modelStudio(m5.explain, viewer = 'browser')
 ```
 
 

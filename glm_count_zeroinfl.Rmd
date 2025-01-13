@@ -1,7 +1,7 @@
 ---
-title: "Modelling zero-inflated (and overdispersed) count data"
-author: "Francisco Rodríguez-Sánchez"
-institute: "https://frodriguezsanchez.net"
+title: 'Modelling zero-inflated (and overdispersed) count data'
+author: 'Francisco Rodríguez-Sánchez'
+institute: 'https://frodriguezsanchez.net'
 aspectratio: 43  # use 169 for wide format
 fontsize: 10pt
 output: 
@@ -9,19 +9,19 @@ output:
     keep_tex: no
     incremental: yes
     fig_caption: no
-    pandoc_args: ["--lua-filter=hideslide.lua"]
+    pandoc_args: ['--lua-filter=hideslide.lua']
 urlcolor: blue
 linkcolor: blue
 header-includes:
   - \definecolor{shadecolor}{RGB}{230,230,230}
-  # - \setbeamercolor{frametitle}{bg=black}
+  - \setbeamercolor{frametitle}{bg=gray}
 ---
 
 
 
 ```{r knitr_setup, include=FALSE, cache=FALSE}
 
-library("knitr")
+library('knitr')
 
 ### Chunk options ###
 
@@ -32,10 +32,10 @@ opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, size = 'tiny')
 opts_chunk$set(tidy = FALSE, comment = NA, highlight = TRUE, prompt = FALSE, crop = TRUE)
 
 # ## Cache
-# opts_chunk$set(cache = TRUE, cache.path = "knitr_output/cache/")
+# opts_chunk$set(cache = TRUE, cache.path = 'knitr_output/cache/')
 
 # ## Plots
-# opts_chunk$set(fig.path = "knitr_output/figures/")
+# opts_chunk$set(fig.path = 'knitr_output/figures/')
 opts_chunk$set(fig.align = 'center', out.width = '90%')
 
 ### Hooks ###
@@ -46,8 +46,8 @@ knit_hooks$set(crop = hook_pdfcrop)
 ## use tinycode = TRUE as chunk option to reduce code font size
 # see http://stackoverflow.com/a/39961605
 knit_hooks$set(tinycode = function(before, options, envir) {
-  if (before) return(paste0("\n \\", options$size, "\n\n"))
-  else return("\n\n \\normalsize \n")
+  if (before) return(paste0('\n \\', options$size, '\n\n'))
+  else return('\n\n \\normalsize \n')
   })
 
 ```
@@ -55,24 +55,24 @@ knit_hooks$set(tinycode = function(before, options, envir) {
 
 ## How many eggs in nests?
 
-```{r out.width="15%", fig.align='left'}
-include_graphics("images/nest.jpg")
+```{r out.width='15%', fig.align='left'}
+include_graphics('images/nest.jpg')
 ```
 
 ```{r echo=FALSE, eval=FALSE}
 n = 300
 diameter <- round(runif(n, 5, 15))
-old <- sample(c("no", "yes"), size = n, replace = TRUE, prob = c(0.7, 0.3)) 
+old <- sample(c('no', 'yes'), size = n, replace = TRUE, prob = c(0.7, 0.3)) 
 eggs <- data.frame(diameter, old)
 
-eggs$n.eggs <- VGAM::rzipois(n, lambda = 0.5*diameter, pstr0 = ifelse(eggs$old == "yes", 0.9, 0.1))
-readr::write_csv(eggs, "data/eggs.csv")
+eggs$n.eggs <- VGAM::rzipois(n, lambda = 0.5*diameter, pstr0 = ifelse(eggs$old == 'yes', 0.9, 0.1))
+readr::write_csv(eggs, 'data/eggs.csv')
 
 ```
 
 
 ```{r echo=1}
-eggs <- read.csv("data/eggs.csv")
+eggs <- read.csv('data/eggs.csv')
 kable(head(eggs, n = 3))
 ```
 
@@ -85,7 +85,7 @@ kable(head(eggs, n = 3))
 
 ## How many eggs in nests?
 
-```{r out.width="80%"}
+```{r out.width='80%'}
 hist(eggs$n.eggs, breaks = length(unique(eggs$n.eggs)))
 ```
 
@@ -130,8 +130,8 @@ summary(eggs.poi)
 ## Visualising the fitted Poisson GLM
 
 ```{r}
-library("visreg")
-visreg(eggs.poi, xvar = "diameter", by = "old")
+library('visreg')
+visreg(eggs.poi, xvar = 'diameter', by = 'old')
 ```
 
 
@@ -139,16 +139,16 @@ visreg(eggs.poi, xvar = "diameter", by = "old")
 
 Simulate data from fitted model (**yrep**) and compare with observed data (**y**)
 
-```{r echo=TRUE, out.width="80%"}
-library("performance")
-pp_check(eggs.poi)
+```{r echo=TRUE, out.width='80%'}
+library('easystats')
+check_predictions(eggs.poi)
 ```
 
 
 ## Checking Poisson GLM with DHARMa
 
 ```{r echo=TRUE}
-library("DHARMa")
+library('DHARMa')
 eggs.poi.res <- simulateResiduals(eggs.poi, plot = TRUE)
 ```
 
@@ -189,9 +189,9 @@ For occupied nests:
   > Number of eggs ~ Nest diameter \hspace{1cm} (Poisson)
 
 ```{r echo = TRUE}
-library("glmmTMB")
+library('glmmTMB')
 eggs.zip <- glmmTMB(n.eggs ~ diameter, 
-                    family = "poisson", 
+                    family = 'poisson', 
                     ziformula = ~ old, 
                     data = eggs)
 ```
@@ -208,7 +208,7 @@ summary(eggs.zip)
 ## Checking ZIP model
 
 ```{r echo=TRUE}
-pp_check(eggs.zip)
+check_predictions(eggs.zip)
 ```
 
 
@@ -221,7 +221,7 @@ eggs.zip.res <- simulateResiduals(eggs.zip, plot = TRUE)
 
 ## Checking ZIP model with DHARMa
 
-```{r echo=TRUE, out.width="100%"}
+```{r echo=TRUE, out.width='100%'}
 testZeroInflation(eggs.zip.res)
 ```
 
@@ -241,7 +241,7 @@ testDispersion(eggs.zip.res)
 
 ```{r echo=TRUE}
 eggs.zinb <- glmmTMB(n.eggs ~ diameter, 
-                     family = "nbinom2", 
+                     family = 'nbinom2', 
                      ziformula = ~ old, 
                      data = eggs)
 ```
@@ -261,7 +261,7 @@ summary(eggs.zinb)
 \scriptsize
 
 ```{r echo=TRUE}
-library("parameters")
+library('parameters')
 compare_models(eggs.poi, eggs.zip, eggs.zinb)
 ```
 
@@ -271,7 +271,7 @@ compare_models(eggs.poi, eggs.zip, eggs.zinb)
 \footnotesize
 
 ```{r echo=TRUE}
-library("performance")
+library('performance')
 compare_performance(eggs.poi, eggs.zip, eggs.zinb)
 ```
 
@@ -289,8 +289,8 @@ Many people not sick (0 hives)
 Those sick, have many hives (>1)
 
 
-```{r out.width="30%"}
-include_graphics("images/hives.png")
+```{r out.width='30%'}
+include_graphics('images/hives.png')
 ```
 
 
@@ -331,13 +331,13 @@ summary(n.hives)
 hives$n.hives <- 0
 hives$n.hives[exposed] <- n.hives
 
-write_csv(hives, "data/hives.csv")
+write_csv(hives, 'data/hives.csv')
 ```
 
 \footnotesize
 
 ```{r echo=1}
-hives <- read.csv("data/hives.csv")
+hives <- read.csv('data/hives.csv')
 summary(hives)
 ```
 
@@ -384,14 +384,15 @@ summary(hives.poi)
 hives.poi.vr <- glm(n.hives ~ vaccinated * age +  offset(log(area.cm2)),
                  data = hives,
                  family = poisson)
-visreg(hives.poi.vr, xvar = "age", by = "vaccinated")
+visreg(hives.poi.vr, xvar = 'age', by = 'vaccinated')
 ```
 
 
 ## Checking Poisson GLM
 
+\scriptsize
 ```{r echo=TRUE}
-pp_check(hives.poi)
+check_predictions(hives.poi)
 ```
 
 
@@ -438,7 +439,7 @@ summary(hives.hur)
 ## Checking hurdle model
 
 ```{r echo=TRUE}
-pp_check(hives.hur)
+check_predictions(hives.hur)
 ```
 
 
