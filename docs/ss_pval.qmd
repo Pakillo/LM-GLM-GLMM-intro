@@ -1,0 +1,55 @@
+---
+title: "p-value depends on sample size"
+author: "Francisco Rodríguez-Sánchez"
+engine: knitr
+format: html
+toc: false
+filters:
+  - webr
+webr: 
+  # packages: ['ggplot2', 'patchwork']
+  # autoload-packages: true
+  channel-type: "post-message"
+---
+
+
+We have simulated two groups, one with mean 10 and the other with mean 12. That is, **the average difference between groups is 2 units**. Both groups have sd = 5.
+
+```{webr-r}
+#| autorun: true
+a <- rnorm(10000, 10, 5)
+b <- rnorm(10000, 12, 5)
+
+plot(density(a), col = "steelblue", main = NA, lwd = 3)
+lines(density(b), col = "orangered", lwd = 3)
+```
+
+**How does sample size affect the p-value** when testing for differences between both groups?
+
+Choose a **sample size** per group and see the **resulting p-value** from a t-test:
+
+```{webr-r}
+#| out.width: '95%'
+n <- 3    # sample size per group
+
+a.sample <- sample(a, n)
+b.sample <- sample(b, n)
+
+t.test(a.sample, b.sample)
+```
+
+Here we show all the resulting p-values with **sampling sizes ranging from 3 to 1000**:
+
+```{webr-r}
+#| out.width: '95%'
+
+n <- 3:1000
+pvalue <- vector(mode = "numeric", length = 998)
+for (i in n) {
+  a.sample <- sample(a, i)
+  b.sample <- sample(b, i)
+  pvalue[i-2] <- t.test(a.sample, b.sample)$p.value
+}
+
+plot(n, pvalue)
+```
