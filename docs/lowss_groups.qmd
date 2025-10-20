@@ -1,0 +1,76 @@
+---
+title: "Low sample sizes are very sensitive to random noise"
+author: "Francisco Rodríguez-Sánchez"
+engine: knitr
+format: html
+toc: false
+filters:
+  - webr
+webr: 
+  # packages: ['COUNT', 'visreg', 'easystats', 'patchwork', 'emmeans']
+  # autoload-packages: true
+  channel-type: "post-message"
+---
+
+We are investigating if there is sexual dimorphism in size in one animal species. That is, **if animals of one sex (e.g. females) are heavier than animals of the other sex** (e.g. males). Or, in contrast, both sexes have similar weights.
+
+## Simulate truth 
+
+By now, let's assume that there are **no differences** between sexes, and the entire population is composed of 100 animals, with equal numbers of males and females (i.e. 50 males and 50 females). The weight of each sex will be drawn randomly from a Normal distribution with mean 1000 g and sd = 50 g:
+
+
+```{webr-r}
+set.seed(4)
+
+males <- rnorm(n = 50, mean = 1000, sd = 50)
+females <- rnorm(n = 50, mean = 1000, sd = 50)
+```
+
+
+
+## Sample
+
+Now we are going to **sample randomly n individuals** from the population (half will be males, half females) and we will compare their weights.
+
+```{webr-r}
+n <- 20    # total number of individuals captured
+
+males.sample <- sample(males, size = n/2)
+females.sample <- sample(females, size = n/2)
+```
+
+These are the weights from males:
+
+```{webr-r}
+summary(males.sample)
+```
+
+And females:
+
+```{webr-r}
+summary(females.sample)
+```
+
+
+## Test for differences
+
+Do sexes have different weights? Let's do a t.test:
+
+
+```{webr-r}
+t.test(males.sample, females.sample)
+```
+
+Remember that we have simulated the truth here: no real differences among sexes. What's going on here?
+
+
+## Play yourself
+
+- What happens if you increase/decrease the sample size?
+
+- What happens if you simulate true differences between sexes? How is sample size related to the ability to detect true differences?
+
+
+
+
+
