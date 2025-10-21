@@ -3,7 +3,7 @@ title: 'Variable and model selection'
 author: 'Francisco Rodríguez-Sánchez'
 institute: 'https://frodriguezsanchez.net'
 aspectratio: 43  # use 169 for wide format
-fontsize: 10pt
+fontsize: 12pt
 output: 
   binb::metropolis:
     keep_tex: no
@@ -55,12 +55,10 @@ knit_hooks$set(tinycode = function(before, options, envir) {
 
 ## Overfitting and balanced model complexity
 
-- On one hand, we want to **maximise fit**.
+On one hand, we want to **maximise fit**.
 
-- On the other hand, we want to **avoid overfitting** and overly complex models.
+On the other hand, we want to **avoid overfitting** and overly complex models.
 
-
-## Overfitting and balanced model complexity
 
 ```{r simuldata, echo=FALSE}
 x <- seq(1:10)
@@ -95,7 +93,6 @@ abline(m3, col='red', lwd=2)
 ```
 :::
 ::::::::::::::
-
 
 
 
@@ -154,11 +151,11 @@ $$
 
 * **K = number of parameters** (penalisation for model complexity)
 
-* Lower is better
+* **Lower is better**
 
-* AIC biased towards complex models.
+* AIC **biased** towards complex models.
 
-* AICc recommended with 'small' sample sizes (n/p < 40). But see [Richards 2005](http://www.esajournals.org/doi/pdf/10.1890/05-0074)
+* **AICc** recommended with 'small' sample sizes (n/p < 40). But see [Richards 2005](http://www.esajournals.org/doi/pdf/10.1890/05-0074)
 
 
 
@@ -169,9 +166,77 @@ $$
 
 * No information criteria is panacea: all have problems.
 
-* They estimate *average* out-of-sample prediction error. But errors can differ substantially within dataset.
+* They estimate **average** out-of-sample prediction error. But errors can differ substantially within dataset.
 
 * Sometimes better models rank poorly (e.g. see [Gelman et al. 2013](https://doi.org/10.1007/s11222-013-9416-2)). Combine with **thorough model checks**.
+
+* Predictive criteria don't help for **causal inference**.
+
+
+# Predictive criteria don't help for causal inference
+
+```{r}
+library(ggplot2)
+library(ggdag)
+dagg <- dagify(
+  seeds ~ plant.size + flower.size + bees,
+  flower.size ~ plant.size,
+  bees ~ flower.size,
+  beetles ~ flower.size + seeds,
+  coords = data.frame(name = c('plant.size', 'flower.size', 'seeds', 'bees', 'beetles'),
+                      x = c(1, 0, 2, 1, 1),
+                      y = c(1, 0, 0, -1, -2)
+  ),
+  exposure = 'flower.size', 
+  outcome = 'seeds'
+) 
+
+fulldag <- ggplot(dagg, aes_dag()) +
+  geom_dag(use_nodes = FALSE, size = 2, text_col = 'black', text_size = 6) + 
+  theme_dag_blank() +
+  annotate('text', x = 1, y = 0.2, label = '1', size = 8) +
+  annotate('text', x = 1.55, y = 0.6, label = '1', size = 8) +
+  annotate('text', x = 1.45, y = -0.4, label = '10', size = 8) +
+  annotate('text', x = 1.5, y = -1.3, label = '0.1', size = 8) +
+  annotate('text', x = 0.5, y = -1.3, label = '1', size = 8) +
+  annotate('text', x = 0.55, y = -0.4, label = '0.5', size = 8) +
+  annotate('text', x = 0.45, y = 0.6, label = '0.1', size = 8) 
+fulldag
+```
+
+```{r include=FALSE}
+set.seed(123)
+n <- 100
+plant.size <- rnorm(n, mean = 100, sd = 20)  # confounder
+flower.size <- rnorm(n, 0.1*plant.size, sd = 2)  # exposure
+
+bees <- round(rnorm(n, 0.5*flower.size, sd = 1)) ## mediator
+seeds <- round(rnorm(n, 1*flower.size + 10*bees + 1*plant.size, sd = 20))  # outcome
+
+beetles <- round(rnorm(n, 1*flower.size + 0.1*seeds, sd = 2))  ## collider
+
+sunflower <- data.frame(plant.size, flower.size, bees, beetles, seeds)
+
+# models
+m.flower <- lm(seeds ~ flower.size, data = sunflower)
+m.flower.plant <- lm(seeds ~ flower.size + plant.size, data = sunflower)
+m.flower.plant.bees <- lm(seeds ~ flower.size + plant.size + bees, data = sunflower)
+m.flower.plant.bees.beetles <- lm(seeds ~ flower.size + plant.size + bees + beetles, data = sunflower)
+```
+
+## Predictive criteria don't help to choose correct causal model
+
+Making good predictions doesn't require accurate causal model
+
+```{r}
+performance::compare_performance(m.flower, m.flower.plant, m.flower.plant.bees, m.flower.plant.bees.beetles,
+                    metrics = c('AIC', 'R2'), verbose = FALSE) |> 
+  dplyr::select(-Model, -AIC_wt) |> 
+  kable(digits = 1, col.names = c('Model', 'AIC', 'R2'))
+```
+
+**'Best model' (based on AIC or R2) not good for causal inference**
+
 
 
 
@@ -182,15 +247,11 @@ $$
 
 * Choose variables based on **background knowledge**, rather than throwing plenty of them in a fishing expedition.
 
-* Propose single global model or small set (< 10 - 20) of **reasonable** candidate models.
+* **Avoid** (forward) **stepwise** methods!
+
+* Propose **single global model** or small set (< 10 - 20) of **reasonable** candidate models.
 
 * Number of variables **balanced with sample size** (e.g. at least 10 - 30 obs per param)
-
-* Assess collinearity between predictors ([Dormann et al 2013](https://doi.org/10.1111/j.1600-0587.2012.07348.x))
-    * If |r| > 0.5 - 0.7, consider leaving one variable out, but keep it in mind when interpreting model results.
-    * Or combine 2 or more in a synthetic variable (e.g. water deficit ~ Temp + Precip).
-    * Many methods available, e.g. sequential, ridge regression... 
-    * Measurement error can seriously complicate things (Biggs et al 2009; Freckleton 2011)
     
 * For predictors with large effects, **consider interactions**.
     
@@ -224,13 +285,173 @@ curve(0.7*x^0.3, ylab='y', las=1)
 
 # Removing predictors
 
+
+
+## Variance Inflation Factor (VIF) and collinearity
+
+- Model w/ highly correlated predictors -> parameter **uncertainty** will increase (SE)
+
+- VIF > 1 -> multicollinearity
+
+- VIF > 5 or 10 indicate strong collinearity
+
+- Should we remove highly collinear predictors?
+
+
+## VIF and collinearity
+
+[Collinearity isn't a disease that needs curing](https://doi.org/10.15626/MP.2021.2548)
+
+[The Meaning of Multiple Regression and the Non-Problem of Collinearity](https://doi.org/10.3998/ptpbio.16039257.0010.003)
+
+[The VIF Score. What is it Good For? Absolutely Nothing](https://doi.org/10.1177/10944281231216381)
+
+[Additional caution regarding rules of thumb for VIF](https://doi.org/10.1007/s11135-024-01980-0)
+
+
+<!-- * Assess collinearity between predictors ([Dormann et al 2013](https://doi.org/10.1111/j.1600-0587.2012.07348.x))
+    * If |r| > 0.5 - 0.7, consider leaving one variable out, but keep it in mind when interpreting model results.
+    * Or combine 2 or more in a synthetic variable (e.g. water deficit ~ Temp + Precip).
+    * Many methods available, e.g. sequential, ridge regression... 
+    * Measurement error can seriously complicate things (Biggs et al 2009; Freckleton 2011)  -->
+
+
+## Removing predictors
+
+- If **predictive** goal, just consider predictive performance
+
+- If **explanatory** goal, consider causal structure of your problem (DAG)
+
+```{r out.width='50%'}
+dagg <- dagify(
+  response ~ predictor + confounder,
+  predictor ~ confounder,
+  coords = data.frame(name = c('confounder', 'predictor', 'response'),
+                      x = c(1, 0, 2),
+                      y = c(1, 0, 0)
+  ),
+  exposure = 'predictor', 
+  outcome = 'response'
+) 
+
+ggplot(dagg, aes_dag()) +
+  geom_dag(use_nodes = FALSE, size = 2, text_col = 'black', text_size = 6) + 
+  theme_dag_blank() 
+```
+
+
+
 ## Stepwise regression has many problems
 
-* Whittingham et al. (2006) Why do we still use stepwise modelling in ecology and behaviour? J. Animal Ecology.
+* Whittingham et al. (2006) **Why do we still use** stepwise modelling in ecology and behaviour? J. Animal Ecology.
 
-* Mundry & Nunn (2009) Stepwise Model Fitting and Statistical Inference: Turning Noise into Signal Pollution. Am Nat.
+* Mundry & Nunn (2009) Stepwise Model Fitting and Statistical Inference: **Turning Noise into Signal Pollution**. Am Nat.
 
 * This includes `stepAIC` (e.g. Dahlgren 2010; Burnham et al 2011; Hegyi & Garamszegi 2011).
+
+
+## Simpler (best) model provides biased causal estimates
+
+Simulate response depending on two correlated variables \tiny ([Hartig 2022](https://theoreticalecology.github.io/AdvancedRegressionModels/3C-ModelSelection.html#problems-with-model-selection-for-inference))
+
+\normalsize
+```{r echo=2:4, out.width='70%'}
+set.seed(123)
+x1 = runif(100)
+x2 = 0.8*x1 + 0.2*runif(100)
+y = x1 + x2 + rnorm(100)
+df <- data.frame(y, x1, x2)
+# kable(head(df), digits = 1)
+
+g1 <- ggplot(df) +
+  geom_point(aes(x1, y))
+
+g2 <- ggplot(df) +
+  geom_point(aes(x2, y))
+
+library(patchwork)
+g1 + g2
+```
+
+
+## Simpler (best) model provides biased causal estimates
+
+Simulate response depending on two correlated variables \tiny ([Hartig 2022](https://theoreticalecology.github.io/AdvancedRegressionModels/3C-ModelSelection.html#problems-with-model-selection-for-inference))
+
+\scriptsize
+```{r echo=1}
+fullmodel = lm(y ~ x1 + x2)
+summary(fullmodel)
+```
+
+## Simpler (best) model provides biased causal estimates
+
+\scriptsize
+
+```{r echo=1}
+simplemodel = MASS::stepAIC(fullmodel, trace = 0)
+summary(simplemodel)
+```
+
+
+## Automated model selection (dredge)
+
+Simulating data with 10 random predictors
+
+\scriptsize
+```{r echo=3}
+library('MuMIn')
+set.seed(8)
+dat <- data.frame(y = rnorm(100), 
+                  x = matrix(runif(1000), ncol = 10))
+kable(head(dat), digits = 1)
+```
+
+
+## Automated model selection
+
+Running `MuMIn::dredge` with 10 random predictors
+
+```{r echo=c(2:3)}
+options(na.action = 'na.fail')
+full.model <- lm(y ~ ., data = dat)
+dd <- MuMIn::dredge(full.model)
+```
+
+**Best model:**
+
+```{r}
+parameters::parameters(get.models(dd, 1)[[1]], verbose = FALSE, ci = NULL) |> 
+  dplyr::select(-t, -df_error) |> 
+  kable(digits = 2)
+```
+
+
+## Extract from `dredge` help
+
+*“Let the computer find out” is a poor strategy and usually reflects the fact that the researcher did not bother to think clearly about the problem of interest and its scientific setting*
+
+\scriptsize \hfill Burnham and Anderson 2002
+
+
+## Variable importance in machine learning
+
+Random forest on **100 random predictors**
+
+\scriptsize
+
+```{r echo=-c(1,2), out.width='80%'}
+library(randomForest)
+set.seed(2)
+
+dat <- data.frame(x = matrix(runif(50000), ncol = 100), y = runif(500))
+rfm <- randomForest::randomForest(y ~ ., data = dat)
+varImpPlot(rfm)
+```
+
+[Ben Bond-Lamberty](https://gist.github.com/bpbond/8bbb7aa0d0dc845e54b243ae42f1d0f3)
+
+
 
 
 ## Other common bad practices
@@ -277,7 +498,6 @@ curve(0.7*x^0.3, ylab='y', las=1)
 ## Summary
 
 1. Choose meaningful variables
-    + Beware collinearity
     + Keep good n/p ratio
 
 2. Generate global model or (small) set of candidate models

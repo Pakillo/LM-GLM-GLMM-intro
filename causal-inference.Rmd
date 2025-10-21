@@ -72,14 +72,6 @@ table_model <- function(model) {
 ```
 
 
-```{r out.width='20%'}
-include_graphics('images/warning.png')
-```
-
-\Large \center Self-learnt stuff ahead
-
----
-
 \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{images/sunflower.jpg}
 
 ---
