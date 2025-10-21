@@ -247,6 +247,8 @@ $$
 
 ::: nonincremental:::
 
+- Independent
+
 - Normal
 
 - Centred on 0 (no bias)
