@@ -53,7 +53,7 @@ knit_hooks$set(tinycode = function(before, options, envir) {
 
 
 
-## How I was taught statistics
+## Statistics as a maze
 
 ```{r out.width='100%'}
 include_graphics('images/tests_diagram.png')
@@ -156,6 +156,17 @@ regression
 are special cases of GLM
 
 ---
+
+```{r out.width='100%'}
+include_graphics('images/lindeloev.png')
+```
+
+\tiny https://lindeloev.github.io/tests-as-linear/
+
+
+
+---
+
 
 \Large
 
