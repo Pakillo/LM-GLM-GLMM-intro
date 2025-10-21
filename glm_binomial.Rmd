@@ -146,7 +146,7 @@ Bolker 2008
 
 
 
-## Bernouilli - Binomial distribution (Logistic regression) 
+## Bernoulli - Binomial distribution (Logistic regression) 
 
 Response variable: **Yes/No** (e.g. survival, sex, presence/absence)
 
@@ -223,17 +223,21 @@ titanic |>
 plot(factor(survived) ~ factor(class), data = titanic)
 ```
 
+
+::: hide :::
+
 ## Mosaic plots (ggplot2)
 
 \footnotesize
 
-```{r echo=TRUE, out.width='80%'}
+```{r echo=TRUE, out.width='80%', eval=FALSE}
 library('ggmosaic')
 ggplot(titanic) +
   geom_mosaic(aes(x = product(survived, class))) +
   labs(x = '', y = 'Survived')
 ```
 
+:::
 
 
 ## Fitting GLMs in R: `glm`
@@ -346,21 +350,12 @@ modelsummary(tit.glm, output = 'markdown')
 ```
 
 
+::: hide :::
 ## Visualising model: `effects` package
 
 ```{r effects_plot, echo=TRUE}
 plot(allEffects(tit.glm))
 ```
-
-
-## Visualising model: `visreg` package
-
-```{r echo=2}
-library('visreg')
-visreg(tit.glm, scale = 'response', rug = FALSE)
-```
-
-
 
 ## Visualising model: `sjPlot` package
 
@@ -369,6 +364,15 @@ library(ggplot2)
 library(sjPlot)
 theme_set(theme_minimal(base_size = 16))
 sjPlot::plot_model(tit.glm, type = 'eff', terms = 'class')
+```
+
+:::
+
+## Visualising model: `visreg` package
+
+```{r echo=2}
+library('visreg')
+visreg(tit.glm, scale = 'response', rug = FALSE)
 ```
 
 
@@ -700,6 +704,16 @@ Are age effects dependent on sex?
 
 # Logistic regression for proportion data
 
+## Why not modelling proportion?
+
+\Large
+
+- 1/4 = 0.25
+
+- 250/1000 = 0.25
+
+- Sample size information is lost!
+
 
 ## Read Titanic data in different format
 
@@ -757,7 +771,13 @@ Same results!
 estimate_means(prop.glm)
 ```
 
+## Contrasts in survival among classes
 
+\footnotesize
+
+```{r}
+estimate_contrasts(prop.glm)
+```
 
 
 
