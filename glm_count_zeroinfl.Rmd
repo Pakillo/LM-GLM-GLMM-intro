@@ -118,6 +118,12 @@ eggs.poi <- glm(n.eggs ~ old * diameter,
               family = poisson)
 ```
 
+which corresponds to 
+
+```{r echo=FALSE}
+equatiomatic::extract_eq(eggs.poi)
+```
+
 
 ## Trying Poisson GLM
 
@@ -235,7 +241,7 @@ testDispersion(eggs.zip.res)
 
 ## Modelling egg number as Zero-Inflated Negative Binomial (ZINB)
 
-(If there were overdispersion with Poisson)
+(If there was overdispersion with Poisson)
 
 \vspace{5mm}
 
@@ -366,6 +372,12 @@ hives.poi <- glm(n.hives ~ vaccinated * age,
                  offset = log(area.cm2),
                  data = hives,
                  family = poisson)
+```
+
+which corresponds to 
+
+```{r echo=FALSE}
+equatiomatic::extract_eq(hives.poi)
 ```
 
 
