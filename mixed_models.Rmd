@@ -230,15 +230,15 @@ Mixed models estimate **varying parameters**
 
 ## Random vs Fixed effects?
 
-1. Fixed effects constant across individuals, random effects vary.
+1. Fixed effects **constant** across individuals, random effects **vary**.
 
-2. Effects are fixed if they are interesting in themselves; random if interest in the underlying population.
+2. Effects are fixed if they are **interesting** in themselves; random if interest in the underlying population.
 
-3. Fixed when sample exhausts the population; random when the sample is small part of the population.
+3. Fixed when sample **exhausts** the population; random when the sample is small part of the population.
 
-4. Random effect if it's assumed to be a realized value of random variable.
+4. Random effect if it's assumed to be a realized value of **random variable**.
 
-5. Fixed effects estimated using least squares or maximum likelihood; random effects estimated with shrinkage.
+5. Fixed effects estimated using least squares or maximum likelihood; random effects estimated with **shrinkage**.
 
 http://andrewgelman.com/2005/01/25/why_i_dont_use/
 
@@ -248,6 +248,8 @@ http://andrewgelman.com/2005/01/25/why_i_dont_use/
 - Varies by group
 
 - Variation estimated with **probability model**
+
+. . .
 
 Random effects are estimated with *partial pooling* (shrinkage, regularisation), while fixed effects are not
 (infinite variance).
@@ -324,9 +326,17 @@ tidy(mixed)
 
 \normalsize
 
-See also [broom.mixed](https://github.com/bbolker/broom.mixed)
+See [broom.mixed](https://github.com/bbolker/broom.mixed)
 
 
+## Results table
+
+\scriptsize
+
+```{r}
+library(modelsummary)
+modelsummary(mixed)
+```
 
 
 
@@ -455,6 +465,7 @@ $$
   \end{aligned}
 $$
 
+. . .
 
 Now 
 
@@ -504,7 +515,7 @@ head(trees.full)
 group.pred <- lmer(height ~ dbh + (1 | site) + temp, data = trees.full)
 summary(group.pred)
 ```
-\normalsize
+
 
 Too strong correlation of parameters!
 
@@ -527,7 +538,6 @@ Temperatures now referred as deviations from 18 ºC (close to average)
 group.pred <- lmer(height ~ dbh + (1 | site) + temp.c, data = trees.full)
 summary(group.pred)
 ```
-\normalsize
 
 
 
@@ -558,15 +568,31 @@ plot(sitedata$temp, coef(group.pred)$site[,1],
 ```
 
 
+## Results table
+
+\footnotesize
+
+```{r}
+modelsummary(group.pred)
+```
+
+
+## Model checking
+
+```{r}
+check_model(group.pred)
+```
+
+
 
 # Varying intercepts and slopes
 
 
 ## Varying intercepts and slopes
 
-- There is overall difference in height among sites (different intercepts)
+- There is overall **difference in height** among sites (different intercepts)
 
-- Relationship between DBH and Height varies among sites (different slopes)
+- **Relationship** between DBH and Height **varies** among sites (different slopes)
 
 ```{r echo=FALSE}
 df <- data.frame(dbh = seq(10, 50, by = 1), 
@@ -574,9 +600,9 @@ df <- data.frame(dbh = seq(10, 50, by = 1),
 ggplot(df) +
   aes(dbh, height) +
   geom_blank() +
-  geom_abline(intercept = 25, slope = 0.6) +
-  geom_abline(intercept = 40, slope = 0.1, colour = 'steelblue') +
-  geom_abline(intercept = 50, slope = -0.3, colour = 'orangered')
+  geom_abline(intercept = 25, slope = 0.6, linewidth = 2) +
+  geom_abline(intercept = 40, slope = 0.1, colour = 'steelblue', linewidth = 2) +
+  geom_abline(intercept = 50, slope = -0.3, colour = 'orangered', linewidth = 2)
   
 ```
 
@@ -591,7 +617,7 @@ equatiomatic::extract_eq(mixed.slopes)
 
 ## Varying intercepts and slopes
 
-\footnotesize
+\scriptsize
 ```{r echo = FALSE}
 summary(mixed.slopes)
 ```
@@ -604,10 +630,33 @@ coef(mixed.slopes)
 ```
 
 
+## Results table
+
+\scriptsize
+
+```{r}
+modelsummary(mixed.slopes)
+```
+
+
+## Visualising model: `visreg`
+
+```{r}
+visreg(mixed.slopes, xvar = "dbh", by = "site")
+```
+
+
 ## Visualising model: `sjPlot`
 
 ```{r}
 plot_model(mixed.slopes, type = 're')
+```
+
+
+## Model checking
+
+```{r}
+check_model(mixed.slopes)
 ```
 
 
@@ -632,7 +681,7 @@ ggplot(sleepstudy) +
 sleep <- lmer(Reaction ~ Days + (1+Days|Subject), data = sleepstudy)
 summary(sleep)
 ```
-\normalsize
+
 
 ## Varying intercepts and slopes (lme4)
 
@@ -712,7 +761,7 @@ summary(logis2)
 
 ## Fit multilevel logistic regression
 
-\scriptsize
+\tiny
 
 ```{r mixed_logis, echo=1}
 mixed.logis <- glmer(dead ~ dbh + (1|site), data=trees, family = binomial)
@@ -734,6 +783,7 @@ coef(mixed.logis)
 visreg(mixed.logis, xvar = 'dbh', by = 'site', scale = 'response')
 ```
 
+::: hide :::
 
 ## Visualising model: `sjPlot`
 
@@ -742,8 +792,6 @@ visreg(mixed.logis, xvar = 'dbh', by = 'site', scale = 'response')
 ```
 
 
-
-::: hide :::
 # Poisson multilevel regression
 
 :::
@@ -784,6 +832,8 @@ visreg(mixed.logis, xvar = 'dbh', by = 'site', scale = 'response')
 
 
 ## To read more about GLMM
+
+\footnotesize 
 
 https://bbolker.github.io/mixedmodels-misc/glmmFAQ.html
 
@@ -840,10 +890,10 @@ DHARMa::simulateResiduals(mod, plot = TRUE)
 ```
 
 
-- Starlings: body mass growth depending on nest type
+- **Starlings**: body mass growth depending on nest type
 
-- Mixed_binom: Species presence/absence ~ environment
+- **Mixed_binom**: Species presence/absence ~ environment
 
-- Mixed_count: Species counts ~ environment
+- **Mixed_count**: Species counts ~ environment
 
 
