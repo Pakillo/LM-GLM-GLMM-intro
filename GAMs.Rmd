@@ -103,7 +103,7 @@ head(isotopes)
 
 ```{r echo = 1:2}
 library('mgcv')
-m <- gam(d15N ~ s(Year, k = 15), data = isotopes, method = 'REML')
+m <- gam(d15N ~ s(Year), data = isotopes, method = 'REML')
 summary(m)
 ```
 
@@ -133,19 +133,51 @@ gam.check(m)
 ```
 
 
-::: hide :::
+## Checking fitted GAM
+
+\footnotesize
+
+```{r echo = TRUE, fig.show='hide'}
+gam.check(m)
+```
+
+## Increasing k
+
+\footnotesize
+
+```{r echo=TRUE, fig.show='hide'}
+m <- gam(d15N ~ s(Year, k = 12), data = isotopes, method = 'REML')
+gam.check(m)
+```
+
+## Increasing k
+
+\footnotesize
+
+```{r echo=TRUE, fig.show='hide'}
+m <- gam(d15N ~ s(Year, k = 15), data = isotopes, method = 'REML')
+gam.check(m)
+```
+
+## Visualising fitted GAM
+
+```{r echo = 2}
+visreg(m)
+```
+
+
 ## Checking fitted GAM
 
 ```{r echo = TRUE}
 testTemporalAutocorrelation(simulateResiduals(m), 
                             time = isotopes$Year)
 ```
-:::
+
 
 
 ## Including temporal autocorrelation
 
-\footnotesize
+\scriptsize
 
 ```{r echo = 1}
 mod <- gamm(d15N ~ s(Year, k = 15), data = isotopes,
@@ -225,6 +257,13 @@ visreg(mort.gam)
 gam.check(mort.gam)
 ```
 
+## Checking GAM
+
+\footnotesize
+
+```{r echo =T, fig.show='hide'}
+gam.check(mort.gam)
+```
 
 ## Comparing models
 
@@ -250,6 +289,35 @@ ggplot(sleepstudy) +
   facet_wrap(~Subject) 
 ```
 
+## Modelling reaction time with sleep deprivation (GAMM)
+
+\scriptsize
+
+```{r echo = 1}
+sgamm <- gam(Reaction ~ s(Days) + s(Subject, bs = "re"), data = sleepstudy, method = 'REML')
+summary(sgamm)
+```
+
+## Modelling reaction time with sleep deprivation (GAMM)
+
+```{r echo = T}
+visreg(sgamm, xvar = 'Days', by = 'Subject')
+```
+
+## Modelling reaction time with sleep deprivation (GAMM)
+
+```{r echo = T}
+gam.check(sgamm)
+```
+
+## Modelling reaction time with sleep deprivation (GAMM)
+
+\footnotesize
+
+```{r echo = T, fig.show='hide'}
+gam.check(sgamm)
+```
+
 
 ## Modelling reaction time with sleep deprivation (GAMM)
 
@@ -259,16 +327,41 @@ ggplot(sleepstudy) +
 sgamm <- gam(Reaction ~ s(Days, Subject, k = 3, bs = 'fs'), 
                    data = sleepstudy, method = 'REML')
 summary(sgamm)
-#gam.check(sleep.gamm)
-#coef(p)
 ```
-
-
 
 ## Modelling reaction time with sleep deprivation (GAMM)
 
 ```{r echo = T}
 visreg(sgamm, xvar = 'Days', by = 'Subject')
 ```
+
+## Modelling reaction time with sleep deprivation (GAMM)
+
+```{r echo = T}
+gam.check(sgamm)
+```
+
+## Modelling reaction time with sleep deprivation (GAMM)
+
+\footnotesize
+
+```{r echo = T, fig.show='hide'}
+gam.check(sgamm)
+```
+
+
+## To learn more
+
+- [Simon Wood's book](https://doi.org/10.1201/9781315370279)
+
+- [mgcv help](https://stat.ethz.ch/R-manual/R-devel/library/mgcv/html/00Index.html)
+
+- [G. Simpson's paper](https://doi.org/10.3389/fevo.2018.00149)
+
+- [G. Simpson's blog](https://fromthebottomoftheheap.net/)
+
+- [Noam Ross' course](https://noamross.github.io/gams-in-r-course/)
+
+- [HGAM paper](https://peerj.com/articles/6876/)
 
 
