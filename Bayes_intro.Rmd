@@ -234,15 +234,15 @@ title("Sample size = 100")
 
 ## Bayesian statistics in practice
 
-- Integrate information (prior)
+- Integrate information (**prior**)
 
-- Prior regularises unlikely estimates from data
+- Prior **regularises** unlikely estimates from data
 
-- Particularly important with limited sample sizes
+- Particularly important with **limited** sample sizes
 
-- Large dataset -> prior effect diminishes
+- Large dataset -> prior effect **diminishes**
 
-- Uncertainty / Propagate errors
+- **Uncertainty** / **Propagate errors**
 
 
 
@@ -328,7 +328,13 @@ https://distribution-explorer.github.io/
 Unreasonable prior
 
 ```{r echo=FALSE}
-plot(density(rnorm(1000, 0, 1000)), main='', xlab='Height (m)', cex = 3)
+library(ggplot2)
+# plot(density(rnorm(1000, 0, 1000)), main='', xlab='Height (m)', cex.axis = 3, cex.lab = 3)
+data.frame(h = rnorm(1000, 0, 1000)) |> 
+  ggplot() +
+  geom_density(aes(h)) +
+  theme_minimal(base_size = 32) +
+  labs(x = "Height (m)")
 ```
 :::
 
@@ -336,7 +342,12 @@ plot(density(rnorm(1000, 0, 1000)), main='', xlab='Height (m)', cex = 3)
 Reasonable prior
 
 ```{r echo=FALSE}
-plot(density(rnorm(1000, 2, 0.5)), main='', xlab='Height (m)', cex = 3)
+# plot(density(rnorm(1000, 2, 0.5)), main='', xlab='Height (m)', cex.axis = 3, cex.lab = 3)
+data.frame(h = rnorm(1000, 2, 0.5)) |> 
+  ggplot() +
+  geom_density(aes(h)) +
+  theme_minimal(base_size = 32) +
+  labs(x = "Height (m)")
 ```
 :::
 ::::::::::::::
@@ -357,15 +368,23 @@ priors <- c(
 
 ## Prior for intercept (average height of 25-cm diameter tree)
 
-```{r echo=T}
-plot(density(rnorm(1000, 25, 10)))
+```{r echo=F}
+data.frame(h = rnorm(1000, 25, 10)) |> 
+  ggplot() +
+  geom_density(aes(h)) +
+  theme_minimal(base_size = 30) +
+  labs(x = "Height (m)")
 ```
 
 
 ## Prior for slope
 
-```{r echo=T}
-plot(density(rnorm(1000, 0.5, 0.5)))
+```{r echo=F}
+data.frame(h = rnorm(1000, 0.5, 0.5)) |> 
+  ggplot() +
+  geom_density(aes(h)) +
+  theme_minimal(base_size = 30) +
+  labs(x = "slope (m/cm)")
 ```
 
 
@@ -374,7 +393,7 @@ plot(density(rnorm(1000, 0.5, 0.5)))
 ```{r echo=F}
 sig <- rnorm(10000, 0, 5)
 sigma <- na.omit(ifelse(sig < 0, NA, sig))
-hist(sigma, breaks = 30, probability = T)
+hist(sigma, breaks = 30, probability = T, cex.axis = 1.5)
 ```
 
 
