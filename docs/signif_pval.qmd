@@ -1,0 +1,62 @@
+---
+title: "A significant p-value does not mean we found a true difference"
+author: "Francisco Rodríguez-Sánchez"
+engine: knitr
+format: html
+toc: false
+filters:
+  - webr
+webr: 
+  packages: ['ggplot2', 'patchwork']
+  autoload-packages: true
+  channel-type: "post-message"
+---
+
+
+We are investigating if there are differences between two groups. We have simulated two groups with **no true differences**. What happens when you sample a limited number of individuals from each group and test for differences?
+
+Choose the sample size per group:
+
+```{webr-r}
+#| echo: false
+#| echo.line: 1
+#| out.width: '95%'
+
+n <- 5
+
+library(ggplot2)
+library(patchwork)
+
+set.seed(2)
+
+xdist <- rnorm(1000, 50, 15)
+ydist <- rnorm(1000, 50, 15)
+dist <- data.frame(group = rep(c("A", "B"), each = 1000), 
+                   value = c(xdist, ydist))
+p1 <- ggplot(dist) +
+  geom_density(aes(value, fill = group), alpha = 0.3) +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 100)) +
+  labs(title = "Two groups have same distribution") 
+
+xsamp <- sample(xdist, n)
+ysamp <- sample(ydist, n)
+samp <- data.frame(group = rep(c("A", "B"), each = n),
+                   value = c(xsamp, ysamp))
+
+tt <- t.test(xsamp, ysamp)
+
+p2 <- ggplot(samp) +
+  geom_histogram(aes(value, fill = group)) +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 100)) +
+  labs(title = paste0("Sampling ", n, " individuals from each group and making t-test"),
+       y = "count") +
+  annotate("text", x = 70, y = 3, hjust = 0, size = 8,
+           label = paste0("p = ", round(tt$p.value, 3)))
+
+p1/p2
+
+```
+
+

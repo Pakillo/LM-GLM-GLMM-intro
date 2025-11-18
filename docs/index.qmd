@@ -6,6 +6,14 @@ format: html
 
 Links to interactive tutorials (made with Quarto and webR):
 
+**p-values**
+
+- [small sample sizes](lowss_groups.html)
+
+- [p-values and sample size](ss_pval.html)
+
+- [significant p-values](signif_pval.html)
+
 **Linear Models**
 
 - [Interactive tutorial](lm_webR.html)
