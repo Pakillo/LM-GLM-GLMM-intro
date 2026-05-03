@@ -786,31 +786,25 @@ estimate_contrasts(prop.glm)
 
 ----
 
-Example dataset: [GDP and infant mortality](http://vincentarelbundock.github.io/Rdatasets/doc/car/UN.html)
+Example dataset: `survival_expt.csv`
 
 \vspace{3mm}
 
-Read `UN_GDP_infantmortality.csv`.
-
-\vspace{3mm}
-
-```{r read_gdp, echo = FALSE}
-#gdp <- read.csv('http://vincentarelbundock.github.io/Rdatasets/csv/car/UN.csv')
-gdp <- read.csv('data/UN_GDP_infantmortality.csv')
-names(gdp) <- c('country', 'mortality', 'gdp')
-summary(gdp)
+```{r surv_read, echo = TRUE}
+surv <- readr::read_csv('data/survival_expt.csv')
+head(surv)
 ```
 
 
-## Q: Is infant mortality related to GDP?
+## Q: Is survival related to environmental stress?
 
 https://pollev.com/franciscorod726
 
 
 ## Visualising data
 
-```{r gdp_eda}
-plot(mortality ~ gdp, data = gdp, main = 'Infant mortality (per 1000 births)')
+```{r surv_eda}
+plot(Survived ~ Stress, data = surv)
 ```
 
 
@@ -818,44 +812,30 @@ plot(mortality ~ gdp, data = gdp, main = 'Infant mortality (per 1000 births)')
 
 \footnotesize
 
-```{r gdp_glm, echo=1}
-gdp.glm <- glm(cbind(mortality, 1000 - mortality) ~ gdp, 
-               data = gdp, family = binomial)
-summary(gdp.glm)
+```{r surv_glm, echo=1}
+surv.glm <- glm(cbind(Survived, Died) ~ Stress, data = surv, family = binomial)
+summary(surv.glm)
 ```
-
-
-::: hide :::
-
-## Effects
-
-```{r gdp_effects, echo=T}
-allEffects(gdp.glm)
-```
-
-## Effects plot
-
-```{r gdp_effectsplot}
-plot(allEffects(gdp.glm))
-```
-
-:::
-
 
 
 ## Plot model using visreg:
 
-```{r gdp_visreg, echo=c(2,3)}
-library(visreg)
-visreg(gdp.glm, scale = 'response')
-points(mortality/1000 ~ gdp, data = gdp)
+```{r surv_visreg, echo=TRUE}
+visreg(surv.glm, scale = 'response')
+```
+
+
+## Check model (easystats)
+
+```{r}
+check_model(surv.glm)
 ```
 
 
 ## Residuals diagnostics with DHARMa
 
 ```{r echo=TRUE}
-simulateResiduals(gdp.glm, plot = TRUE)
+simulateResiduals(surv.glm, plot = TRUE)
 ```
 
 
@@ -877,7 +857,7 @@ $$
 ## Testing for overdispersion (DHARMa)
 
 ```{r echo = TRUE}
-simres <- simulateResiduals(gdp.glm, refit = TRUE)
+simres <- simulateResiduals(surv.glm, refit = TRUE)
 testDispersion(simres, plot = FALSE)
 ```
 
@@ -885,7 +865,7 @@ testDispersion(simres, plot = FALSE)
 ## Testing for overdispersion (easystats)
 
 ```{r echo = TRUE, message=FALSE}
-check_overdispersion(gdp.glm)
+check_overdispersion(surv.glm)
 ```
 
 
@@ -899,9 +879,8 @@ check_overdispersion(gdp.glm)
 \footnotesize 
 
 ```{r logreg_overdisp, echo=1}
-gdp.overdisp <- glm(cbind(mortality, 1000 - mortality) ~ gdp, 
-               data = gdp, family = quasibinomial)
-summary(gdp.overdisp)
+surv.overdisp <- glm(cbind(Survived, Died) ~ Stress, data = surv, family = quasibinomial)
+summary(surv.overdisp)
 ```
 
 
@@ -912,13 +891,13 @@ But standard errors (uncertainty) do!
 \scriptsize
 
 ```{r logreg_overdisp2, echo=TRUE}
-parameters(gdp.overdisp)
+parameters(surv.overdisp)
 ```
 
 \vspace{5mm}
 
 ```{r echo=T}
-parameters(gdp.glm)
+parameters(surv.glm)
 ```
 
 
@@ -929,170 +908,16 @@ parameters(gdp.glm)
 
 ::: {.column width='50%'}
 ```{r overdisp_plot1, echo=FALSE, out.width='100%'}
-visreg(gdp.glm, scale = 'response', main = 'Binomial')
-points(mortality/1000 ~ gdp, data = gdp, pch = 20)
+visreg(surv.glm, scale = 'response', main = 'Binomial')
 ```
 :::
 
 ::: {.column width='50%' }
 ```{r overdisp_plot2, echo=FALSE, out.width='100%'}
-visreg(gdp.overdisp, scale = 'response', main = 'Quasibinomial')
-points(mortality/1000 ~ gdp, data = gdp, pch = 20)
+visreg(surv.overdisp, scale = 'response', main = 'Quasibinomial')
 ```
 :::
 ::::::::::::::
-
-
-
-# Think about the shape of relationships
-
-
-## Think about the shape of relationships
-
-Not everything has to be linear...
-
-```{r}
-visreg(gdp.glm, ylab = 'Mortality (logit scale)')
-```
-
-
-## Residuals show non-linear pattern
-
-```{r echo=FALSE}
-library(ggResidpanel)
-resid_panel(gdp.glm)
-```
-
-
-## Calibration plot shows non-linear pattern
-
-```{r echo=FALSE}
-gdp.na <- na.omit(gdp)
-gdp.na$fit <- fitted(gdp.glm)
-plot(gdp.na$fit, gdp.na$mortality, 
-     xlab = 'Probability of mortality (predicted)',
-     ylab = 'Mortality (observed)')
-```
-
-
-## Calibration plot shows non-linear pattern
-
-```{r}
-gdp.na$mort.pred <- predict(gdp.glm, type = 'response')
-gdp.na$mort.prob <- gdp.na$mortality/1000
-calibration_plot(data = gdp.na, obs = 'mort.prob', pred = 'mort.pred', 
-                 x_lim = c(0,0.1), y_lim = c(0,0.1), nTiles = 10)
-```
-
-
-## Trying polynomial predictor (GDP + GDP^2^)
-
-:::::::::::::: {.columns align=center}
-
-::: {.column width='50%'}
-```{r echo=FALSE, out.width='100%'}
-visreg(gdp.overdisp, main = 'Mortality ~ GDP', ylab = 'Mortality (logit scale)')
-```
-:::
-
-::: {.column width='50%' }
-```{r echo=FALSE, out.width='100%'}
-gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ gdp + I(gdp*gdp), 
-               data = gdp, family = quasibinomial)
-visreg(gdp.overdisp2, main = 'Mortality ~ GDP + GDP^2', ylab = 'Mortality (logit scale)')
-```
-:::
-::::::::::::::
-
-
-
-
-
-
-## Think about the shape of relationships
-
-:::::::::::::: {.columns align=center}
-
-::: {.column width='50%'}
-```{r echo=FALSE, out.width='100%'}
-visreg(gdp.overdisp, main = 'Mortality ~ GDP', scale = 'response', ylab = 'Mortality')
-points(mortality/1000 ~ gdp, data = gdp, pch = 20)
-```
-:::
-
-::: {.column width='50%' }
-```{r echo=FALSE, out.width='100%'}
-gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ gdp + I(gdp*gdp), 
-               data = gdp, family = quasibinomial)
-visreg(gdp.overdisp2, main = 'Mortality ~ GDP + GDP^2', scale = 'response', ylab = 'Mortality')
-points(mortality/1000 ~ gdp, data = gdp, pch = 20)
-```
-:::
-::::::::::::::
-
-
-
-
-
-## Trying log(GDP)
-
-:::::::::::::: {.columns align=center}
-
-::: {.column width='50%'}
-```{r echo=FALSE, out.width='100%'}
-visreg(gdp.overdisp, main = 'Mortality ~ GDP', ylab = 'Mortality (logit scale)')
-```
-:::
-
-::: {.column width='50%' }
-```{r echo=FALSE, out.width='100%'}
-gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ log(gdp), 
-               data = gdp, family = quasibinomial)
-visreg(gdp.overdisp2, main = 'Mortality ~ log(GDP)', ylab = 'Mortality (logit scale)')
-```
-:::
-::::::::::::::
-
-
-## Trying log(GDP)
-
-:::::::::::::: {.columns align=center}
-
-::: {.column width='50%'}
-```{r echo=FALSE, out.width='100%'}
-visreg(gdp.overdisp, main = 'Mortality ~ GDP', scale = 'response', ylab = 'Mortality')
-points(mortality/1000 ~ gdp, data = gdp, pch = 20)
-```
-:::
-
-::: {.column width='50%' }
-```{r echo=FALSE, out.width='100%'}
-gdp.overdisp2 <- glm(cbind(mortality, 1000 - mortality) ~ log(gdp), 
-               data = gdp, family = quasibinomial)
-visreg(gdp.overdisp2, main = 'Mortality ~ log(GDP)', scale = 'response', ylab = 'Mortality')
-points(mortality/1000 ~ gdp, data = gdp, pch = 20)
-```
-:::
-::::::::::::::
-
-
-
-
-
-```{r eval=FALSE, echo=FALSE}
-## Trying Poisson
-m <- glm(mortality ~ log(gdp), data = gdp, family = quasipoisson)
-summary(m)
-visreg(m, scale = 'response')
-points(mortality ~ gdp, data = gdp)
-
-gdp.na <- na.omit(gdp)
-gdp.na$fit <- fitted(m)
-plot(gdp.na$fit, gdp.na$mortality, 
-     xlab = 'Probability of mortality (predicted)',
-     ylab = 'Mortality (observed)')
-```
-
 
 
 
