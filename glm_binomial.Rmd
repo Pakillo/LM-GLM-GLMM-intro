@@ -1102,7 +1102,6 @@ plot(gdp.na$fit, gdp.na$mortality,
 
 - `seedset.csv`: Comparing seed set among plants (Data from [Harder et al. 2011](https://datadryad.org/resource/doi:10.5061/dryad.0vf86nb1.2))
 
-- `soccer.csv`: Probability of scoring penalty depending on goalkeeper's team being ahead, behind or tied ([Roskes et al 2011](https://doi.org/10.1177%2F0956797611418677))
 
 
 # Moth predation
@@ -1243,25 +1242,3 @@ seedm <- glm(cbind(seeds, ovulecnt - seeds) ~ plant + pcmass, data = seed, famil
 plot(allEffects(seedm))
 ```
 
-
-# Probability of scoring penalty
-
-## Data on penalty shots
-
-```{r echo = TRUE}
-soccer <- read.csv('data/soccer.csv')
-soccer
-```
-
-Does probability of scoring penalty depends on match situation?
-
-https://pollev.com/franciscorod726
-
-
-## Probability of scoring depending on match situation
-
-```{r echo=FALSE}
-soccer.mod <- glm(cbind(Scored, Nshots - Scored) ~ GoalkeeperTeam, data = soccer, family = binomial)
-visreg(soccer.mod, scale = 'response', 
-       ylab = 'Probability of scoring')
-```
