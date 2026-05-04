@@ -831,6 +831,125 @@ visreg(mixed.logis, xvar = 'dbh', by = 'site', scale = 'response')
     - `y ~ x + (1 + x | group1) + (1 + x | group2)`
 
 
+# Heterogeneity bias
+
+## Predictor (temperature) correlates with groups (random site effects)
+
+```{r echo=FALSE, out.width = '100%'}
+set.seed(123)
+
+nsites <- 20
+ntrees <- 30
+
+df <- data.frame(
+  site = rep(1:nsites, each = ntrees),
+  tree = rep(1:ntrees, times = nsites))
+
+## Temperature around each tree
+df <- df |>
+  dplyr::group_by(site) |>
+  dplyr::mutate(tree.temp = rnorm(n = ntrees, mean = site, 3)
+  )
+
+# df |>
+#   dplyr::group_by(site) |>
+#   dplyr::summarise(mean(tree.temp))
+
+## Simulate tree height
+df <- df |>
+  dplyr::rowwise() |>
+  dplyr::mutate(tree.height = rnorm(n = 1, mean = 10 + 1*site + 0*tree.temp, sd = 2))
+
+df$site <- as.factor(df$site)
+
+readr::write_csv(df, "data/trees_bias.csv")
+
+# summary(df)
+
+library(ggplot2)
+ggplot(df) +
+  aes(tree.temp, tree.height, colour = site) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_minimal() +
+  labs(x = "Temperature around tree", y = "Tree height")
+
+```
+
+
+## Fitting a model with varying intercepts
+
+\footnotesize
+
+```{r echo=FALSE}
+library(glmmTMB)
+m <- glmmTMB(tree.height ~ tree.temp + (1 |site), data = df)
+summary(m)
+```
+
+## Fitting a model with varying intercepts
+
+\footnotesize
+
+```{r echo=TRUE}
+visreg(m, xvar = "tree.temp", by = "site", overlay = T, band = F, legend = F)
+```
+
+
+## Fitting a model with varying intercepts and slopes
+
+\footnotesize
+
+```{r echo=FALSE}
+m <- glmmTMB(tree.height ~ tree.temp + (1 + tree.temp |site), data = df)
+summary(m)
+```
+
+
+## Fitting a model with varying intercepts and slopes
+
+\footnotesize
+
+```{r echo=TRUE}
+visreg(m, xvar = "tree.temp", by = "site", overlay = T, band = F, legend = F)
+```
+
+## Do predictors vary within- and between groups?
+
+```{r echo=TRUE}
+performance::check_group_variation(m)
+```
+
+
+## Group-mean centering
+
+```{r echo=TRUE}
+df <- datawizard::demean(df, select = "tree.temp", by = "site")
+head(df)
+```
+
+## Model with site effects and temperature (between & within)
+
+\tiny
+
+```{r echo=1}
+m <- glmmTMB(tree.height ~ tree.temp_between + tree.temp_within + (1|site), data = df)
+summary(m)
+```
+
+## Model with site effects and temperature (between & within)
+
+```{r echo=TRUE}
+visreg(m, xvar = "tree.temp_between", by = "site")
+```
+
+## Model with site effects and temperature (between & within)
+
+```{r echo=TRUE}
+visreg(m, xvar = "tree.temp_within", by = "site")
+```
+
+
 ## To read more about GLMM
 
 \footnotesize 
