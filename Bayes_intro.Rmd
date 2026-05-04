@@ -115,9 +115,8 @@ abline(lm(height ~ dbh.c, data=trees), col='red', lwd=3)
 
 ::: {.column width='60%' }
 ```{r echo=FALSE}
-library(arm)
 simple.lm <- lm(height ~ dbh.c, data = trees)
-display(simple.lm)
+arm::display(simple.lm)
 ```
 :::
 ::::::::::::::
@@ -491,7 +490,7 @@ height ~ sex
 
 [Statistical Rethinking](https://xcelab.net/rm/)
 
-[Statistical rethinking with brms, ggplot2, and the tidyverse](https://bookdown.org/content/4857/)
+[Statistical rethinking with brms, ggplot2, and the tidyverse](https://solomon.quarto.pub/sr/)
 
 [Bayesian Population Analysis using WinBugs](https://www.sciencedirect.com/book/9780123870209/bayesian-population-analysis-using-winbugs)
 
