@@ -297,6 +297,8 @@ dagify(
 ```
 
 
+# Collider bias
+
 ## Colliders induce non-causal negative relation between treatment (*flower.size*) and outcome (*seeds*)
 
 ```{r}
@@ -316,6 +318,63 @@ include_graphics('images/colliderbias.png')
 ```
 
 \scriptsize \hfill Griffith et al 2020
+
+
+
+
+## Number of children is significant negative predictor of marital satisfaction
+
+The more children, the more unhappy couples are
+
+\vspace{1cm}
+
+```{r}
+dagify(Happiness ~ Children,
+  coords = data.frame(name = c('Children', 'Happiness'),
+                      x = c(1, 2),
+                      y = c(1, 1)
+  )
+) |>
+  ggplot(aes_dag()) +
+  geom_dag(use_nodes = FALSE, size = 2, text_col = 'black', text_size = 6) + 
+  theme_dag_blank()
+```
+
+
+
+
+
+## There is collider/selection bias
+
+Selection bias: data only include married couples (not divorced)
+
+And couples with children or happy are less likely to get divorced
+
+```{r out.width='70%'}
+dagify(
+  Happiness ~ Children,
+  Not.Divorced ~ Children,
+  Not.Divorced ~ Happiness,
+  coords = data.frame(name = c('Children', 'Happiness', 'Not.Divorced'),
+                      x = c(1, 2, 1.5),
+                      y = c(1, 1, 2)
+  )
+) |>
+  ggplot(aes_dag()) +
+  geom_dag(use_nodes = FALSE, size = 2, text_col = 'black', text_size = 6) + 
+  theme_dag_blank()
+```
+
+
+## Collider induces negative correlation between number of children and happiness
+
+```{r out.width='95%'}
+include_graphics('images/collider_divorce.png')
+```
+
+\scriptsize \hfill @ AnnaWysocki3
+
+
 
 
 ---
@@ -764,61 +823,5 @@ https://www.r-causal.org
 
 https://theeffectbook.net
 
-
-# Extras
-
-# Collider bias
-
-## Number of children is significant negative predictor of marital satisfaction
-
-The more children, the more unhappy couples are
-
-\vspace{1cm}
-
-```{r}
-dagify(Happiness ~ Children,
-  coords = data.frame(name = c('Children', 'Happiness'),
-                      x = c(1, 2),
-                      y = c(1, 1)
-  )
-) |>
-  ggplot(aes_dag()) +
-  geom_dag(use_nodes = FALSE, size = 2, text_col = 'black', text_size = 6) + 
-  theme_dag_blank()
-```
-
-
-
-
-
-## There is collider/selection bias
-
-Selection bias: data only include married couples (not divorced)
-
-And couples with children or happy are less likely to get divorced
-
-```{r out.width='70%'}
-dagify(
-  Happiness ~ Children,
-  Not.Divorced ~ Children,
-  Not.Divorced ~ Happiness,
-  coords = data.frame(name = c('Children', 'Happiness', 'Not.Divorced'),
-                      x = c(1, 2, 1.5),
-                      y = c(1, 1, 2)
-  )
-) |>
-  ggplot(aes_dag()) +
-  geom_dag(use_nodes = FALSE, size = 2, text_col = 'black', text_size = 6) + 
-  theme_dag_blank()
-```
-
-
-## Collider induces negative correlation between number of children and happiness
-
-```{r out.width='95%'}
-include_graphics('images/collider_divorce.png')
-```
-
-\scriptsize \hfill @ AnnaWysocki3
 
 
