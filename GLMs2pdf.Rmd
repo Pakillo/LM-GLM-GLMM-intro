@@ -7,9 +7,9 @@ fontsize: 10pt
 output: 
   binb::metropolis:
     keep_tex: no
-    incremental: yes
+    incremental: no
     fig_caption: no
-    pandoc_args: ["--lua-filter=hideslide.lua"]
+    pandoc_args: "--lua-filter=hideslide.lua"
 urlcolor: blue
 linkcolor: blue
 header-includes:
@@ -83,16 +83,6 @@ knit_hooks$set(tinycode = function(before, options, envir) {
 ```
 
 
-# Regression to the mean
-
-```{r child = 'regression-to-the-mean.Rmd'}
-```
-
-# Causal inference
-
-```{r child = 'causal-inference.Rmd'}
-```
-
 
 # Generalised Linear Models
 
@@ -108,16 +98,13 @@ knit_hooks$set(tinycode = function(before, options, envir) {
 ```
 
 
-# Modelling zero-inflated count data
-
-```{r child = 'glm_count_zeroinfl.Rmd'}
-```
-
 
 # Mixed / Multilevel models
 
 ```{r child = 'mixed_models.Rmd'}
 ```
+
+
 
 -----
 
@@ -133,6 +120,36 @@ knitr::include_graphics("images/flowchart.png")
 Source code and materials: https://github.com/Pakillo/LM-GLM-GLMM-intro    
     
 
+```{r}
+knitr::knit_exit()
+```
 
+# Bayesian modelling
+
+```{r child = 'Bayes_intro.Rmd'}
+```
+
+# Generalised Additive Models
+
+```{r child = 'GAMs.Rmd'}
+```
+
+
+# Causal inference
+
+```{r child = 'causal-inference.Rmd'}
+```
+
+
+# Regression to the mean
+
+```{r child = 'regression-to-the-mean.Rmd'}
+```
+
+
+# Modelling zero-inflated count data
+
+```{r child = 'glm_count_zeroinfl.Rmd'}
+```
 
 
