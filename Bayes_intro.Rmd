@@ -455,6 +455,21 @@ launch_shinystan(height.mod)
 ```
 
 
+## Prior sensitivity analysis
+
+```{r}
+library(priorsense)
+powerscale_sensitivity(height.mod)
+```
+
+
+## Prior sensitivity analysis
+
+```{r}
+powerscale_plot_dens(height.mod)
+```
+
+
 ## The Bayesian workflow
 
 ```{r out.width='70%'}
