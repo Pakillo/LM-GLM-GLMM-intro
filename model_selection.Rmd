@@ -384,6 +384,16 @@ fullmodel = lm(y ~ x1 + x2)
 summary(fullmodel)
 ```
 
+
+## Simpler (best) model provides biased causal estimates
+
+\footnotesize
+
+```{r}
+library('easystats')
+check_collinearity(fullmodel)
+```
+
 ## Simpler (best) model provides biased causal estimates
 
 \scriptsize
