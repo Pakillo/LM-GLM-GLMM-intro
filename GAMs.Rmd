@@ -239,7 +239,7 @@ visreg(mort.glm.log)
 
 ```{r echo = 1:2}
 library('mgcv')
-mort.gam <- gam(infant.mortality ~ s(log.gdp), family = nb, data = mort)
+mort.gam <- gam(infant.mortality ~ s(gdp), family = nb, data = mort)
 summary(mort.gam)
 ```
 
@@ -265,12 +265,46 @@ gam.check(mort.gam)
 gam.check(mort.gam)
 ```
 
+
+## Modelling infant mortality with a GAM (log gdp)
+
+\footnotesize
+
+```{r echo = 1:2}
+mort.gam.log <- gam(infant.mortality ~ s(log.gdp), family = nb, data = mort)
+summary(mort.gam.log)
+```
+
+
+## Modelling infant mortality with a GAM (log gdp)
+
+```{r}
+visreg(mort.gam.log)
+```
+
+
+## Checking GAM
+
+```{r echo =T}
+gam.check(mort.gam.log)
+```
+
+## Checking GAM
+
+\footnotesize
+
+```{r echo =T, fig.show='hide'}
+gam.check(mort.gam.log)
+```
+
+
+
 ## Comparing models
 
 \scriptsize
 ```{r echo =T}
 library('easystats')
-compare_performance(mort.glm, mort.glm.log, mort.gam)
+compare_performance(mort.glm, mort.glm.log, mort.gam, mort.gam.log)
 ```
 
 
